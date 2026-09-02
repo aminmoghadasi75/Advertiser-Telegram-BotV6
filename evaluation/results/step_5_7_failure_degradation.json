@@ -1,0 +1,93 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "scenariosTested": 12,
+  "scenariosHandledSafely": 12,
+  "results": [
+    {
+      "scenarioId": 1,
+      "scenarioName": "corrupted_state_string",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 2,
+      "scenarioName": "negative_lead_score",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 3,
+      "scenarioName": "nan_lead_score",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 4,
+      "scenarioName": "missing_history",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 5,
+      "scenarioName": "extremely_long_message",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 6,
+      "scenarioName": "corrupted_unicode_surrogates",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 7,
+      "scenarioName": "zero_width_character_flood",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 8,
+      "scenarioName": "null_promotion_config",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 9,
+      "scenarioName": "zero_max_turns",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 10,
+      "scenarioName": "negative_max_turns",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 11,
+      "scenarioName": "rapid_contradictory_intents",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    },
+    {
+      "scenarioId": 12,
+      "scenarioName": "missing_context_fields",
+      "handledSafely": true,
+      "stateCorrupted": false,
+      "promotionBypassed": false
+    }
+  ],
+  "allFailuresHandledSafely": true,
+  "status": "PASSED"
+}

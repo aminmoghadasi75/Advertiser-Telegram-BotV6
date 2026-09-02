@@ -1,0 +1,26 @@
+{
+  "step": "STEP_8_PERFORMANCE_AND_SCALABILITY_AUDIT",
+  "timestamp": "2026-08-21T22:19:11.230Z",
+  "benchmarkConfiguration": {
+    "totalTurnsEvaluated": 10000,
+    "batchSize": 10
+  },
+  "latencyMetricsMs": {
+    "average": 0.09815743730000132,
+    "p50": 0.08063300000003437,
+    "p95": 0.16184199999997873,
+    "p99": 0.2617119999999886,
+    "max": 20.179444999999987
+  },
+  "throughputTurnsPerSec": 9225.479908311643,
+  "observerTelemetryOverheadMs": 0.009150460299999417,
+  "memoryProfiling": {
+    "heapBeforeMB": "21.40",
+    "heapAfterMB": "33.60",
+    "heapDeltaMB": "12.20"
+  },
+  "determinismVerification": {
+    "bitIdenticalAcross5Runs": true,
+    "masterHash": "15b43f6439c89e816e3efbb786e48f7ccbbb57ca8007b48b99626e83f74cbe98"
+  }
+}

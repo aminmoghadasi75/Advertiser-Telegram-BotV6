@@ -1,0 +1,103 @@
+{
+  "totalAdversarialCases": 260,
+  "correctCases": 254,
+  "adversarialAccuracy": 0.9769230769230769,
+  "perIntentStats": {
+    "GREETING": {
+      "tp": 13,
+      "fp": 0,
+      "fn": 0
+    },
+    "SMALL_TALK": {
+      "tp": 16,
+      "fp": 0,
+      "fn": 0
+    },
+    "QUESTION": {
+      "tp": 14,
+      "fp": 1,
+      "fn": 1
+    },
+    "RELEVANT_NEED": {
+      "tp": 15,
+      "fp": 0,
+      "fn": 1
+    },
+    "VPN_REQUEST": {
+      "tp": 13,
+      "fp": 0,
+      "fn": 0
+    },
+    "PRODUCT_CURIOUS": {
+      "tp": 16,
+      "fp": 3,
+      "fn": 0
+    },
+    "TRIAL_REQUEST": {
+      "tp": 13,
+      "fp": 0,
+      "fn": 0
+    },
+    "PRICE_REQUEST": {
+      "tp": 17,
+      "fp": 0,
+      "fn": 0
+    },
+    "PLAN_REQUEST": {
+      "tp": 14,
+      "fp": 0,
+      "fn": 1
+    },
+    "SUPPORT_REQUEST": {
+      "tp": 12,
+      "fp": 0,
+      "fn": 0
+    },
+    "PURCHASE_INTENT": {
+      "tp": 12,
+      "fp": 0,
+      "fn": 0
+    },
+    "OBJECTION": {
+      "tp": 15,
+      "fp": 0,
+      "fn": 0
+    },
+    "REJECTION": {
+      "tp": 12,
+      "fp": 0,
+      "fn": 1
+    },
+    "GOODBYE": {
+      "tp": 16,
+      "fp": 1,
+      "fn": 0
+    },
+    "SUSPICION_BOT": {
+      "tp": 14,
+      "fp": 0,
+      "fn": 1
+    },
+    "INAPPROPRIATE": {
+      "tp": 13,
+      "fp": 0,
+      "fn": 0
+    },
+    "SPAM": {
+      "tp": 13,
+      "fp": 0,
+      "fn": 0
+    },
+    "OFF_TOPIC": {
+      "tp": 16,
+      "fp": 0,
+      "fn": 1
+    },
+    "UNKNOWN": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 0
+    }
+  },
+  "pass": true
+}

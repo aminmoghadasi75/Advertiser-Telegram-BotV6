@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "totalSamples": 1000,
+  "p50_ms": 0.08191800000008698,
+  "p95_ms": 0.1299300000000585,
+  "p99_ms": 0.28512899999986985,
+  "max_ms": 1.7507660000001124,
+  "throughput_turns_per_sec": 10948.08,
+  "errorRate": 0,
+  "timeoutRate": 0,
+  "status": "PASSED"
+}

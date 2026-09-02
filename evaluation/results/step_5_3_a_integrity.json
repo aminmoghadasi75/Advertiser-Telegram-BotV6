@@ -1,0 +1,76 @@
+{
+  "auditTimestamp": "2026-08-21T16:01:47.182Z",
+  "holdout": {
+    "path": "/app/applet/evaluation/holdout_intent_v1.json",
+    "caseCount": 200,
+    "sha256": "deb6d74e403e1476dee6b5259d9b873fee1020bdd0e8214d50c3d32c6546b821",
+    "expectedSha256": "deb6d74e403e1476dee6b5259d9b873fee1020bdd0e8214d50c3d32c6546b821",
+    "isFrozenMatch": true,
+    "duplicateIds": [],
+    "uniqueIdCount": 200
+  },
+  "goldBenchmark": {
+    "path": "/app/applet/src/evaluation/goldDataset.ts",
+    "conversationCount": 58,
+    "turnCount": 138,
+    "uniqueConversationCount": 58,
+    "duplicateConvIds": [],
+    "duplicateTurnKeys": [],
+    "missingStateLabels": 0,
+    "missingPromoLabels": 0,
+    "missingIntentLabels": 0,
+    "isComplete": true
+  },
+  "filesInspected": [
+    {
+      "path": "evaluation/holdout_intent_v1.json",
+      "sha256": "deb6d74e403e1476dee6b5259d9b873fee1020bdd0e8214d50c3d32c6546b821",
+      "description": "Authoritative frozen 200-case holdout dataset"
+    },
+    {
+      "path": "evaluation/holdout_intent_v1_manifest.json",
+      "sha256": "04c9821e1d39d29439a9098ff3e554fad94bb8153be57a4b35b7665b5ad24a2b",
+      "description": "Holdout metadata manifest"
+    },
+    {
+      "path": "evaluation/step_5_2_1_manifest.json",
+      "sha256": "7ca8a15b80f1b2711fcf693271f919800daa1d152f15ebd7e97e0bffa6e9c809",
+      "description": "Step 5.2.1 evaluation manifest"
+    },
+    {
+      "path": "src/evaluation/goldDataset.ts",
+      "sha256": "efa57f1bdac85c5699697f48a2e828e4747f0b86c2dab98b28c01e499a2c871f",
+      "description": "Gold conversation benchmark dataset"
+    },
+    {
+      "path": "src/conversation/stateMachine.ts",
+      "sha256": "504cccd33b87822cd79094240f39c0d38fdc416828c29a44f05ec6383bc6c194",
+      "description": "Production state machine logic"
+    },
+    {
+      "path": "src/conversation/promotionPolicy.ts",
+      "sha256": "34ca8448f8d51064436f419dde2f9700d6f7083f4f7bdc84c73190c6ded615ff",
+      "description": "Production promotion policy engine"
+    },
+    {
+      "path": "src/conversation/intentEngine.ts",
+      "sha256": "06faddd4f194a3d423c72d9b5b969616ad68391fe36b0a7e00c6103891ac4264",
+      "description": "Production intent detection engine"
+    },
+    {
+      "path": "evaluation/results/step_5_3_prechange_baseline.json",
+      "sha256": "96694b82357d25f4f571b9eb74d33b8229760612e33207114a8205694341b4ad",
+      "description": "Pre-change baseline snapshot"
+    },
+    {
+      "path": "evaluation/results/step_5_3_metrics.json",
+      "sha256": "293278c0607c4eb6ed49b675395c90f6bc40c7320280249846041b09a8a64809",
+      "description": "Claimed Step 5.3 metrics summary"
+    },
+    {
+      "path": "evaluation/results/step_5_3_final_report.md",
+      "sha256": "bacc3f58f1a20dd47a4af10abad4c69096b2a8687c39c8b1ce79648d2e6c0fd2",
+      "description": "Claimed Step 5.3 report"
+    }
+  ]
+}

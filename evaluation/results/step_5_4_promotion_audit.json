@@ -1,0 +1,15 @@
+{
+  "promotionPrecision": 1,
+  "promotionRecall": 1,
+  "prematureOfferRate": 0,
+  "missedOpportunityRate": 0,
+  "duplicateCtaRate": 0.04093567251461988,
+  "postRejectionPromoRate": 0,
+  "contextuallyInappropriateRate": 0,
+  "confusion": {
+    "truePositive": 202,
+    "falsePositive": 0,
+    "falseNegative": 0,
+    "trueNegative": 140
+  }
+}

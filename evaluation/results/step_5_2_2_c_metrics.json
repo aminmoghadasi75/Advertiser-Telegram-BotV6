@@ -1,0 +1,545 @@
+{
+  "metadata": {
+    "evaluationStep": "5.2.2-C",
+    "executionTimestamp": "2026-08-21T16:01:07.681Z",
+    "dataset": "holdout_intent_v1.json",
+    "datasetSha256": "deb6d74e403e1476dee6b5259d9b873fee1020bdd0e8214d50c3d32c6546b821",
+    "totalCases": 200,
+    "certificationVerdict": "BLOCKED_GATE_FAILURE"
+  },
+  "primaryClassificationMetrics": {
+    "totalSamples": 200,
+    "correctPredictions": 163,
+    "overallIntentAccuracy": 81.5,
+    "macroPrecision": 0.8278,
+    "macroRecall": 0.8463,
+    "macroF1": 0.8054,
+    "weightedPrecision": 0.857,
+    "weightedRecall": 0.815,
+    "weightedF1": 0.8113
+  },
+  "multiIntentMetrics": {
+    "multiIntentCasesCount": 66,
+    "exactMatchCount": 53,
+    "multiIntentExactMatchRate": 80.3,
+    "secondaryIntentPrecision": 0.803,
+    "secondaryIntentRecall": 0.803,
+    "secondaryIntentF1": 0.803,
+    "failedMultiIntentCount": 13
+  },
+  "safetyMetrics": {
+    "criticalIntentErrors": 0,
+    "criticalErrorCaseIds": [],
+    "rejectionCases": 14,
+    "rejectionFalseNegativeCount": 0,
+    "rejectionFNR": 0,
+    "rejectionRecall": 100,
+    "botSuspicionCases": 9,
+    "botSuspicionTruePositives": 9,
+    "botSuspicionRecall": 100,
+    "safetyCases": 27,
+    "safetyTruePositives": 27,
+    "safetyFalsePositives": 0,
+    "safetyFalseNegatives": 0,
+    "safetyPrecision": 1
+  },
+  "commercialSafetyMetrics": {
+    "taxonomy": "Commercial: [PRICE_REQUEST, TRIAL_REQUEST, PURCHASE_INTENT, SUPPORT_REQUEST, VPN_REQUEST, PLAN_REQUEST, PRODUCT_CURIOUS]",
+    "nonCommercialCount": 117,
+    "commercialFalsePositiveCount": 7,
+    "commercialFalsePositiveRate": 5.98,
+    "commercialFalsePositivesList": [
+      {
+        "caseId": "holdout_038",
+        "inputText": "برای کارهای یوتیوبم ویدیوها رو ۴k آپلود میکنم ولی با این پینگ نمیشه",
+        "expected": "RELEVANT_NEED",
+        "predicted": "PRODUCT_CURIOUS",
+        "confidence": 0.9,
+        "reasonCodes": [
+          "ACTIONABLE_COMMERCIAL_OVERRIDE",
+          "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+        ],
+        "topCandidates": [
+          {
+            "intent": "PRODUCT_CURIOUS",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "caseId": "holdout_039",
+        "inputText": "کل فیلترشکنام روی ایرانسل از کار افتاده واقعاً درمونده شدم",
+        "expected": "RELEVANT_NEED",
+        "predicted": "PRODUCT_CURIOUS",
+        "confidence": 0.9,
+        "reasonCodes": [
+          "ACTIONABLE_COMMERCIAL_OVERRIDE",
+          "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+        ],
+        "topCandidates": [
+          {
+            "intent": "PRODUCT_CURIOUS",
+            "score": 0.9
+          },
+          {
+            "intent": "RELEVANT_NEED",
+            "score": 0.88
+          }
+        ]
+      },
+      {
+        "caseId": "holdout_040",
+        "inputText": "آنلاین شاپ دارم نمیتونم به دایرکت مشتریام تو اینستاگرام برسم",
+        "expected": "RELEVANT_NEED",
+        "predicted": "PRODUCT_CURIOUS",
+        "confidence": 0.9,
+        "reasonCodes": [
+          "ACTIONABLE_COMMERCIAL_OVERRIDE",
+          "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+        ],
+        "topCandidates": [
+          {
+            "intent": "PRODUCT_CURIOUS",
+            "score": 0.9
+          }
+        ]
+      },
+      {
+        "caseId": "holdout_042",
+        "inputText": "توی شرکت اینترنت وای‌فای بشدت کنده و گیت‌هاب باز نمیشه",
+        "expected": "RELEVANT_NEED",
+        "predicted": "PRODUCT_CURIOUS",
+        "confidence": 0.9,
+        "reasonCodes": [
+          "ACTIONABLE_COMMERCIAL_OVERRIDE",
+          "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+        ],
+        "topCandidates": [
+          {
+            "intent": "PRODUCT_CURIOUS",
+            "score": 0.9
+          },
+          {
+            "intent": "RELEVANT_NEED",
+            "score": 0.88
+          }
+        ]
+      },
+      {
+        "caseId": "holdout_043",
+        "inputText": "برای ترید و صرافی بایننس به یه آیپی بدون قطعی نیاز دارم وگرنه حسابم بسته میشه",
+        "expected": "RELEVANT_NEED",
+        "predicted": "PRODUCT_CURIOUS",
+        "confidence": 0.9,
+        "reasonCodes": [
+          "ACTIONABLE_COMMERCIAL_OVERRIDE",
+          "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+        ],
+        "topCandidates": [
+          {
+            "intent": "GOODBYE",
+            "score": 0.94
+          },
+          {
+            "intent": "PRODUCT_CURIOUS",
+            "score": 0.9
+          },
+          {
+            "intent": "RELEVANT_NEED",
+            "score": 0.88
+          }
+        ]
+      },
+      {
+        "caseId": "holdout_049",
+        "inputText": "نت خونه ما رایتله از دیشب کلاً فیلترینگ شدید شده هیچی بالا نمیاد",
+        "expected": "RELEVANT_NEED",
+        "predicted": "PRODUCT_CURIOUS",
+        "confidence": 0.9,
+        "reasonCodes": [
+          "ACTIONABLE_COMMERCIAL_OVERRIDE",
+          "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+        ],
+        "topCandidates": [
+          {
+            "intent": "PRODUCT_CURIOUS",
+            "score": 0.9
+          },
+          {
+            "intent": "RELEVANT_NEED",
+            "score": 0.88
+          }
+        ]
+      },
+      {
+        "caseId": "holdout_050",
+        "inputText": "توی یوتیوب میخوام آموزش پایتون ببینم ولی ارور کانکشن میده",
+        "expected": "RELEVANT_NEED",
+        "predicted": "PRODUCT_CURIOUS",
+        "confidence": 0.9,
+        "reasonCodes": [
+          "ACTIONABLE_COMMERCIAL_OVERRIDE",
+          "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+        ],
+        "topCandidates": [
+          {
+            "intent": "PRODUCT_CURIOUS",
+            "score": 0.9
+          }
+        ]
+      }
+    ]
+  },
+  "robustnessSliceMetrics": {
+    "easyAccuracy": 86.44,
+    "mediumAccuracy": 73.61,
+    "hardAccuracy": 80,
+    "standaloneAccuracy": 96.88,
+    "contextualAccuracy": 78.57,
+    "slices": {
+      "easy": {
+        "total": 118,
+        "correct": 102
+      },
+      "medium": {
+        "total": 72,
+        "correct": 53
+      },
+      "hard": {
+        "total": 10,
+        "correct": 8
+      },
+      "contextual": {
+        "total": 168,
+        "correct": 132
+      },
+      "standalone": {
+        "total": 32,
+        "correct": 31
+      }
+    }
+  },
+  "perClassMetrics": {
+    "GREETING": {
+      "intent": "GREETING",
+      "support": 11,
+      "tp": 11,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SMALL_TALK": {
+      "intent": "SMALL_TALK",
+      "support": 13,
+      "tp": 8,
+      "fp": 3,
+      "fn": 5,
+      "precision": 0.7273,
+      "recall": 0.6154,
+      "f1": 0.6667
+    },
+    "QUESTION": {
+      "intent": "QUESTION",
+      "support": 12,
+      "tp": 10,
+      "fp": 4,
+      "fn": 2,
+      "precision": 0.7143,
+      "recall": 0.8333,
+      "f1": 0.7692
+    },
+    "RELEVANT_NEED": {
+      "intent": "RELEVANT_NEED",
+      "support": 14,
+      "tp": 3,
+      "fp": 0,
+      "fn": 11,
+      "precision": 1,
+      "recall": 0.2143,
+      "f1": 0.3529
+    },
+    "VPN_REQUEST": {
+      "intent": "VPN_REQUEST",
+      "support": 13,
+      "tp": 10,
+      "fp": 2,
+      "fn": 3,
+      "precision": 0.8333,
+      "recall": 0.7692,
+      "f1": 0.8
+    },
+    "PRODUCT_CURIOUS": {
+      "intent": "PRODUCT_CURIOUS",
+      "support": 13,
+      "tp": 8,
+      "fp": 8,
+      "fn": 5,
+      "precision": 0.5,
+      "recall": 0.6154,
+      "f1": 0.5517
+    },
+    "TRIAL_REQUEST": {
+      "intent": "TRIAL_REQUEST",
+      "support": 12,
+      "tp": 10,
+      "fp": 0,
+      "fn": 2,
+      "precision": 1,
+      "recall": 0.8333,
+      "f1": 0.9091
+    },
+    "PRICE_REQUEST": {
+      "intent": "PRICE_REQUEST",
+      "support": 12,
+      "tp": 10,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.9091,
+      "recall": 0.8333,
+      "f1": 0.8696
+    },
+    "PLAN_REQUEST": {
+      "intent": "PLAN_REQUEST",
+      "support": 8,
+      "tp": 6,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.8571,
+      "recall": 0.75,
+      "f1": 0.8
+    },
+    "SUPPORT_REQUEST": {
+      "intent": "SUPPORT_REQUEST",
+      "support": 13,
+      "tp": 11,
+      "fp": 0,
+      "fn": 2,
+      "precision": 1,
+      "recall": 0.8462,
+      "f1": 0.9167
+    },
+    "PURCHASE_INTENT": {
+      "intent": "PURCHASE_INTENT",
+      "support": 12,
+      "tp": 12,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.8571,
+      "recall": 1,
+      "f1": 0.9231
+    },
+    "OBJECTION": {
+      "intent": "OBJECTION",
+      "support": 13,
+      "tp": 10,
+      "fp": 2,
+      "fn": 3,
+      "precision": 0.8333,
+      "recall": 0.7692,
+      "f1": 0.8
+    },
+    "REJECTION": {
+      "intent": "REJECTION",
+      "support": 14,
+      "tp": 14,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "GOODBYE": {
+      "intent": "GOODBYE",
+      "support": 12,
+      "tp": 12,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.8571,
+      "recall": 1,
+      "f1": 0.9231
+    },
+    "SUSPICION_BOT": {
+      "intent": "SUSPICION_BOT",
+      "support": 9,
+      "tp": 9,
+      "fp": 3,
+      "fn": 0,
+      "precision": 0.75,
+      "recall": 1,
+      "f1": 0.8571
+    },
+    "INAPPROPRIATE": {
+      "intent": "INAPPROPRIATE",
+      "support": 7,
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SPAM": {
+      "intent": "SPAM",
+      "support": 6,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "OFF_TOPIC": {
+      "intent": "OFF_TOPIC",
+      "support": 4,
+      "tp": 4,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.6667,
+      "recall": 1,
+      "f1": 0.8
+    },
+    "UNKNOWN": {
+      "intent": "UNKNOWN",
+      "support": 2,
+      "tp": 2,
+      "fp": 7,
+      "fn": 0,
+      "precision": 0.2222,
+      "recall": 1,
+      "f1": 0.3636
+    }
+  },
+  "acceptanceGates": [
+    {
+      "name": "Overall Accuracy >= 80.00%",
+      "target": ">= 80.00%",
+      "actual": "81.50%",
+      "rawValue": 81.5,
+      "pass": true
+    },
+    {
+      "name": "Macro F1 >= 0.7500",
+      "target": ">= 0.7500",
+      "actual": "0.8054",
+      "rawValue": 0.8054115058095267,
+      "pass": true
+    },
+    {
+      "name": "Weighted F1 >= 0.8000",
+      "target": ">= 0.8000",
+      "actual": "0.8113",
+      "rawValue": 0.811334854704927,
+      "pass": true
+    },
+    {
+      "name": "Critical Intent Errors = 0",
+      "target": "= 0",
+      "actual": "0",
+      "rawValue": 0,
+      "pass": true
+    },
+    {
+      "name": "Commercial FPR <= 3.00%",
+      "target": "<= 3.00%",
+      "actual": "5.98%",
+      "rawValue": 5.982905982905983,
+      "pass": false
+    },
+    {
+      "name": "Rejection FNR <= 5.00%",
+      "target": "<= 5.00%",
+      "actual": "0.00%",
+      "rawValue": 0,
+      "pass": true
+    },
+    {
+      "name": "Multi-Intent Exact Match >= 70.00%",
+      "target": ">= 70.00%",
+      "actual": "80.30%",
+      "rawValue": 80.3030303030303,
+      "pass": true
+    }
+  ],
+  "invariantsCheck": [
+    {
+      "id": 1,
+      "desc": "Sum of confusion matrix cells = 200",
+      "actual": 200,
+      "pass": true
+    },
+    {
+      "id": 2,
+      "desc": "Correct predictions = sum of confusion matrix diagonal",
+      "actual": "163 == 163",
+      "pass": true
+    },
+    {
+      "id": 3,
+      "desc": "Accuracy = correct / 200",
+      "actual": "0.815 == 0.815",
+      "pass": true
+    },
+    {
+      "id": 4,
+      "desc": "Per-class supports sum to 200",
+      "actual": 200,
+      "pass": true
+    },
+    {
+      "id": 5,
+      "desc": "Weighted metrics use correct support weighting",
+      "actual": "0.8150 == 0.8150",
+      "pass": true
+    },
+    {
+      "id": 6,
+      "desc": "Multi-intent denominator equals actual count of multi-intent labels",
+      "actual": 66,
+      "pass": true
+    },
+    {
+      "id": 7,
+      "desc": "Rejection denominator equals actual rejection ground-truth count",
+      "actual": 14,
+      "pass": true
+    },
+    {
+      "id": 8,
+      "desc": "Commercial FPR denominator is explicitly reproducible from taxonomy rules",
+      "actual": 117,
+      "pass": true
+    },
+    {
+      "id": 9,
+      "desc": "Every listed error corresponds to an actual raw record",
+      "actual": "Verified",
+      "pass": true
+    },
+    {
+      "id": 10,
+      "desc": "No case is counted twice",
+      "actual": 200,
+      "pass": true
+    },
+    {
+      "id": 11,
+      "desc": "No raw prediction is missing",
+      "actual": "None missing",
+      "pass": true
+    },
+    {
+      "id": 12,
+      "desc": "Every case ID is unique",
+      "actual": "All unique",
+      "pass": true
+    },
+    {
+      "id": 13,
+      "desc": "Raw records count exactly equals holdout case count",
+      "actual": "200 == 200",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "totalContextCases": 0,
+  "contextResolutionAccuracy": 1,
+  "staleContextRate": 0,
+  "wrongContextReuseRate": 0,
+  "contextDropRate": 0,
+  "cases": []
+}

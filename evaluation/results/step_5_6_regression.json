@@ -1,0 +1,16 @@
+{
+  "holdoutAccuracy": 0.995,
+  "holdoutMacroF1": 0.825,
+  "holdoutWeightedF1": 0.842,
+  "multiIntentExactMatch": 0.9090909090909091,
+  "criticalIntentErrors": 0,
+  "commercialFPR": 0,
+  "rejectionFNR": 0,
+  "stateAccuracy": 0.9202898550724637,
+  "promotionAccuracy": 0.9492753623188406,
+  "invalidTransitions": 0,
+  "criticalPromotionBugs": 0,
+  "postRejectionPromotion": 0,
+  "ctaCooldownViolations": 0,
+  "pass": false
+}

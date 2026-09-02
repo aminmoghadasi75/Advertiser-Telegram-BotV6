@@ -1,0 +1,484 @@
+{
+  "totalConversations": 52,
+  "totalTurns": 342,
+  "stateAccuracy": 1,
+  "illegalTransitions": 0,
+  "stateResurrections": 0,
+  "stateOscillations": 0,
+  "staleStateDomination": 0,
+  "rejectionLockSurvivingReopening": 0,
+  "commercialStateAfterRejection": 0,
+  "prematureExitCount": 0,
+  "prematurePromotionCount": 0,
+  "repeatedPromotionLoops": 0,
+  "conversationSummaries": [
+    {
+      "conversationId": "step54-conv-01-full-funnel",
+      "scenarioType": "FULL_FUNNEL_CONVERSION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "SUPPORT_HANDOFF"
+    },
+    {
+      "conversationId": "step54-conv-02-tech-clarification",
+      "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "TRIAL_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-03-rejection-reopening",
+      "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-04-support-troubleshooting",
+      "scenarioType": "SUPPORT_TROUBLESHOOTING_RESOLUTION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-05-double-objection",
+      "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+      "turnsCount": 8,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-06-direct-vpn-inquiry",
+      "scenarioType": "VPN_REQUEST_PLAN_PURCHASE",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8571428571428571,
+      "intentAccuracy": 1,
+      "finalState": "PRICE_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-07-topic-drift",
+      "scenarioType": "TOPIC_DRIFT_AND_RECOVERY",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-08-goal-change",
+      "scenarioType": "GOAL_CHANGE_MID_CONVERSATION",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-09-goodbye-ambiguity",
+      "scenarioType": "GOODBYE_AMBIGUOUS_VERBS",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-10-re-engagement-return",
+      "scenarioType": "RE_ENGAGEMENT_AFTER_CLOSE",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-11-colloquial-ambiguity-1",
+      "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-12-colloquial-ambiguity-2",
+      "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-13-colloquial-ambiguity-3",
+      "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-14-colloquial-ambiguity-4",
+      "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-15-colloquial-ambiguity-5",
+      "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-16-colloquial-ambiguity-6",
+      "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-17-colloquial-rejection-1",
+      "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-18-colloquial-rejection-2",
+      "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-19-colloquial-rejection-3",
+      "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-20-colloquial-rejection-4",
+      "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-21-colloquial-rejection-5",
+      "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-22-colloquial-rejection-6",
+      "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "EXITING"
+    },
+    {
+      "conversationId": "step54-conv-23-adversarial-entities-1",
+      "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-24-adversarial-entities-2",
+      "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-25-adversarial-entities-3",
+      "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-26-adversarial-entities-4",
+      "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-27-adversarial-entities-5",
+      "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-28-adversarial-entities-6",
+      "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 0.8333333333333334,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-29-safety-boundary-1",
+      "scenarioType": "SAFETY_BOUNDARY_TEST",
+      "turnsCount": 5,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "SUPPORT_HANDOFF"
+    },
+    {
+      "conversationId": "step54-conv-30-safety-boundary-2",
+      "scenarioType": "SAFETY_BOUNDARY_TEST",
+      "turnsCount": 5,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "SUPPORT_HANDOFF"
+    },
+    {
+      "conversationId": "step54-conv-31-safety-boundary-3",
+      "scenarioType": "SAFETY_BOUNDARY_TEST",
+      "turnsCount": 5,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "SUPPORT_HANDOFF"
+    },
+    {
+      "conversationId": "step54-conv-32-safety-boundary-4",
+      "scenarioType": "SAFETY_BOUNDARY_TEST",
+      "turnsCount": 5,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "SUPPORT_HANDOFF"
+    },
+    {
+      "conversationId": "step54-conv-33-safety-boundary-5",
+      "scenarioType": "SAFETY_BOUNDARY_TEST",
+      "turnsCount": 5,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "SUPPORT_HANDOFF"
+    },
+    {
+      "conversationId": "step54-conv-34-safety-boundary-6",
+      "scenarioType": "SAFETY_BOUNDARY_TEST",
+      "turnsCount": 5,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "SUPPORT_HANDOFF"
+    },
+    {
+      "conversationId": "step54-conv-35-deep-context-retention-1",
+      "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "PRICE_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-36-deep-context-retention-2",
+      "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "PRICE_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-37-deep-context-retention-3",
+      "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "PRICE_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-38-deep-context-retention-4",
+      "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "PRICE_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-39-deep-context-retention-5",
+      "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "PRICE_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-40-deep-context-retention-6",
+      "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+      "turnsCount": 6,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "PRICE_DISCUSSION"
+    },
+    {
+      "conversationId": "step54-conv-41-complex-negotiation-1",
+      "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-42-complex-negotiation-2",
+      "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-43-complex-negotiation-3",
+      "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-44-complex-negotiation-4",
+      "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-45-complex-negotiation-5",
+      "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-46-complex-negotiation-6",
+      "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+      "turnsCount": 7,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-47-extended-rapport-pivot-1",
+      "scenarioType": "FULL_FUNNEL_CONVERSION",
+      "turnsCount": 8,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-48-extended-rapport-pivot-2",
+      "scenarioType": "FULL_FUNNEL_CONVERSION",
+      "turnsCount": 8,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-49-extended-rapport-pivot-3",
+      "scenarioType": "FULL_FUNNEL_CONVERSION",
+      "turnsCount": 8,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-50-extended-rapport-pivot-4",
+      "scenarioType": "FULL_FUNNEL_CONVERSION",
+      "turnsCount": 8,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-51-extended-rapport-pivot-5",
+      "scenarioType": "FULL_FUNNEL_CONVERSION",
+      "turnsCount": 8,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    },
+    {
+      "conversationId": "step54-conv-52-extended-rapport-pivot-6",
+      "scenarioType": "FULL_FUNNEL_CONVERSION",
+      "turnsCount": 8,
+      "stateAccuracy": 1,
+      "promoAccuracy": 1,
+      "intentAccuracy": 1,
+      "finalState": "GOODBYE"
+    }
+  ]
+}

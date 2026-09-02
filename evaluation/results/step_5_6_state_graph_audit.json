@@ -1,0 +1,7 @@
+{
+  "totalStatesEnumerated": 16,
+  "illegalTransitions": 0,
+  "terminalResurrection": 0,
+  "oscillation": 0,
+  "pass": true
+}

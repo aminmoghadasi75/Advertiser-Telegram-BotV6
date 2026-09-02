@@ -1,0 +1,249 @@
+{
+  "step": "STEP_8_MATHEMATICAL_INVARIANTS",
+  "timestamp": "2026-08-21T22:19:11.230Z",
+  "totalInvariants": 30,
+  "passed": 30,
+  "failed": 0,
+  "invariants": [
+    {
+      "id": "INV_01_INTENT_CONFIDENCE_BOUNDS",
+      "domain": "INTENT",
+      "name": "Intent Confidence Bounded in [0.0, 1.0]",
+      "description": "Every intent detection result must have confidence strictly between 0 and 1.",
+      "passed": true,
+      "evidence": "Validated on 1,490 dataset items + holdout suite."
+    },
+    {
+      "id": "INV_02_REJECTION_TAXONOMY_INTEGRITY",
+      "domain": "INTENT",
+      "name": "Rejection Detection Completeness",
+      "description": "Zero rejection false negatives across holdout and long-horizon suites.",
+      "passed": true,
+      "evidence": "Rejection False Negatives: 0"
+    },
+    {
+      "id": "INV_03_SAFETY_PRIORITY_SUPREMACY",
+      "domain": "INTENT",
+      "name": "Safety Intents Override Commercial Intent",
+      "description": "Inappropriate or spam utterances must never yield commercial intents.",
+      "passed": true,
+      "evidence": "Safety accuracy: 100% (0 bypasses)"
+    },
+    {
+      "id": "INV_04_COMMERCIAL_FP_ZERO",
+      "domain": "INTENT",
+      "name": "Commercial False Positives Equal Zero",
+      "description": "Small talk, greetings, and off-topic messages must not trigger product intents.",
+      "passed": true,
+      "evidence": "Commercial False Positives: 0"
+    },
+    {
+      "id": "INV_05_TERMINAL_ABSORBING_STATE",
+      "domain": "STATE",
+      "name": "Terminal States are Absorbing",
+      "description": "Terminal states (TERMINAL_EXIT, HARD_REJECT_EXIT, SILENT_EXIT, EXITING) have zero outgoing active transitions.",
+      "passed": true,
+      "evidence": "Terminal Resurrections: 0"
+    },
+    {
+      "id": "INV_06_STATE_TRANSITION_VALIDITY",
+      "domain": "STATE",
+      "name": "All State Transitions are in Adjacency Graph",
+      "description": "No illegal or disconnected state transitions occur.",
+      "passed": true,
+      "evidence": "Invalid Transitions: 0"
+    },
+    {
+      "id": "INV_07_STATE_OSCILLATION_ZERO",
+      "domain": "STATE",
+      "name": "State Oscillation Equals Zero",
+      "description": "Engine never oscillates back and forth between states without intent justification.",
+      "passed": true,
+      "evidence": "Oscillations: 0"
+    },
+    {
+      "id": "INV_08_CONTEXT_PRESERVATION_INTEGRITY",
+      "domain": "STATE",
+      "name": "Turn Count and History Monotonic Growth",
+      "description": "Turn count strictly increments by 1 per turn, history monotonically appends.",
+      "passed": true,
+      "evidence": "Verified across 2,940 long horizon conversation turns."
+    },
+    {
+      "id": "INV_09_POST_REJECTION_PROMOTION_LOCK",
+      "domain": "PROMOTION",
+      "name": "Post-Rejection Absolute Lock",
+      "description": "Once rejection is received, promotion is locked to NO_PROMOTION unless explicit commercial intent.",
+      "passed": true,
+      "evidence": "Post Rejection Violations: 0"
+    },
+    {
+      "id": "INV_10_CTA_SPACING_MIN_GAP",
+      "domain": "PROMOTION",
+      "name": "CTA Minimum Turn Gap Enforced",
+      "description": "Consecutive direct offers require at least MIN_CTA_TURN_GAP (2 turns) separation.",
+      "passed": true,
+      "evidence": "Duplicate CTA Violations: 0"
+    },
+    {
+      "id": "INV_11_PREMATURE_OFFER_PREVENTION",
+      "domain": "PROMOTION",
+      "name": "No Premature Direct Offer at Turn 1",
+      "description": "Turn 1 cold visitor never receives DIRECT_OFFER unless explicit high commercial intent.",
+      "passed": true,
+      "evidence": "Premature Offers: 0"
+    },
+    {
+      "id": "INV_12_PROMOTION_CONFIG_DISABLED_RESPECT",
+      "domain": "PROMOTION",
+      "name": "Respect Promotion Disabled Flag",
+      "description": "When promotion is disabled in config, allowedLevel is strictly NO_PROMOTION.",
+      "passed": true,
+      "evidence": "Verified in config matrix test."
+    },
+    {
+      "id": "INV_13_LEAD_SCORE_BOUNDS",
+      "domain": "LEAD_SCORE",
+      "name": "Lead Score Strictly in [0, 100]",
+      "description": "Lead score cannot be negative or exceed 100 under any condition.",
+      "passed": true,
+      "evidence": "Enforced via Math.min(100, Math.max(0, score))."
+    },
+    {
+      "id": "INV_14_LEAD_SCORE_CATEGORY_DEDUPLICATION",
+      "domain": "LEAD_SCORE",
+      "name": "Category Score Deduplication",
+      "description": "Repeated identical intent category does not accumulate unbounded points.",
+      "passed": true,
+      "evidence": "Verified in rapid duplicate test (score bounded at category max)."
+    },
+    {
+      "id": "INV_15_LEAD_SCORE_EXPLAINABILITY",
+      "domain": "LEAD_SCORE",
+      "name": "Every Score Delta Has Explicit Factor & Reason",
+      "description": "Every point increase/decrease is backed by a registered scoreFactor.",
+      "passed": true,
+      "evidence": "Explainability: 100.00%"
+    },
+    {
+      "id": "INV_16_FUNNEL_STAGE_MONOTONICITY",
+      "domain": "FUNNEL",
+      "name": "Funnel Monotonic Stage Ordering",
+      "description": "Session count at Stage N >= Session count at Stage N+1.",
+      "passed": true,
+      "evidence": "Ordering Valid: true"
+    },
+    {
+      "id": "INV_17_CONVERSION_SUBSET_OF_QUALIFIED",
+      "domain": "FUNNEL",
+      "name": "Converted Sessions are Subset of Qualified",
+      "description": "Every converted session must have traversed earlier pipeline stages.",
+      "passed": true,
+      "evidence": "Converted <= Qualified in validated funnels."
+    },
+    {
+      "id": "INV_18_FUNNEL_DROP_OFF_CONSERVATION",
+      "domain": "FUNNEL",
+      "name": "Drop-off Rate Conservation",
+      "description": "Stage Drop-off Rate + Stage Transition Rate = 100%.",
+      "passed": true,
+      "evidence": "Verified by mathematical formulation in funnelAnalytics.ts."
+    },
+    {
+      "id": "INV_19_EVENT_TIMESTAMP_ISO_FORMAT",
+      "domain": "ANALYTICS",
+      "name": "All Event Timestamps are ISO 8601 UTC",
+      "description": "Every recorded event timestamp parses into valid UTC epoch.",
+      "passed": true,
+      "evidence": "Timestamp Violations: 0"
+    },
+    {
+      "id": "INV_20_ZERO_ORPHAN_EVENTS",
+      "domain": "ANALYTICS",
+      "name": "Zero Orphan Events Without Session Context",
+      "description": "Every event has a valid sessionId, currentState, and leadScore.",
+      "passed": true,
+      "evidence": "Orphan Events: 0"
+    },
+    {
+      "id": "INV_21_TAXONOMY_ENVELOPE_COMPLETENESS",
+      "domain": "ANALYTICS",
+      "name": "Full Event Taxonomy Envelope Adherence",
+      "description": "All 24 defined event names adhere strictly to the schema.",
+      "passed": true,
+      "evidence": "24/24 event types validated in Step 7 & Step 8 suites."
+    },
+    {
+      "id": "INV_22_OBSERVER_NON_INVASIVENESS",
+      "domain": "ANALYTICS",
+      "name": "Observer Causes Zero Side Effects",
+      "description": "Analytics tracking never alters conversation state or prompt directives.",
+      "passed": true,
+      "evidence": "Zero state/intent/promotion mutations caused by tracking."
+    },
+    {
+      "id": "INV_23_PROMPT_INJECTION_ZERO_BREACH",
+      "domain": "INTENT",
+      "name": "Zero Prompt Injection Breaches",
+      "description": "Adversarial system prompt extraction attempts yield 0 secrets.",
+      "passed": true,
+      "evidence": "Breaches: 0"
+    },
+    {
+      "id": "INV_24_ZERO_PRIVACY_LEAKS",
+      "domain": "INTENT",
+      "name": "Zero Internal Key/Token Leakage",
+      "description": "Environment variables or internal tokens never output to user.",
+      "passed": true,
+      "evidence": "Leaks: 0"
+    },
+    {
+      "id": "INV_25_REPLAY_BIT_IDENTICAL_DETERMINISM",
+      "domain": "DETERMINISM",
+      "name": "Deterministic Bit-Identical Output",
+      "description": "Replaying identical conversation produces 100% bit-identical SHA-256 hash.",
+      "passed": true,
+      "evidence": "Hash: 15b43f6439c89e816e3efbb786e48f7ccbbb57ca8007b48b99626e83f74cbe98 across 5 independent runs"
+    },
+    {
+      "id": "INV_26_CONCURRENCY_ISOLATION",
+      "domain": "STATE",
+      "name": "Multi-User Concurrency Isolation",
+      "description": "Concurrent user sessions do not cross-contaminate state or lead scores.",
+      "passed": true,
+      "evidence": "Validated with 100 concurrent interleaved sessions in Step 5.7 & Step 8."
+    },
+    {
+      "id": "INV_27_CHAOS_EXCEPTION_IMMUNITY",
+      "domain": "STATE",
+      "name": "Runtime Exception Immunity under Chaos",
+      "description": "Corrupted or malformed inputs produce 0 uncaught exceptions.",
+      "passed": true,
+      "evidence": "Runtime Exceptions: 0"
+    },
+    {
+      "id": "INV_28_LATENCY_SUB_MILLISECOND",
+      "domain": "DETERMINISM",
+      "name": "Sub-Millisecond Engine Processing",
+      "description": "p95 turn latency is well under 1.0 millisecond.",
+      "passed": true,
+      "evidence": "p95 Latency: 0.1618 ms"
+    },
+    {
+      "id": "INV_29_NORMALIZATION_INVARIANCE",
+      "domain": "INTENT",
+      "name": "Normalization Invariance across Dialects & Slang",
+      "description": "Colloquial and diacritics variants normalize to identical intent.",
+      "passed": true,
+      "evidence": "Normalization Invariance: 100%"
+    },
+    {
+      "id": "INV_30_OBJECTION_HANDLING_INTEGRITY",
+      "domain": "LEAD_SCORE",
+      "name": "Objections Handled without Aggressive Selling",
+      "description": "Objections trigger empathetic validation and informative clarification without forced CTA.",
+      "passed": true,
+      "evidence": "Verified across price, trust, performance, and competitor objection cases."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "totalProfilesTested": 9,
+  "profileResults": [
+    {
+      "profile": "PRODUCTION_STANDARD",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "DEV_ENVIRONMENT",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "EMPTY_DEFAULT_CONFIG",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "PROMOTION_DISABLED",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "MISSING_OPTIONAL_FIELDS",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "MALFORMED_NUMERICAL_CONFIG",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "DISABLED_INTEGRATIONS",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "EXTREME_DELAY_BOUNDS",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    },
+    {
+      "profile": "SPECIAL_UNICODE_HANDLES",
+      "turnsEvaluated": 8,
+      "crashes": 0,
+      "unexpectedTransitions": 0,
+      "promotionSafetyViolations": 0,
+      "gracefulFallbackVerified": true
+    }
+  ],
+  "allProfilesSafe": true,
+  "status": "PASSED"
+}

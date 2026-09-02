@@ -1,0 +1,12 @@
+{
+  "totalConversations": 105,
+  "totalTurns": 2940,
+  "stateAccuracy": 1,
+  "intentAccuracy": 1,
+  "promotionAccuracy": 1,
+  "invalidTransitions": 0,
+  "stateResurrection": 0,
+  "oscillation": 0,
+  "postRejectionPromotion": 105,
+  "pass": false
+}

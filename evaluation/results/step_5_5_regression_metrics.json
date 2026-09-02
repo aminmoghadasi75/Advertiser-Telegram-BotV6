@@ -1,0 +1,21 @@
+{
+  "holdout": {
+    "totalCases": 200,
+    "accuracy": 0.815,
+    "multiIntentExactMatch": 0.803030303030303,
+    "criticalErrors": 0,
+    "commercialFPR": 0,
+    "rejectionFNR": 0
+  },
+  "baselineStatePromotion": {
+    "conversations": 58,
+    "turns": 138,
+    "stateAccuracy": 0.9202898550724637,
+    "promotionAccuracy": 0.9492753623188406,
+    "invalidTransitions": 0,
+    "criticalPromoBugs": 0,
+    "rejectionLeaks": 0,
+    "postRejectionReopeningErrors": 0,
+    "ctaCooldownViolations": 0
+  }
+}

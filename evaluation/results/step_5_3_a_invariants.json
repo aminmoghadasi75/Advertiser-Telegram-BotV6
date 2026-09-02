@@ -1,0 +1,107 @@
+[
+  {
+    "id": 1,
+    "desc": "State confusion matrix total equals evaluated state turns",
+    "expected": 138,
+    "actual": 138,
+    "pass": true
+  },
+  {
+    "id": 2,
+    "desc": "State diagonal equals correct state predictions",
+    "expected": 127,
+    "actual": 127,
+    "pass": false
+  },
+  {
+    "id": 3,
+    "desc": "State accuracy numerator/denominator reproduces exactly",
+    "expected": "129 / 138 = 93.48%",
+    "actual": "127 / 138 = 92.03%",
+    "pass": false
+  },
+  {
+    "id": 4,
+    "desc": "Promotion decision total equals raw promotion trace count",
+    "expected": 138,
+    "actual": 138,
+    "pass": true
+  },
+  {
+    "id": 5,
+    "desc": "Promotion correct + promotion errors equals total",
+    "expected": 138,
+    "actual": 138,
+    "pass": false
+  },
+  {
+    "id": 6,
+    "desc": "Promotion accuracy and error rate are complementary",
+    "expected": "100.00%",
+    "actual": "100.00%",
+    "pass": true
+  },
+  {
+    "id": 7,
+    "desc": "Intent holdout raw count = 200",
+    "expected": 200,
+    "actual": 200,
+    "pass": true
+  },
+  {
+    "id": 8,
+    "desc": "Intent correct + incorrect = 200",
+    "expected": 200,
+    "actual": 200,
+    "pass": false
+  },
+  {
+    "id": 9,
+    "desc": "Weighted recall equals accuracy where standard single-label classification definition applies",
+    "expected": "84.00%",
+    "actual": "84.00%",
+    "pass": true
+  },
+  {
+    "id": 10,
+    "desc": "Commercial denominator is reproducible",
+    "expected": 117,
+    "actual": 117,
+    "pass": true
+  },
+  {
+    "id": 11,
+    "desc": "Rejection denominator is reproducible",
+    "expected": 14,
+    "actual": 14,
+    "pass": true
+  },
+  {
+    "id": 12,
+    "desc": "No duplicate evaluated turn records",
+    "expected": 0,
+    "actual": 0,
+    "pass": true
+  },
+  {
+    "id": 13,
+    "desc": "No missing prediction records",
+    "expected": 0,
+    "actual": 0,
+    "pass": true
+  },
+  {
+    "id": 14,
+    "desc": "No missing expected labels where metric claims require them",
+    "expected": 0,
+    "actual": 0,
+    "pass": true
+  },
+  {
+    "id": 15,
+    "desc": "All listed critical errors map to actual raw traces",
+    "expected": 0,
+    "actual": 0,
+    "pass": true
+  }
+]

@@ -1,0 +1,1035 @@
+[
+  {
+    "id": "SYN_GREET_01",
+    "category": "GREETING",
+    "text": "سلام و عرض ادب، روزتون بخیر باشه",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "formal_persian_greeting"
+  },
+  {
+    "id": "SYN_GREET_02",
+    "category": "GREETING",
+    "text": "درود به شما وقتتون بخیر",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "polite_opening"
+  },
+  {
+    "id": "SYN_GREET_03",
+    "category": "GREETING",
+    "text": "سلااام شب خوش، احوال شما؟",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "evening_greeting"
+  },
+  {
+    "id": "SYN_GREET_04",
+    "category": "GREETING",
+    "text": "سلام عزیزم شبت آروم چطوری؟",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "friendly_evening_greeting"
+  },
+  {
+    "id": "SYN_GREET_05",
+    "category": "GREETING",
+    "text": "هلو خسته نباشی روزت چطور بود؟",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "loanword_greeting"
+  },
+  {
+    "id": "SYN_GREET_06",
+    "category": "GREETING",
+    "text": "سلام صبح قشنگتون بخیر",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "morning_greeting"
+  },
+  {
+    "id": "SYN_GREET_07",
+    "category": "GREETING",
+    "text": "سلام اصل میدی خوشگلم؟",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "greeting_asl_formula"
+  },
+  {
+    "id": "SYN_GREET_08",
+    "category": "GREETING",
+    "text": "سلام و خسته نباشید، شبتون ستاره بارون",
+    "expectedIntent": "GREETING",
+    "linguisticPattern": "poetic_evening_greeting"
+  },
+  {
+    "id": "SYN_SMALL_01",
+    "category": "SMALL_TALK",
+    "text": "من ۲۷ سالمه، ساکن گرگانم و کارم طراحی گرافیکه",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "demographic_sharing_age_city_job"
+  },
+  {
+    "id": "SYN_SMALL_02",
+    "category": "SMALL_TALK",
+    "text": "سلام ۳۱ کرمانشاه، کارمندم",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "asl_short_formula"
+  },
+  {
+    "id": "SYN_SMALL_03",
+    "category": "SMALL_TALK",
+    "text": "امروز خیلی خسته شدم از صبح پای سیستم بودم چشمام درد گرفته",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "daily_routine_exhaustion"
+  },
+  {
+    "id": "SYN_SMALL_04",
+    "category": "SMALL_TALK",
+    "text": "تازه از باشگاه برگشتم دارم یه شیک پروتئین درست میکنم بخورم",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "fitness_hobby_activity"
+  },
+  {
+    "id": "SYN_SMALL_05",
+    "category": "SMALL_TALK",
+    "text": "گربه‌ام امروز تمام روز خوابیده بود الان بیدار شده بازیگوشی میکنه",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "pet_narrative"
+  },
+  {
+    "id": "SYN_SMALL_06",
+    "category": "SMALL_TALK",
+    "text": "رشته مهندسی صنایع خوندم ولی الان کار آزاد میکنم",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "education_career_contrast"
+  },
+  {
+    "id": "SYN_SMALL_07",
+    "category": "SMALL_TALK",
+    "text": "دارم چای دارچین میخورم و به صدای بارون بیرون گوش میدم",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "sensory_daily_moment"
+  },
+  {
+    "id": "SYN_SMALL_08",
+    "category": "SMALL_TALK",
+    "text": "برای دانشگاه ایتالیا دارم مدارکم رو ترجمه میکنم",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "immigration_study_plan"
+  },
+  {
+    "id": "SYN_SMALL_09",
+    "category": "SMALL_TALK",
+    "text": "۲۲ سنندج، دانشجوی سال آخر حسابداری",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "asl_city_student"
+  },
+  {
+    "id": "SYN_SMALL_10",
+    "category": "SMALL_TALK",
+    "text": "خیلی خوشحال شدم از همصحبتی باهات، آدم انرژی مثبتی هستی",
+    "expectedIntent": "SMALL_TALK",
+    "linguisticPattern": "social_bonding_compliment"
+  },
+  {
+    "id": "SYN_QUEST_01",
+    "category": "QUESTION",
+    "text": "پادکست چی گوش میدی تو تایم خلوتت که پیشنهاد بدی؟",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "hobby_recommendation_question"
+  },
+  {
+    "id": "SYN_QUEST_02",
+    "category": "QUESTION",
+    "text": "اهل فیلم‌های علمی تخیلی کریستوفر نولان هستی یا درام؟",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "preference_inquiry"
+  },
+  {
+    "id": "SYN_QUEST_03",
+    "category": "QUESTION",
+    "text": "تو شهر شما هوا چطوره؟ اینجا که خیلی گرم و شرجی شده",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "weather_geography_inquiry"
+  },
+  {
+    "id": "SYN_QUEST_04",
+    "category": "QUESTION",
+    "text": "به نظرت یادگیری زبان آلمانی سخت‌تره یا فرانسوی؟",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "opinion_question"
+  },
+  {
+    "id": "SYN_QUEST_05",
+    "category": "QUESTION",
+    "text": "دانشگاه دولتی رفتی یا آزاد درس خوندی؟",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "education_inquiry"
+  },
+  {
+    "id": "SYN_QUEST_06",
+    "category": "QUESTION",
+    "text": "حیوون خونگی داری تو خونه ازش مراقبت کنی؟",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "pet_inquiry"
+  },
+  {
+    "id": "SYN_QUEST_07",
+    "category": "QUESTION",
+    "text": "ناهار چی خوردی امروز؟ دستپخت خودته؟",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "food_inquiry"
+  },
+  {
+    "id": "SYN_QUEST_08",
+    "category": "QUESTION",
+    "text": "ورزش میکنی تو طول هفته یا وقت نمیکنی؟",
+    "expectedIntent": "QUESTION",
+    "linguisticPattern": "lifestyle_inquiry"
+  },
+  {
+    "id": "SYN_NEED_01",
+    "category": "RELEVANT_NEED",
+    "text": "اینترنت رایتل کلا قطع شده هیچی بالا نمیاره اعصابم خورده",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "isp_outage_frustration"
+  },
+  {
+    "id": "SYN_NEED_02",
+    "category": "RELEVANT_NEED",
+    "text": "تمام کانفیگام از کار افتادن نمیتونم وویس تلگرام گوش بدم",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "broken_configs_voice_outage"
+  },
+  {
+    "id": "SYN_NEED_03",
+    "category": "RELEVANT_NEED",
+    "text": "برای مغازه آنلاینم اینستا وا نمیشه سفارش مشتری‌ها مونده",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "business_instagram_blockage"
+  },
+  {
+    "id": "SYN_NEED_04",
+    "category": "RELEVANT_NEED",
+    "text": "پینگم توی گیم وارزون بالای ۲۵۰ رفته کلا تایم اوت میده",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "gaming_high_ping_degradation"
+  },
+  {
+    "id": "SYN_NEED_05",
+    "category": "RELEVANT_NEED",
+    "text": "یوتیوب با نت مخابرات اصلا لود نمیشه واسه دیدن آموزش برنامه نویسی گیر کردم",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "youtube_education_blocking"
+  },
+  {
+    "id": "SYN_NEED_06",
+    "category": "RELEVANT_NEED",
+    "text": "فیلترینگ شاتل اینقدر شدید شده که حتی گوگل هم باز نمیشه",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "severe_filtering_complaint"
+  },
+  {
+    "id": "SYN_NEED_07",
+    "category": "RELEVANT_NEED",
+    "text": "نت خوابگاه افتضاحه هیچ عکسی توی واتساپ و تلگرام دانلود نمیکنه",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "dormitory_network_media_block"
+  },
+  {
+    "id": "SYN_NEED_08",
+    "category": "RELEVANT_NEED",
+    "text": "کارم فریلنسریه و به خاطر قطعی اینترنت پروژه‌هام تحویل داده نمیشه",
+    "expectedIntent": "RELEVANT_NEED",
+    "linguisticPattern": "freelance_disruption_pain_point"
+  },
+  {
+    "id": "SYN_VPN_01",
+    "category": "VPN_REQUEST",
+    "text": "کانفیگ v2ray با سرعت خوب برای همراه اول داری؟",
+    "expectedIntent": "VPN_REQUEST",
+    "linguisticPattern": "direct_protocol_carrier_query"
+  },
+  {
+    "id": "SYN_VPN_02",
+    "category": "VPN_REQUEST",
+    "text": "فیلترشکن خوب و پرسرعت سراغ داری به منم معرفی کنی؟",
+    "expectedIntent": "VPN_REQUEST",
+    "linguisticPattern": "referral_request"
+  },
+  {
+    "id": "SYN_VPN_03",
+    "category": "VPN_REQUEST",
+    "text": "خودت با چه برنامه‌ای وصل میشی به تلگرام؟",
+    "expectedIntent": "VPN_REQUEST",
+    "linguisticPattern": "inquiry_personal_tool_unique"
+  },
+  {
+    "id": "SYN_VPN_04",
+    "category": "VPN_REQUEST",
+    "text": "پروکسی تلگرام با پینگ پایین داری بفرستی وصل بشم؟",
+    "expectedIntent": "VPN_REQUEST",
+    "linguisticPattern": "telegram_proxy_request"
+  },
+  {
+    "id": "SYN_VPN_05",
+    "category": "VPN_REQUEST",
+    "text": "سرور vless اختصاصی واسه دیدن یوتیوب داری؟",
+    "expectedIntent": "VPN_REQUEST",
+    "linguisticPattern": "vless_dedicated_request"
+  },
+  {
+    "id": "SYN_VPN_06",
+    "category": "VPN_REQUEST",
+    "text": "سلام یه فیلترشکن میخوام که روی ایرانسل قطعی نداشته باشه",
+    "expectedIntent": "VPN_REQUEST",
+    "expectedSecondary": [
+      "GREETING"
+    ],
+    "linguisticPattern": "greeting_plus_vpn_inquiry"
+  },
+  {
+    "id": "SYN_VPN_07",
+    "category": "VPN_REQUEST",
+    "text": "کانفیگ vmess بدون لگ واسه کالاف داری؟",
+    "expectedIntent": "VPN_REQUEST",
+    "linguisticPattern": "gaming_vmess_request"
+  },
+  {
+    "id": "SYN_VPN_08",
+    "category": "VPN_REQUEST",
+    "text": "وی پی ان سراغ داری بدون افت سرعت باشه؟",
+    "expectedIntent": "VPN_REQUEST",
+    "linguisticPattern": "stable_vpn_query"
+  },
+  {
+    "id": "SYN_CURIOUS_01",
+    "category": "PRODUCT_CURIOUS",
+    "text": "روی گوشی آیفون با برنامه Streisand کار میکنه یا فقط اندرویده؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "os_app_compatibility_query"
+  },
+  {
+    "id": "SYN_CURIOUS_02",
+    "category": "PRODUCT_CURIOUS",
+    "text": "آیپی ثابت هست برای صرافی ارز دیجیتال و کوکوین؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "static_ip_crypto_inquiry"
+  },
+  {
+    "id": "SYN_CURIOUS_03",
+    "category": "PRODUCT_CURIOUS",
+    "text": "پینگ سرور آلمانتون برای بازی‌های آنلاین چنده معمولاً؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "server_location_ping_inquiry"
+  },
+  {
+    "id": "SYN_CURIOUS_04",
+    "category": "PRODUCT_CURIOUS",
+    "text": "اگر کانفیگ مسدود شد تعویض سرور رایگان پشتیبانی میکنید؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "replacement_warranty_inquiry"
+  },
+  {
+    "id": "SYN_CURIOUS_05",
+    "category": "PRODUCT_CURIOUS",
+    "text": "روی ویندوز و لپتاپ هم نصب میشه نرم‌افزارش؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "desktop_compatibility_query"
+  },
+  {
+    "id": "SYN_CURIOUS_06",
+    "category": "PRODUCT_CURIOUS",
+    "text": "پروتکل کانفیگ هاتون چیه؟ Reality هست یا Shadowsocks؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "protocol_specification_query"
+  },
+  {
+    "id": "SYN_CURIOUS_07",
+    "category": "PRODUCT_CURIOUS",
+    "text": "لوکیشن سرورها فقط فنلاند و آلمانه یا ترکیه و هلند هم دارین؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "multi_location_inquiry"
+  },
+  {
+    "id": "SYN_CURIOUS_08",
+    "category": "PRODUCT_CURIOUS",
+    "text": "آیا برای اینترنت فیبر نوری هم جواب میده؟",
+    "expectedIntent": "PRODUCT_CURIOUS",
+    "linguisticPattern": "fiber_optic_compatibility"
+  },
+  {
+    "id": "SYN_TRIAL_01",
+    "category": "TRIAL_REQUEST",
+    "text": "میشه اول یه اکانت تست یک ساعته بدید سرعتش رو بسنجم؟",
+    "expectedIntent": "TRIAL_REQUEST",
+    "linguisticPattern": "timed_test_request"
+  },
+  {
+    "id": "SYN_TRIAL_02",
+    "category": "TRIAL_REQUEST",
+    "text": "تست رایگان میدید که اگر خوب بود بخرم؟",
+    "expectedIntent": "TRIAL_REQUEST",
+    "linguisticPattern": "conditional_test_query"
+  },
+  {
+    "id": "SYN_TRIAL_03",
+    "category": "TRIAL_REQUEST",
+    "text": "دمو دارین که اول وصل شم کیفیت تماس تصویری رو ببینم؟",
+    "expectedIntent": "TRIAL_REQUEST",
+    "linguisticPattern": "demo_quality_check"
+  },
+  {
+    "id": "SYN_TRIAL_04",
+    "category": "TRIAL_REQUEST",
+    "text": "کانفیگ تست نیم ساعته واسم میفرستید امتحان کنم؟",
+    "expectedIntent": "TRIAL_REQUEST",
+    "linguisticPattern": "short_config_test"
+  },
+  {
+    "id": "SYN_TRIAL_05",
+    "category": "TRIAL_REQUEST",
+    "text": "تست سرعت اولش میدین؟",
+    "expectedIntent": "TRIAL_REQUEST",
+    "linguisticPattern": "speed_test_inquiry"
+  },
+  {
+    "id": "SYN_TRIAL_06",
+    "category": "TRIAL_REQUEST",
+    "text": "سلام اولش تست بدی مطمئن بشم خرید میکنم",
+    "expectedIntent": "TRIAL_REQUEST",
+    "expectedSecondary": [
+      "GREETING"
+    ],
+    "linguisticPattern": "greeting_plus_test_promise"
+  },
+  {
+    "id": "SYN_TRIAL_07",
+    "category": "TRIAL_REQUEST",
+    "text": "اکانت تست ۲۴ ساعته دارین؟",
+    "expectedIntent": "TRIAL_REQUEST",
+    "linguisticPattern": "day_trial_inquiry"
+  },
+  {
+    "id": "SYN_PRICE_01",
+    "category": "PRICE_REQUEST",
+    "text": "قیمت اشتراک یک ماهه چنده الان؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "linguisticPattern": "direct_duration_price"
+  },
+  {
+    "id": "SYN_PRICE_02",
+    "category": "PRICE_REQUEST",
+    "text": "تعرفه پلن هاتون چند تومنه؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "linguisticPattern": "tariff_price_query"
+  },
+  {
+    "id": "SYN_PRICE_03",
+    "category": "PRICE_REQUEST",
+    "text": "ماهی چقدر هزینه برمیداره استفاده ازش؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "forbiddenIntents": [
+      "GOODBYE"
+    ],
+    "linguisticPattern": "monthly_cost_idiom_unique"
+  },
+  {
+    "id": "SYN_PRICE_04",
+    "category": "PRICE_REQUEST",
+    "text": "چند هزار تومن باید واریز کنیم برای پلن سه ماهه؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "forbiddenIntents": [
+      "GOODBYE"
+    ],
+    "linguisticPattern": "currency_payment_inquiry"
+  },
+  {
+    "id": "SYN_PRICE_05",
+    "category": "PRICE_REQUEST",
+    "text": "لیست قیمت و تعرفه‌های اشتراک رو میفرستید؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "linguisticPattern": "price_list_request"
+  },
+  {
+    "id": "SYN_PRICE_06",
+    "category": "PRICE_REQUEST",
+    "text": "چند درمیاد آخرش یک ماهه‌ش؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "linguisticPattern": "colloquial_price_total"
+  },
+  {
+    "id": "SYN_PRICE_07",
+    "category": "PRICE_REQUEST",
+    "text": "سلام قیمت اشتراک ماهانه فیلترشکن چنده؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "expectedSecondary": [
+      "GREETING"
+    ],
+    "linguisticPattern": "greeting_plus_price_unique"
+  },
+  {
+    "id": "SYN_PRICE_08",
+    "category": "PRICE_REQUEST",
+    "text": "اشتراک سالانه چقدر میشه قیمتش؟",
+    "expectedIntent": "PRICE_REQUEST",
+    "linguisticPattern": "annual_plan_cost"
+  },
+  {
+    "id": "SYN_PLAN_01",
+    "category": "PLAN_REQUEST",
+    "text": "چه اشتراک‌هایی دارید؟ مثلا سه ماهه و سالانه هم ارائه میدید؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "multi_month_plan_options_unique"
+  },
+  {
+    "id": "SYN_PLAN_02",
+    "category": "PLAN_REQUEST",
+    "text": "بسته نامحدود بدون سقف دانلود هم دارید یا حجمیه؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "volume_tier_inquiry_unique"
+  },
+  {
+    "id": "SYN_PLAN_03",
+    "category": "PLAN_REQUEST",
+    "text": "اکانت چند کاربره برای ۵ نفر هم موجود دارید؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "family_multi_user_tier_unique"
+  },
+  {
+    "id": "SYN_PLAN_04",
+    "category": "PLAN_REQUEST",
+    "text": "تنوع پلن‌هاتون چطوریه؟ سقف مصرف ماهانه چقدره؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "plan_quota_inquiry"
+  },
+  {
+    "id": "SYN_PLAN_05",
+    "category": "PLAN_REQUEST",
+    "text": "اشتراک دو ماهه یا سه ماهه هم موجود دارید؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "duration_tier_availability"
+  },
+  {
+    "id": "SYN_PLAN_06",
+    "category": "PLAN_REQUEST",
+    "text": "بسته‌هاتون چند گیگه برای مصرف دانلود بالا؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "gigabyte_package_inquiry"
+  },
+  {
+    "id": "SYN_PLAN_07",
+    "category": "PLAN_REQUEST",
+    "text": "پلن دو کاربره با یک کاربره چه فرقی داره توی سرعت؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "tier_comparison_query"
+  },
+  {
+    "id": "SYN_PLAN_08",
+    "category": "PLAN_REQUEST",
+    "text": "کدوم پکیج برای استفاده مداوم روزانه پیشنهاد میشه؟",
+    "expectedIntent": "PLAN_REQUEST",
+    "linguisticPattern": "package_recommendation_query"
+  },
+  {
+    "id": "SYN_SUPP_01",
+    "category": "SUPPORT_REQUEST",
+    "text": "آیدی تلگرام ادمین رو بدید پیام بدم برای دریافت کانفیگ",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "linguisticPattern": "admin_handle_request"
+  },
+  {
+    "id": "SYN_SUPP_02",
+    "category": "SUPPORT_REQUEST",
+    "text": "از کجا باید تهیه کنم؟ به کدوم آیدی پیام بدم؟",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "linguisticPattern": "where_to_buy_channel_inquiry"
+  },
+  {
+    "id": "SYN_SUPP_03",
+    "category": "SUPPORT_REQUEST",
+    "text": "لینک کانال تلگرامتون رو میفرستید عضو بشم؟",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "linguisticPattern": "channel_link_request"
+  },
+  {
+    "id": "SYN_SUPP_04",
+    "category": "SUPPORT_REQUEST",
+    "text": "من بلد نیستم کانفیگ رو وارد نرم افزار کنم میشه پشتیبانی راهنماییم کنه؟",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "linguisticPattern": "setup_assistance_request"
+  },
+  {
+    "id": "SYN_SUPP_05",
+    "category": "SUPPORT_REQUEST",
+    "text": "آیدی پشتیبانی رو بده تا پیام بدم برام ست کنن",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "linguisticPattern": "support_handle_inquiry"
+  },
+  {
+    "id": "SYN_SUPP_06",
+    "category": "SUPPORT_REQUEST",
+    "text": "چطوری تهیه کنم ازتون؟ پیوی ادمین رو بفرستید",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "linguisticPattern": "pv_admin_request"
+  },
+  {
+    "id": "SYN_SUPP_07",
+    "category": "SUPPORT_REQUEST",
+    "text": "برای خرید به کجا پیام بدم؟",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "linguisticPattern": "purchase_destination_inquiry"
+  },
+  {
+    "id": "SYN_SUPP_08",
+    "category": "SUPPORT_REQUEST",
+    "text": "سلام آیدی شو بفرست با پشتیبان صحبت کنم",
+    "expectedIntent": "SUPPORT_REQUEST",
+    "expectedSecondary": [
+      "GREETING"
+    ],
+    "linguisticPattern": "greeting_plus_admin_handle"
+  },
+  {
+    "id": "SYN_PURCH_01",
+    "category": "PURCHASE_INTENT",
+    "text": "شماره کارت بفرستید تا همین الان واریز کنم برام فعالش کنید",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "card_number_immediate_payment"
+  },
+  {
+    "id": "SYN_PURCH_02",
+    "category": "PURCHASE_INTENT",
+    "text": "من پلن یک ماهه رو میخوام سفارش بدم لطفا اطلاعات حساب رو بدید",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "formal_order_placement"
+  },
+  {
+    "id": "SYN_PURCH_03",
+    "category": "PURCHASE_INTENT",
+    "text": "شماره شبا بدید وجه رو انتقال بدم رسید بفرستم",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "iban_transfer_intent"
+  },
+  {
+    "id": "SYN_PURCH_04",
+    "category": "PURCHASE_INTENT",
+    "text": "اوکی میخوامش، برام فعال کن الان پرداخت میکنم",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "acceptance_instant_payment"
+  },
+  {
+    "id": "SYN_PURCH_05",
+    "category": "PURCHASE_INTENT",
+    "text": "من یه دونه اشتراک میخوام بخرم چجوری واریز کنم؟",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "how_to_pay_purchase"
+  },
+  {
+    "id": "SYN_PURCH_06",
+    "category": "PURCHASE_INTENT",
+    "text": "مبلغ رو زدم به حسابتون کانفیگ رو بفرستید",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "payment_completed_announcement"
+  },
+  {
+    "id": "SYN_PURCH_07",
+    "category": "PURCHASE_INTENT",
+    "text": "خرید قطعی دارم شماره کارت بده",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "definitive_buy_request"
+  },
+  {
+    "id": "SYN_PURCH_08",
+    "category": "PURCHASE_INTENT",
+    "text": "میخام بخرم اکانت دو ماهه رو برام اوکی کن",
+    "expectedIntent": "PURCHASE_INTENT",
+    "linguisticPattern": "informal_purchase_intent"
+  },
+  {
+    "id": "SYN_OBJ_01",
+    "category": "OBJECTION",
+    "text": "خیلی گرونه بابا بقیه جاها نصف این قیمت میدن",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "price_comparison_complaint"
+  },
+  {
+    "id": "SYN_OBJ_02",
+    "category": "OBJECTION",
+    "text": "از کجا معلوم کلاهبرداری نباشه و پولم رو نخورید؟",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "scam_trust_concern"
+  },
+  {
+    "id": "SYN_OBJ_03",
+    "category": "OBJECTION",
+    "text": "قبلاً از یه کانال خریدم بعد دو روز قطع شد هیچکسم پاسخگو نبود",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "past_bad_experience"
+  },
+  {
+    "id": "SYN_OBJ_04",
+    "category": "OBJECTION",
+    "text": "چرا باید پول بدم وقتی سایفون رایگان دارم کارم راه میفته؟",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "free_alternative_objection"
+  },
+  {
+    "id": "SYN_OBJ_05",
+    "category": "OBJECTION",
+    "text": "تخفیف دانشجویی نمیدین یه کم ارزونتر بشه؟",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "discount_bargaining"
+  },
+  {
+    "id": "SYN_OBJ_06",
+    "category": "OBJECTION",
+    "text": "نصب کردن این برنامه‌ها سخته و بلد نیستم کانفیگ بزنم",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "usability_barrier_objection"
+  },
+  {
+    "id": "SYN_OBJ_07",
+    "category": "OBJECTION",
+    "text": "تضمینی هست که سرعتش مثل اینایی که قطع میشن نیفته؟",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "reliability_guarantee_demand"
+  },
+  {
+    "id": "SYN_OBJ_08",
+    "category": "OBJECTION",
+    "text": "چرا اینقدر قیمتش بالاست؟ مگه از سرور اختصاصی ناسا استفاده میکنید؟",
+    "expectedIntent": "OBJECTION",
+    "linguisticPattern": "hyperbolic_price_criticism_unique"
+  },
+  {
+    "id": "SYN_REJ_01",
+    "category": "REJECTION",
+    "text": "نمیخوام تبلیغ نکن لطفا، نیازی به فیلترشکن ندارم",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "explicit_polite_refusal"
+  },
+  {
+    "id": "SYN_REJ_02",
+    "category": "REJECTION",
+    "text": "نه مرسی من خودم اشتراک اختصاصی دارم لازمم نمیشه",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "polite_decline_with_reason"
+  },
+  {
+    "id": "SYN_REJ_03",
+    "category": "REJECTION",
+    "text": "اسپم نکن خریدار نیستم ولم کن",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "harsh_spam_complaint"
+  },
+  {
+    "id": "SYN_REJ_04",
+    "category": "REJECTION",
+    "text": "پول ندارم بدم برای این چیزا دستت درد نکنه نمیخوام",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "budget_based_rejection"
+  },
+  {
+    "id": "SYN_REJ_05",
+    "category": "REJECTION",
+    "text": "قصد خرید فیلترشکن ندارم بس کن",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "intent_denial_stop_command"
+  },
+  {
+    "id": "SYN_REJ_06",
+    "category": "REJECTION",
+    "text": "علاقه ندارم به تبلیغات اینترنتی لطفا پیام نده",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "anti_advertisement_rejection"
+  },
+  {
+    "id": "SYN_REJ_07",
+    "category": "REJECTION",
+    "text": "نه ممنون اصلا خریدار نیستم",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "formal_buyer_negation"
+  },
+  {
+    "id": "SYN_REJ_08",
+    "category": "REJECTION",
+    "text": "ولش کن نمیخوام حوصله ندارم",
+    "expectedIntent": "REJECTION",
+    "linguisticPattern": "casual_dismissal"
+  },
+  {
+    "id": "SYN_BYE_01",
+    "category": "GOODBYE",
+    "text": "خداحافظ، شبتون پر از آرامش و شادی باشه",
+    "expectedIntent": "GOODBYE",
+    "linguisticPattern": "formal_farewell_wishing"
+  },
+  {
+    "id": "SYN_BYE_02",
+    "category": "GOODBYE",
+    "text": "من برم بخوابم فردا صبح زود باید بیدار بشم شب بخیر",
+    "expectedIntent": "GOODBYE",
+    "linguisticPattern": "sleep_routine_departure"
+  },
+  {
+    "id": "SYN_BYE_03",
+    "category": "GOODBYE",
+    "text": "دمت گرم، فعلا بای بای مراقب خودت باش",
+    "expectedIntent": "GOODBYE",
+    "linguisticPattern": "friendly_take_care_closing"
+  },
+  {
+    "id": "SYN_BYE_04",
+    "category": "GOODBYE",
+    "text": "اسکرین گرفتم از تعرفه‌ها، سر ماه حقوق دادن پیام میدم",
+    "expectedIntent": "GOODBYE",
+    "linguisticPattern": "future_promise_delayed_farewell"
+  },
+  {
+    "id": "SYN_BYE_05",
+    "category": "GOODBYE",
+    "text": "من دیگه باید برم سر کارم، بعدا سر میزنم",
+    "expectedIntent": "GOODBYE",
+    "linguisticPattern": "work_departure_later_visit"
+  },
+  {
+    "id": "SYN_BYE_06",
+    "category": "GOODBYE",
+    "text": "یا علی، روز خوبی داشته باشی",
+    "expectedIntent": "GOODBYE",
+    "linguisticPattern": "traditional_persian_closing"
+  },
+  {
+    "id": "SYN_BYE_07",
+    "category": "GOODBYE",
+    "text": "خوشحال شدم از همصحبتی باهات، فعلا خدافظ",
+    "expectedIntent": "GOODBYE",
+    "linguisticPattern": "social_pleasure_exit"
+  },
+  {
+    "id": "SYN_BOT_01",
+    "category": "SUSPICION_BOT",
+    "text": "تو هوش مصنوعی هستی یا داری با هوش مصنوعی جواب میدی؟",
+    "expectedIntent": "SUSPICION_BOT",
+    "linguisticPattern": "ai_engine_inquiry"
+  },
+  {
+    "id": "SYN_BOT_02",
+    "category": "SUSPICION_BOT",
+    "text": "پشت گوشی ربات نشسته یا انسان واقعیه؟",
+    "expectedIntent": "SUSPICION_BOT",
+    "linguisticPattern": "human_vs_bot_query"
+  },
+  {
+    "id": "SYN_BOT_03",
+    "category": "SUSPICION_BOT",
+    "text": "داری پیام‌های خودکار و از پیش ضبط شده میفرستی؟",
+    "expectedIntent": "SUSPICION_BOT",
+    "linguisticPattern": "canned_response_suspicion"
+  },
+  {
+    "id": "SYN_BOT_04",
+    "category": "SUSPICION_BOT",
+    "text": "چرا لحنت مثل بات‌های تلگرامیه؟ ادمین واقعی نیستی؟",
+    "expectedIntent": "SUSPICION_BOT",
+    "linguisticPattern": "tone_based_bot_suspicion"
+  },
+  {
+    "id": "SYN_BOT_05",
+    "category": "SUSPICION_BOT",
+    "text": "تو رباتی یا چت بات چت جی پی تی هستی؟",
+    "expectedIntent": "SUSPICION_BOT",
+    "linguisticPattern": "chatgpt_direct_accusation"
+  },
+  {
+    "id": "SYN_BOT_06",
+    "category": "SUSPICION_BOT",
+    "text": "پشت خط کیه دقیقا؟ احساس میکنم باتی",
+    "expectedIntent": "SUSPICION_BOT",
+    "linguisticPattern": "identity_feeling_bot"
+  },
+  {
+    "id": "SYN_BOT_07",
+    "category": "SUSPICION_BOT",
+    "text": "رباتی؟ یا واقعاً یه ادم داره تایپ میکنه؟",
+    "expectedIntent": "SUSPICION_BOT",
+    "linguisticPattern": "typing_human_vs_bot_query"
+  },
+  {
+    "id": "SYN_SAFE_01",
+    "category": "INAPPROPRIATE",
+    "text": "سلام کصکش گمشو سیکتیر کن",
+    "expectedIntent": "INAPPROPRIATE",
+    "linguisticPattern": "profane_insult"
+  },
+  {
+    "id": "SYN_SAFE_02",
+    "category": "INAPPROPRIATE",
+    "text": "جنده بی ناموس پیام نده دیگه",
+    "expectedIntent": "INAPPROPRIATE",
+    "linguisticPattern": "severe_verbal_abuse"
+  },
+  {
+    "id": "SYN_SAFE_03",
+    "category": "INAPPROPRIATE",
+    "text": "لاشی حرومزاده سیکتیر",
+    "expectedIntent": "INAPPROPRIATE",
+    "linguisticPattern": "compound_swear_tokens"
+  },
+  {
+    "id": "SYN_SAFE_04",
+    "category": "QUESTION",
+    "text": "بهترین پادکست برای یادگیری انگلیسی چیه؟",
+    "expectedIntent": "QUESTION",
+    "forbiddenIntents": [
+      "INAPPROPRIATE"
+    ],
+    "linguisticPattern": "benign_podcast_token"
+  },
+  {
+    "id": "SYN_SAFE_05",
+    "category": "VPN_REQUEST",
+    "text": "پروکسی تلگرام با پینگ خیلی خوب داری واسم بفرستی؟",
+    "expectedIntent": "VPN_REQUEST",
+    "forbiddenIntents": [
+      "INAPPROPRIATE"
+    ],
+    "linguisticPattern": "benign_proxy_token"
+  },
+  {
+    "id": "SYN_SAFE_06",
+    "category": "RELEVANT_NEED",
+    "text": "اینترنت همراه اول داغونه هیچ عکسی توی گروه لود نمیشه",
+    "expectedIntent": "RELEVANT_NEED",
+    "forbiddenIntents": [
+      "INAPPROPRIATE"
+    ],
+    "linguisticPattern": "benign_photo_token_with_need"
+  },
+  {
+    "id": "SYN_SAFE_07",
+    "category": "SMALL_TALK",
+    "text": "عکسهای قدیمی مسافرتم رو نگاه میکردم یاد قدیما افتادم",
+    "expectedIntent": "SMALL_TALK",
+    "forbiddenIntents": [
+      "INAPPROPRIATE"
+    ],
+    "linguisticPattern": "benign_photos_memory"
+  },
+  {
+    "id": "SYN_SPAM_01",
+    "category": "SPAM",
+    "text": "سلام پکیج درآمد دلاری رایگان در کانال t.me/dollar_million",
+    "expectedIntent": "SPAM",
+    "linguisticPattern": "dollar_income_telegram_link"
+  },
+  {
+    "id": "SYN_SPAM_02",
+    "category": "SPAM",
+    "text": "شارژ رایگان ایرانسل و همراه اول در ربات @charge_free_bot",
+    "expectedIntent": "SPAM",
+    "linguisticPattern": "recharge_scam_bot"
+  },
+  {
+    "id": "SYN_SPAM_03",
+    "category": "SPAM",
+    "text": "عضویت در کانال صیغه‌یابی و ازدواج موقت telegram.me/sigheh_iran",
+    "expectedIntent": "SPAM",
+    "linguisticPattern": "dating_scam_link"
+  },
+  {
+    "id": "SYN_SPAM_04",
+    "category": "SPAM",
+    "text": "پکیج ارز دیجیتال تضمینی instagram.com/crypto_rich_iran",
+    "expectedIntent": "SPAM",
+    "linguisticPattern": "instagram_scam_link"
+  },
+  {
+    "id": "SYN_SPAM_05",
+    "category": "SPAM",
+    "text": "کانال من رو جوین شو تخفیف داره rubika.ir/my_shop_ir",
+    "expectedIntent": "SPAM",
+    "linguisticPattern": "rubika_channel_promotion"
+  },
+  {
+    "id": "SYN_OFF_01",
+    "category": "OFF_TOPIC",
+    "text": "قیمت هر گرم طلا ۱۸ عیار امروز در بازار ۵ میلیونه",
+    "expectedIntent": "OFF_TOPIC",
+    "forbiddenIntents": [
+      "PRICE_REQUEST"
+    ],
+    "linguisticPattern": "gold_market_announcement"
+  },
+  {
+    "id": "SYN_OFF_02",
+    "category": "OFF_TOPIC",
+    "text": "قیمت دلار و سکه امامی امروز صعودی بود در بازار آزاد",
+    "expectedIntent": "OFF_TOPIC",
+    "forbiddenIntents": [
+      "PRICE_REQUEST"
+    ],
+    "linguisticPattern": "currency_market_report"
+  },
+  {
+    "id": "SYN_OFF_03",
+    "category": "OFF_TOPIC",
+    "text": "قیمت روز مسکن و اجاره خونه در منطقه ۵ تهران چنده؟",
+    "expectedIntent": "OFF_TOPIC",
+    "forbiddenIntents": [
+      "PRICE_REQUEST"
+    ],
+    "linguisticPattern": "housing_price_inquiry"
+  },
+  {
+    "id": "SYN_OFF_04",
+    "category": "OFF_TOPIC",
+    "text": "بارسلونا دیشب با نتیجه سه بر یک بازی رو برد",
+    "expectedIntent": "OFF_TOPIC",
+    "linguisticPattern": "sports_news_statement"
+  },
+  {
+    "id": "SYN_OFF_05",
+    "category": "OFF_TOPIC",
+    "text": "نرخ تورم سالانه طبق آمار بانک مرکزی کاهش یافته",
+    "expectedIntent": "OFF_TOPIC",
+    "linguisticPattern": "economic_statistics_statement"
+  },
+  {
+    "id": "SYN_OFF_06",
+    "category": "OFF_TOPIC",
+    "text": "شاخص کل بورس اوراق بهادار امروز ده هزار واحد افت کرد",
+    "expectedIntent": "OFF_TOPIC",
+    "linguisticPattern": "stock_market_drop"
+  },
+  {
+    "id": "SYN_UNK_01",
+    "category": "UNKNOWN",
+    "text": "خب چی شد؟",
+    "expectedIntent": "UNKNOWN",
+    "linguisticPattern": "short_khob_question_unique"
+  },
+  {
+    "id": "SYN_UNK_02",
+    "category": "UNKNOWN",
+    "text": "یعنی چی واقعا؟",
+    "expectedIntent": "UNKNOWN",
+    "linguisticPattern": "short_clarification_phrase_unique"
+  },
+  {
+    "id": "SYN_UNK_03",
+    "category": "UNKNOWN",
+    "text": "چی؟",
+    "expectedIntent": "UNKNOWN",
+    "linguisticPattern": "single_interrogative_chi"
+  },
+  {
+    "id": "SYN_UNK_04",
+    "category": "UNKNOWN",
+    "text": "اوکی",
+    "expectedIntent": "UNKNOWN",
+    "linguisticPattern": "isolated_acknowledgment"
+  },
+  {
+    "id": "SYN_UNK_05",
+    "category": "UNKNOWN",
+    "text": "؟",
+    "expectedIntent": "UNKNOWN",
+    "linguisticPattern": "isolated_question_mark"
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "p0Count": 0,
+  "p1Count": 0,
+  "p2Count": 2,
+  "findings": [
+    {
+      "severity": "P2",
+      "title": "HMR Platform Deactivation Invariant",
+      "description": "Hot Module Replacement is intentionally disabled by container environment platform controls (DISABLE_HMR=true).",
+      "status": "ACCEPTABLE"
+    },
+    {
+      "severity": "P2",
+      "title": "Deterministic Fallback Mode",
+      "description": "The engine gracefully operates in fully deterministic rule-guided mode if external AI API keys are unset.",
+      "status": "ACCEPTABLE"
+    }
+  ],
+  "releaseBlocked": false,
+  "status": "PASSED"
+}

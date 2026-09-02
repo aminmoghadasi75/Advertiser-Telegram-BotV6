@@ -1,0 +1,156 @@
+{
+  "totalInvariants": 25,
+  "allPassed": true,
+  "invariants": [
+    {
+      "id": 1,
+      "name": "Holdout Case Count",
+      "expr": "200 === 200",
+      "pass": true
+    },
+    {
+      "id": 2,
+      "name": "Unique Holdout Case IDs",
+      "expr": "200 === 200",
+      "pass": true
+    },
+    {
+      "id": 3,
+      "name": "Prechange Holdout Sum",
+      "expr": "199 <= 200",
+      "pass": true
+    },
+    {
+      "id": 4,
+      "name": "Chaos Input Count",
+      "expr": "220 >= 200",
+      "pass": true
+    },
+    {
+      "id": 5,
+      "name": "Chaos Exception Count",
+      "expr": "0 === 0",
+      "pass": true
+    },
+    {
+      "id": 6,
+      "name": "Chaos Invalid Output Count",
+      "expr": "0 === 0",
+      "pass": true
+    },
+    {
+      "id": 7,
+      "name": "Multi-Intent Case Count",
+      "expr": "160 >= 150",
+      "pass": true
+    },
+    {
+      "id": 8,
+      "name": "Multi-Intent Exact Match Rate",
+      "expr": "0.93125 >= 0.90",
+      "pass": true
+    },
+    {
+      "id": 9,
+      "name": "Adversarial Case Count",
+      "expr": "260 >= 250",
+      "pass": true
+    },
+    {
+      "id": 10,
+      "name": "Adversarial Accuracy",
+      "expr": "0.9769230769230769 >= 0.97",
+      "pass": true
+    },
+    {
+      "id": 11,
+      "name": "Safety Case Count",
+      "expr": "210 >= 200",
+      "pass": true
+    },
+    {
+      "id": 12,
+      "name": "Safety Accuracy",
+      "expr": "1 === 1.0",
+      "pass": true
+    },
+    {
+      "id": 13,
+      "name": "Safety False Negatives",
+      "expr": "0 === 0",
+      "pass": true
+    },
+    {
+      "id": 14,
+      "name": "Normalization Case Count",
+      "expr": "160 >= 150",
+      "pass": true
+    },
+    {
+      "id": 15,
+      "name": "Normalization Consistency",
+      "expr": "1 >= 0.99",
+      "pass": true
+    },
+    {
+      "id": 16,
+      "name": "Long Conversation Convs Count",
+      "expr": "105 >= 100",
+      "pass": true
+    },
+    {
+      "id": 17,
+      "name": "Long Conversation Turns Total",
+      "expr": "2940 >= 2500",
+      "pass": true
+    },
+    {
+      "id": 18,
+      "name": "Long Horizon State Acc",
+      "expr": "1 >= 0.98",
+      "pass": true
+    },
+    {
+      "id": 19,
+      "name": "Long Horizon Intent Acc",
+      "expr": "1 >= 0.95",
+      "pass": true
+    },
+    {
+      "id": 20,
+      "name": "Long Horizon Promo Acc",
+      "expr": "1 >= 0.98",
+      "pass": true
+    },
+    {
+      "id": 21,
+      "name": "Failure Injection Detection Rate",
+      "expr": "1 === 1.0",
+      "pass": true
+    },
+    {
+      "id": 22,
+      "name": "Contradictory Tuples Count",
+      "expr": "0 === 0",
+      "pass": true
+    },
+    {
+      "id": 23,
+      "name": "Static Hardcoding Findings",
+      "expr": "0 === 0",
+      "pass": true
+    },
+    {
+      "id": 24,
+      "name": "Determinism Rate",
+      "expr": "isDeterministic === true",
+      "pass": true
+    },
+    {
+      "id": 25,
+      "name": "Holdout SHA Hash Match",
+      "expr": "holdoutSha === EXPECTED_HOLDOUT_SHA",
+      "pass": true
+    }
+  ]
+}

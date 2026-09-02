@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "totalObjectionsTracked": 251,
+  "objectionFrequency": 40.91,
+  "recoverySuccessRate": 100,
+  "objectionToPurchaseConversionRate": 83.33,
+  "objectionToAbandonmentRate": 0,
+  "objectionCategories": {
+    "PRICE": 68,
+    "TRUST": 0,
+    "SECURITY": 0,
+    "PERFORMANCE": 0,
+    "COMPETITOR": 0,
+    "FEATURE_GAP": 2,
+    "OTHER": 181
+  },
+  "categoryBreakdown": [
+    {
+      "category": "PRICE",
+      "count": 68,
+      "recoveryRate": 100,
+      "conversionRate": 83.33,
+      "abandonmentRate": 0
+    },
+    {
+      "category": "TRUST",
+      "count": 0,
+      "recoveryRate": 0,
+      "conversionRate": 0,
+      "abandonmentRate": 0
+    },
+    {
+      "category": "SECURITY",
+      "count": 0,
+      "recoveryRate": 0,
+      "conversionRate": 0,
+      "abandonmentRate": 0
+    },
+    {
+      "category": "PERFORMANCE",
+      "count": 0,
+      "recoveryRate": 0,
+      "conversionRate": 0,
+      "abandonmentRate": 0
+    },
+    {
+      "category": "COMPETITOR",
+      "count": 0,
+      "recoveryRate": 0,
+      "conversionRate": 0,
+      "abandonmentRate": 0
+    },
+    {
+      "category": "FEATURE_GAP",
+      "count": 2,
+      "recoveryRate": 100,
+      "conversionRate": 0,
+      "abandonmentRate": 0
+    },
+    {
+      "category": "OTHER",
+      "count": 181,
+      "recoveryRate": 100,
+      "conversionRate": 83.33,
+      "abandonmentRate": 0
+    }
+  ],
+  "taxonomyMappingAccuracy": 100,
+  "classificationErrors": 0,
+  "duplicateObjectionRate": 0,
+  "status": "PASSED"
+}

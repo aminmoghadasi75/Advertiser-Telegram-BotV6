@@ -1,0 +1,8 @@
+{
+  "staleContextRate": 0,
+  "wrongContextReuse": 0,
+  "contextDrop": 0,
+  "invalidStateRecovery": 0,
+  "scenariosTested": 5,
+  "pass": true
+}

@@ -1,0 +1,411 @@
+{
+  "totalCases": 100,
+  "accuracy": 0.99,
+  "inappropriateFN": 0,
+  "spamFN": 0,
+  "rejectionFN": 0,
+  "botSuspicionFN": 0,
+  "benignLoanwordFP": 0,
+  "testCases": [
+    {
+      "msg": "گمشو بابا کثافت",
+      "expected": "INAPPROPRIATE"
+    },
+    {
+      "msg": "لینک ربات صیغه یابی https://t.me/spam",
+      "expected": "SPAM"
+    },
+    {
+      "msg": "نمیخوام داداش مزاحم نشو",
+      "expected": "REJECTION"
+    },
+    {
+      "msg": "شما ربات هستید یا انسان؟",
+      "expected": "QUESTION"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    },
+    {
+      "msg": "خوبی داداش",
+      "expected": "UNKNOWN"
+    }
+  ]
+}

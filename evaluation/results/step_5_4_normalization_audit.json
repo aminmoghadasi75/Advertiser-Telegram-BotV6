@@ -1,0 +1,156 @@
+{
+  "totalVariants": 25,
+  "consistencyRate": 0.96,
+  "variants": [
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "قيمت فيلترشكن ماهانه چنده؟",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "قیمت فیلترشکن ماهانه چنده؟",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "🌸✨ قیمت فیلترشکن ماهانه چنده؟ !!! ??? 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "قیمت فیلترشکن ۱ ماهه چنده؟",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "   قیمت   فیلترشکن   ماهانه   چنده؟   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "اكانت تست رايگان v2ray ميديد؟",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "اکانت تست رایگان v2ray میدید؟",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "🌸✨ اکانت تست رایگان v2ray میدید؟ !!! ??? 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "اکانت تست رایگان V2RAY میدید؟",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "   اکانت   تست   رایگان   v2ray   میدید؟   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "شماره كارت بديد واريز كنم ميخوام بخرم",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "🌸✨ شماره کارت بدید واریز کنم میخوام بخرم !!! ??? 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "   شماره   کارت   بدید   واریز   کنم   میخوام   بخرم   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "نه ممنون اصلا نيازي به vpn ندارم",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "نه ممنون اصلا نیازی به vpn ندارم",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "🌸✨ نه ممنون اصلا نیازی به vpn ندارم !!! ??? 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "نه ممنون اصلا نیازی به VPN ندارم",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "   نه   ممنون   اصلا   نیازی   به   vpn   ندارم   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "سلام وقتتون بخير خسته نباشيد",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "سلام وقتتون بخیر خسته نباشید",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "🌸✨ سلام وقتتون بخیر خسته نباشید !!! ??? 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "سلام وقتتون بخیر خسته نباشید",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "   سلام   وقتتون   بخیر   خسته   نباشید   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "GREETING"
+    }
+  ]
+}

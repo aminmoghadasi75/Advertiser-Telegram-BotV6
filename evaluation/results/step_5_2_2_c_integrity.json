@@ -1,0 +1,19 @@
+{
+  "executionTimestamp": "2026-08-21T16:01:07.681Z",
+  "holdoutPath": "/app/applet/evaluation/holdout_intent_v1.json",
+  "caseCount": 200,
+  "holdoutSha256": "deb6d74e403e1476dee6b5259d9b873fee1020bdd0e8214d50c3d32c6546b821",
+  "expectedHoldoutSha256": "deb6d74e403e1476dee6b5259d9b873fee1020bdd0e8214d50c3d32c6546b821",
+  "holdoutSha256Matches": true,
+  "holdoutManifestPath": "/app/applet/evaluation/holdout_intent_v1_manifest.json",
+  "holdoutManifestSha256": "04c9821e1d39d29439a9098ff3e554fad94bb8153be57a4b35b7665b5ad24a2b",
+  "expectedHoldoutManifestSha256": "04c9821e1d39d29439a9098ff3e554fad94bb8153be57a4b35b7665b5ad24a2b",
+  "holdoutManifestSha256Matches": true,
+  "step521ManifestPath": "/app/applet/evaluation/step_5_2_1_manifest.json",
+  "step521ManifestSha256": "7ca8a15b80f1b2711fcf693271f919800daa1d152f15ebd7e97e0bffa6e9c809",
+  "expectedStep521ManifestSha256": "7ca8a15b80f1b2711fcf693271f919800daa1d152f15ebd7e97e0bffa6e9c809",
+  "step521ManifestSha256Matches": true,
+  "duplicateIds": [],
+  "uniqueCaseIds": 200,
+  "productionCodeUnchanged": true
+}

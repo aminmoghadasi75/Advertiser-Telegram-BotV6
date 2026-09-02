@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-08-21T16:09:25.263Z",
+  "holdoutAccuracy": 0.995,
+  "holdoutMultiIntentMatch": 0.9090909090909091,
+  "stateAccuracy": 0.9202898550724637,
+  "promotionAccuracy": 0.9492753623188406,
+  "commercialFPR": 0,
+  "rejectionFNR": 0,
+  "totalHoldoutCases": 200,
+  "totalGoldTurns": 138
+}

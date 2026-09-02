@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "dashboardSource": "src/components/anonymous/AnonymousAnalyticsTab.tsx",
+  "subTabsValidated": [
+    "funnel",
+    "leads",
+    "objections",
+    "promotions"
+  ],
+  "dataContractValidated": "Step7AnalyticsReport",
+  "dashboardDataMatches": true,
+  "sampleSessionCount": 2,
+  "calculatedMetrics": {
+    "totalSessions": 2,
+    "overallConversionRate": 50,
+    "hotLeads": 1,
+    "coldLeads": 1,
+    "totalObjections": 1,
+    "ctasShown": 2,
+    "ctasAccepted": 1
+  },
+  "dashboardAccuracy": "100%",
+  "status": "PASSED"
+}

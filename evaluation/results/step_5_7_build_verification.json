@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "typecheckPassed": true,
+  "distDirectoryExists": true,
+  "serverBundleExists": true,
+  "serverBundleSha256": "fc02d6b9fe1da1b6e26dd523544532b477f40d949ec19eab67f3cc3a17f82f12",
+  "indexHtmlExists": true,
+  "runtimeEnvironment": {
+    "nodeVersion": "v22.23.1",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "buildArtifactsValid": true,
+  "status": "PASSED"
+}

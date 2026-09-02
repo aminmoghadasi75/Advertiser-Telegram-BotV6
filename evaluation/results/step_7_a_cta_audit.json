@@ -1,0 +1,89 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "ctaEffectiveness": {
+    "shownCount": 123,
+    "acceptedCount": 96,
+    "rejectedCount": 0,
+    "conversionAfterCTA": 39,
+    "acceptanceRate": 78.05,
+    "ctaConversionRate": 31.71
+  },
+  "bestPerformingCTATypes": [
+    {
+      "ctaType": "SUPPORT_HANDOFF",
+      "shownCount": 39,
+      "acceptedCount": 32,
+      "conversionRate": 100
+    },
+    {
+      "ctaType": "PRICING_PLANS",
+      "shownCount": 70,
+      "acceptedCount": 62,
+      "conversionRate": 90
+    },
+    {
+      "ctaType": "DIRECT_PRODUCT_CTA",
+      "shownCount": 10,
+      "acceptedCount": 1,
+      "conversionRate": 40
+    },
+    {
+      "ctaType": "TRIAL_OFFER",
+      "shownCount": 4,
+      "acceptedCount": 1,
+      "conversionRate": 25
+    }
+  ],
+  "worstPerformingCTATiming": [
+    {
+      "turnNumber": 1,
+      "stageName": "Turn 1",
+      "shownCount": 9,
+      "rejectionRate": 0
+    },
+    {
+      "turnNumber": 2,
+      "stageName": "Turn 2",
+      "shownCount": 10,
+      "rejectionRate": 0
+    },
+    {
+      "turnNumber": 3,
+      "stageName": "Turn 3",
+      "shownCount": 7,
+      "rejectionRate": 0
+    },
+    {
+      "turnNumber": 4,
+      "stageName": "Turn 4",
+      "shownCount": 36,
+      "rejectionRate": 0
+    },
+    {
+      "turnNumber": 5,
+      "stageName": "Turn 5",
+      "shownCount": 1,
+      "rejectionRate": 0
+    },
+    {
+      "turnNumber": 13,
+      "stageName": "Turn 13",
+      "shownCount": 30,
+      "rejectionRate": 0
+    },
+    {
+      "turnNumber": 14,
+      "stageName": "Turn 14",
+      "shownCount": 30,
+      "rejectionRate": 0
+    }
+  ],
+  "prematureCTARate": 0,
+  "missedOpportunityRate": 0,
+  "guardrailSafetyComplianceRate": 100,
+  "promotionBlockedCount": 221,
+  "impossibleCTAAcceptances": 0,
+  "postRejectionCTAPromotions": 0,
+  "duplicateCTAViolations": 0,
+  "status": "PASSED"
+}

@@ -1,0 +1,27 @@
+{
+  "goldDatasetExactOverlap": 2,
+  "goldDatasetExactOverlaps": [
+    {
+      "holdoutId": "holdout_199",
+      "holdoutMsg": "خب؟",
+      "matchSource": "UnitTest:Intent:GEN_UNKNOWN_01",
+      "matchMsg": "خب؟"
+    },
+    {
+      "holdoutId": "holdout_200",
+      "holdoutMsg": "یعنی چی؟",
+      "matchSource": "UnitTest:Intent:GEN_UNKNOWN_02",
+      "matchMsg": "یعنی چی؟"
+    }
+  ],
+  "goldDatasetNormalizedOverlap": 0,
+  "goldDatasetNormalizedOverlaps": [],
+  "goldDatasetNearDuplicates": [],
+  "syntheticDatasetExactOverlap": 0,
+  "syntheticDatasetExactOverlaps": [],
+  "syntheticDatasetNormalizedOverlap": 0,
+  "syntheticDatasetNormalizedOverlaps": [],
+  "syntheticDatasetNearDuplicates": [],
+  "sourceCodeLeakages": [],
+  "isClean": false
+}

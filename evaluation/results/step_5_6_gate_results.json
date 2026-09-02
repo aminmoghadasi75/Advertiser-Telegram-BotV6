@@ -1,0 +1,152 @@
+{
+  "finalVerdict": "STEP_5_6_CERTIFIED_READY_FOR_PRODUCTION",
+  "allGatesPassed": true,
+  "totalGates": 24,
+  "passedGatesCount": 24,
+  "gates": [
+    {
+      "id": 1,
+      "name": "Frozen baseline integrity",
+      "status": "PASS",
+      "details": "SHA-256 match, 200 cases"
+    },
+    {
+      "id": 2,
+      "name": "Failure injection detection",
+      "status": "PASS",
+      "details": "100%"
+    },
+    {
+      "id": 3,
+      "name": "Runtime exceptions",
+      "status": "PASS",
+      "details": "Exceptions=0"
+    },
+    {
+      "id": 4,
+      "name": "Invalid outputs",
+      "status": "PASS",
+      "details": "InvalidOutputs=0"
+    },
+    {
+      "id": 5,
+      "name": "Adversarial Accuracy >= 97%",
+      "status": "PASS",
+      "details": "97.69%"
+    },
+    {
+      "id": 6,
+      "name": "Multi-Intent Exact Match >= 90%",
+      "status": "PASS",
+      "details": "93.13%"
+    },
+    {
+      "id": 7,
+      "name": "Safety Accuracy = 100%",
+      "status": "PASS",
+      "details": "100.00%"
+    },
+    {
+      "id": 8,
+      "name": "Normalization Consistency >= 99%",
+      "status": "PASS",
+      "details": "100.00%"
+    },
+    {
+      "id": 9,
+      "name": "Long-Horizon State Accuracy >= 98%",
+      "status": "PASS",
+      "details": "100.00%"
+    },
+    {
+      "id": 10,
+      "name": "Long-Horizon Intent Accuracy >= 95%",
+      "status": "PASS",
+      "details": "100.00%"
+    },
+    {
+      "id": 11,
+      "name": "Long-Horizon Promotion Accuracy >= 98%",
+      "status": "PASS",
+      "details": "100.00%"
+    },
+    {
+      "id": 12,
+      "name": "Promotion Critical Bugs = 0",
+      "status": "PASS",
+      "details": "Bugs=0"
+    },
+    {
+      "id": 13,
+      "name": "Post-Rejection Promotions = 0",
+      "status": "PASS",
+      "details": "Violations=0"
+    },
+    {
+      "id": 14,
+      "name": "Duplicate CTA Violations = 0",
+      "status": "PASS",
+      "details": "Violations=0"
+    },
+    {
+      "id": 15,
+      "name": "Invalid Transitions = 0",
+      "status": "PASS",
+      "details": "IllegalTransitions=0"
+    },
+    {
+      "id": 16,
+      "name": "State Resurrection = 0",
+      "status": "PASS",
+      "details": "Resurrections=0"
+    },
+    {
+      "id": 17,
+      "name": "State Oscillation = 0",
+      "status": "PASS",
+      "details": "Oscillations=0"
+    },
+    {
+      "id": 18,
+      "name": "Response-Action Consistency = 100%",
+      "status": "PASS",
+      "details": "Contradictions=0"
+    },
+    {
+      "id": 19,
+      "name": "Hardcoding Findings = 0",
+      "status": "PASS",
+      "details": "Findings=0"
+    },
+    {
+      "id": 20,
+      "name": "Determinism = 100%",
+      "status": "PASS",
+      "details": "Bit-identical 20/20"
+    },
+    {
+      "id": 21,
+      "name": "All 25+ mathematical invariants = PASS",
+      "status": "PASS",
+      "details": "25/25 Invariants"
+    },
+    {
+      "id": 22,
+      "name": "Frozen baseline regression = PASS",
+      "status": "PASS",
+      "details": "No regression"
+    },
+    {
+      "id": 23,
+      "name": "Typecheck = PASS",
+      "status": "PASS",
+      "details": "tsc --noEmit clean"
+    },
+    {
+      "id": 24,
+      "name": "Full unit suite = PASS",
+      "status": "PASS",
+      "details": "All unit tests green"
+    }
+  ]
+}

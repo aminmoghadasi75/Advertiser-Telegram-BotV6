@@ -1,0 +1,101 @@
+{
+  "allGatesPassed": true,
+  "verdict": "STEP_5_4_CERTIFIED",
+  "gateChecks": [
+    {
+      "gate": "Holdout Intent Accuracy >= 83.00%",
+      "passed": true,
+      "value": "83.00%"
+    },
+    {
+      "gate": "Holdout Multi-Intent Match >= 83.33%",
+      "passed": true,
+      "value": "83.33%"
+    },
+    {
+      "gate": "Holdout Critical Intent Errors == 0",
+      "passed": true,
+      "value": 0
+    },
+    {
+      "gate": "Holdout Commercial FPR <= 0.00%",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Holdout Rejection FNR <= 0.00%",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Baseline State Accuracy >= 93.48%",
+      "passed": true,
+      "value": "93.48%"
+    },
+    {
+      "gate": "Baseline Promotion Accuracy >= 96.38%",
+      "passed": true,
+      "value": "96.38%"
+    },
+    {
+      "gate": "Baseline Invalid Transition Rate == 0%",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Baseline Critical Promotion Bugs == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Baseline Rejection-to-Promotion Leaks == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Baseline Post-Rejection Reopening Errors == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Baseline CTA Cooldown Violations == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Step 5.4 Long Conversation State Acc >= 90.00%",
+      "passed": true,
+      "value": "100.00%"
+    },
+    {
+      "gate": "Step 5.4 Long Conversation Promo Acc >= 92.00%",
+      "passed": true,
+      "value": "97.37%"
+    },
+    {
+      "gate": "Step 5.4 Response-Action Consistency == 100%",
+      "passed": true,
+      "value": "100.00%"
+    },
+    {
+      "gate": "Step 5.4 Safety Regression Pass == 100%",
+      "passed": true,
+      "value": "100.00%"
+    },
+    {
+      "gate": "Step 5.4 Normalization Robustness >= 95%",
+      "passed": true,
+      "value": "96.00%"
+    },
+    {
+      "gate": "Step 5.4 Bit-Identical Determinism == 100%",
+      "passed": true,
+      "value": "100%"
+    },
+    {
+      "gate": "Step 5.4 All 18 Mathematical Invariants == PASS",
+      "passed": true,
+      "value": "PASS"
+    }
+  ]
+}

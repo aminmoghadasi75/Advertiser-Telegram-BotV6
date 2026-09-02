@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "totalSessionsEvaluated": 88,
+  "overallConversionRate": 44.32,
+  "biggestDropOffStage": "Stage 3: Need Detected",
+  "avgTurnsToConversion": 11.62,
+  "avgTimeToConversionSeconds": 0,
+  "stages": [
+    {
+      "stageNumber": 1,
+      "stageName": "Stage 1: Conversation Started",
+      "count": 88,
+      "conversionRateFromPrevious": 100,
+      "dropOffRate": 0,
+      "avgTurnsToReach": 1,
+      "avgTimeSecondsToReach": 0
+    },
+    {
+      "stageNumber": 2,
+      "stageName": "Stage 2: Intent Identified",
+      "count": 88,
+      "conversionRateFromPrevious": 100,
+      "dropOffRate": 0,
+      "avgTurnsToReach": 1,
+      "avgTimeSecondsToReach": 0
+    },
+    {
+      "stageNumber": 3,
+      "stageName": "Stage 3: Need Detected",
+      "count": 46,
+      "conversionRateFromPrevious": 52.27,
+      "dropOffRate": 47.73,
+      "avgTurnsToReach": 1.91,
+      "avgTimeSecondsToReach": 0
+    },
+    {
+      "stageNumber": 4,
+      "stageName": "Stage 4: Product Interest",
+      "count": 44,
+      "conversionRateFromPrevious": 95.65,
+      "dropOffRate": 4.35,
+      "avgTurnsToReach": 2.64,
+      "avgTimeSecondsToReach": 0
+    },
+    {
+      "stageNumber": 5,
+      "stageName": "Stage 5: Commercial Intent",
+      "count": 49,
+      "conversionRateFromPrevious": 111.36,
+      "dropOffRate": -11.36,
+      "avgTurnsToReach": 3.41,
+      "avgTimeSecondsToReach": 0
+    },
+    {
+      "stageNumber": 6,
+      "stageName": "Stage 6: CTA Presented",
+      "count": 53,
+      "conversionRateFromPrevious": 108.16,
+      "dropOffRate": -8.16,
+      "avgTurnsToReach": 3.15,
+      "avgTimeSecondsToReach": 0
+    },
+    {
+      "stageNumber": 7,
+      "stageName": "Stage 7: Trial/Purchase Action",
+      "count": 36,
+      "conversionRateFromPrevious": 67.92,
+      "dropOffRate": 32.08,
+      "avgTurnsToReach": 12.08,
+      "avgTimeSecondsToReach": 0
+    },
+    {
+      "stageNumber": 8,
+      "stageName": "Stage 8: Conversion",
+      "count": 39,
+      "conversionRateFromPrevious": 108.33,
+      "dropOffRate": -8.33,
+      "avgTurnsToReach": 11.62,
+      "avgTimeSecondsToReach": 0
+    }
+  ],
+  "funnelAccuracy": 100,
+  "invalidFunnelTransitions": 0,
+  "funnelStageSumViolations": 0,
+  "mathConsistencyViolations": 0,
+  "status": "PASSED"
+}

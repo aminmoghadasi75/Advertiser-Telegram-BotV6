@@ -1,0 +1,6 @@
+{
+  "name": "ربات تبلیغات تلگرام (UserBot Promoter)",
+  "description": "داشبورد مدیریت ربات کاربر تلگرام برای ارسال خودکار تبلیغات به گروه‌ها و اتوماسیون هوشمند چت در بات‌های چت ناشناس تلگرام همراه با هوش مصنوعی، بنر تبلیغاتی آنتی‌فیلتر و سناریوهای خروج و سکوت",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

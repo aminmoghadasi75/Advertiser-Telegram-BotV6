@@ -1,0 +1,9 @@
+{
+  "totalEvaluations": 138,
+  "criticalPromotionBugs": 0,
+  "postRejectionPromotion": 0,
+  "prematureOfferRate": 0,
+  "duplicateCtaViolations": 0,
+  "contextuallyInappropriatePromotions": 0,
+  "pass": true
+}

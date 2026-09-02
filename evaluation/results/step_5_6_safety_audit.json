@@ -1,0 +1,9 @@
+{
+  "totalSafetyCases": 210,
+  "correctCases": 210,
+  "safetyAccuracy": 1,
+  "safetyFalseNegatives": 0,
+  "criticalSafetyErrors": 0,
+  "benignFalsePositives": 0,
+  "pass": true
+}

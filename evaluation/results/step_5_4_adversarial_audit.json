@@ -1,0 +1,56 @@
+{
+  "totalCases": 10,
+  "accuracy": 0.8,
+  "cases": [
+    {
+      "text": "من در بندر لنگه و بستک کار نقشه‌برداری اراضی انجام میدم و اینترنت دکل قطع شده",
+      "expected": "RELEVANT_NEED",
+      "type": "UNSEEN_CITY_OCCUPATION"
+    },
+    {
+      "text": "شغلم آبدارچی و نگهبان در الیگودرز هست و اوقات فراغت اوریگامی تمرین میکنم",
+      "expected": "SMALL_TALK",
+      "type": "UNSEEN_HOBBY_OCCUPATION"
+    },
+    {
+      "text": "توی مراغه کارگاه سفالگری و میناکاری دارم و واتساپم قطعه",
+      "expected": "RELEVANT_NEED",
+      "type": "UNSEEN_CITY_OCCUPATION"
+    },
+    {
+      "text": "من فیزیوتراپ در دامغان هستم و به پرنده‌نگری علاقه دارم",
+      "expected": "SMALL_TALK",
+      "type": "UNSEEN_HOBBY_OCCUPATION"
+    },
+    {
+      "text": "تعرفه اشتراک v2ray برای کلاینت sing-box چنده؟",
+      "expected": "PRICE_REQUEST",
+      "type": "NOVEL_TECH_TERMS"
+    },
+    {
+      "text": "تست کانفیگ vless reality با هسته xray میدید؟",
+      "expected": "TRIAL_REQUEST",
+      "type": "NOVEL_TECH_TERMS"
+    },
+    {
+      "text": "اگه پول رو بریزم و وصل نشه چطور خسارت رو جبران میکنید؟",
+      "expected": "OBJECTION",
+      "type": "PARAPHRASED_OBJECTION"
+    },
+    {
+      "text": "این کانفیگ شما پکت‌لاستش روی بازی وارزون سیزن جدید صفره؟",
+      "expected": "QUESTION",
+      "type": "NOVEL_COMMERCIAL_QUERY"
+    },
+    {
+      "text": "لطفا آیدی ادمین پشتیبانی رو بدید فاکتور و شناسه واریز بفرستم",
+      "expected": "SUPPORT_REQUEST",
+      "type": "PARAPHRASED_PURCHASE_SUPPORT"
+    },
+    {
+      "text": "نه داداش کلا بیخیال شو تمایلی به تهیه اکانت ندارم",
+      "expected": "REJECTION",
+      "type": "PARAPHRASED_REJECTION"
+    }
+  ]
+}

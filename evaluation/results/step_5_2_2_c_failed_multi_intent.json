@@ -1,0 +1,230 @@
+[
+  {
+    "caseId": "holdout_012",
+    "inputText": "من ۲۸ سالمه ساکن کرجم، تو چند سالته؟",
+    "expectedPrimary": "SMALL_TALK",
+    "expectedSecondary": [
+      "QUESTION"
+    ],
+    "predictedPrimary": "QUESTION",
+    "predictedSecondary": [],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.95,
+    "reasonCodes": [
+      "GENERAL_QUESTION_PRIMARY",
+      "GENERAL_CONVERSATION_QUESTION"
+    ]
+  },
+  {
+    "caseId": "holdout_043",
+    "inputText": "برای ترید و صرافی بایننس به یه آیپی بدون قطعی نیاز دارم وگرنه حسابم بسته میشه",
+    "expectedPrimary": "RELEVANT_NEED",
+    "expectedSecondary": [
+      "PRODUCT_CURIOUS"
+    ],
+    "predictedPrimary": "PRODUCT_CURIOUS",
+    "predictedSecondary": [
+      "GOODBYE"
+    ],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.9,
+    "reasonCodes": [
+      "ACTIONABLE_COMMERCIAL_OVERRIDE",
+      "PRODUCT_FEATURE_AND_COMPATIBILITY_INQUIRY"
+    ]
+  },
+  {
+    "caseId": "holdout_046",
+    "inputText": "هر روز ۱۰ تا vpn رایگان نصب میکنم همشون قطع میشن خسته شدم",
+    "expectedPrimary": "RELEVANT_NEED",
+    "expectedSecondary": [
+      "OBJECTION"
+    ],
+    "predictedPrimary": "SMALL_TALK",
+    "predictedSecondary": [],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.9,
+    "reasonCodes": [
+      "SMALL_TALK_PRIMARY",
+      "SMALL_TALK_PERSONAL_SHARING"
+    ]
+  },
+  {
+    "caseId": "holdout_055",
+    "inputText": "یه vpn میخوام که راحت روی ویندوز لپ‌تاپم ست بشه",
+    "expectedPrimary": "VPN_REQUEST",
+    "expectedSecondary": [
+      "PRODUCT_CURIOUS"
+    ],
+    "predictedPrimary": "OFF_TOPIC",
+    "predictedSecondary": [],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.92,
+    "reasonCodes": [
+      "OFF_TOPIC_POSITIVE_OVERRIDE",
+      "OFF_TOPIC_BY_POSITIVE_EVIDENCE"
+    ]
+  },
+  {
+    "caseId": "holdout_057",
+    "inputText": "فیلترشکن پولی خوب معرفی میکنی بخرم راحت شم؟",
+    "expectedPrimary": "VPN_REQUEST",
+    "expectedSecondary": [
+      "PURCHASE_INTENT"
+    ],
+    "predictedPrimary": "PURCHASE_INTENT",
+    "predictedSecondary": [
+      "VPN_REQUEST"
+    ],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.94,
+    "reasonCodes": [
+      "ACTIONABLE_COMMERCIAL_OVERRIDE",
+      "DIRECT_PURCHASE_COMMITMENT"
+    ]
+  },
+  {
+    "caseId": "holdout_068",
+    "inputText": "اگر احیاناً سرور مسدود شد تعویض کانفیگ رایگان دارید؟",
+    "expectedPrimary": "PRODUCT_CURIOUS",
+    "expectedSecondary": [
+      "OBJECTION"
+    ],
+    "predictedPrimary": "VPN_REQUEST",
+    "predictedSecondary": [
+      "PRODUCT_CURIOUS"
+    ],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.94,
+    "reasonCodes": [
+      "ACTIONABLE_COMMERCIAL_OVERRIDE",
+      "EXPLICIT_VPN_INQUIRY"
+    ]
+  },
+  {
+    "caseId": "holdout_071",
+    "inputText": "تضمین بدون قطعی میدید اگر تا آخر ماه قطع شد؟",
+    "expectedPrimary": "PRODUCT_CURIOUS",
+    "expectedSecondary": [
+      "OBJECTION"
+    ],
+    "predictedPrimary": "OBJECTION",
+    "predictedSecondary": [
+      "PRODUCT_CURIOUS"
+    ],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.92,
+    "reasonCodes": [
+      "STRONG_OBJECTION_OVERRIDE",
+      "OBJECTION_DETECTED"
+    ]
+  },
+  {
+    "caseId": "holdout_079",
+    "inputText": "اگه تست ۲۴ ساعته میدی بفرست اگه خوب بود قطعی میخرم",
+    "expectedPrimary": "TRIAL_REQUEST",
+    "expectedSecondary": [
+      "PURCHASE_INTENT"
+    ],
+    "predictedPrimary": "PURCHASE_INTENT",
+    "predictedSecondary": [],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.94,
+    "reasonCodes": [
+      "ACTIONABLE_COMMERCIAL_OVERRIDE",
+      "DIRECT_PURCHASE_COMMITMENT"
+    ]
+  },
+  {
+    "caseId": "holdout_099",
+    "inputText": "چند درمیاد سالیانه‌اش اگه تخفیف بدید؟",
+    "expectedPrimary": "PRICE_REQUEST",
+    "expectedSecondary": [
+      "OBJECTION"
+    ],
+    "predictedPrimary": "PRICE_REQUEST",
+    "predictedSecondary": [
+      "PLAN_REQUEST"
+    ],
+    "mismatchType": "SECONDARY_MISMATCH",
+    "confidence": 0.94,
+    "reasonCodes": [
+      "ACTIONABLE_COMMERCIAL_OVERRIDE",
+      "DIRECT_PRICE_QUERY"
+    ]
+  },
+  {
+    "caseId": "holdout_107",
+    "inputText": "پلن سالیانه با سرور پرسرعت آلمان چه شرایطی داره؟",
+    "expectedPrimary": "PLAN_REQUEST",
+    "expectedSecondary": [
+      "PRODUCT_CURIOUS"
+    ],
+    "predictedPrimary": "PRICE_REQUEST",
+    "predictedSecondary": [
+      "PLAN_REQUEST"
+    ],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.94,
+    "reasonCodes": [
+      "ACTIONABLE_COMMERCIAL_OVERRIDE",
+      "DIRECT_PRICE_QUERY"
+    ]
+  },
+  {
+    "caseId": "holdout_116",
+    "inputText": "کجا پیام بدم برای خرید اکانت یک ماهه؟",
+    "expectedPrimary": "SUPPORT_REQUEST",
+    "expectedSecondary": [
+      "PURCHASE_INTENT"
+    ],
+    "predictedPrimary": "SUPPORT_REQUEST",
+    "predictedSecondary": [
+      "PLAN_REQUEST"
+    ],
+    "mismatchType": "SECONDARY_MISMATCH",
+    "confidence": 0.95,
+    "reasonCodes": [
+      "ACTIONABLE_COMMERCIAL_OVERRIDE",
+      "DIRECT_SUPPORT_OR_ADMIN_REQUEST"
+    ]
+  },
+  {
+    "caseId": "holdout_121",
+    "inputText": "به کی بگم برام ست کنه بلد نیستم وارد برنامه کنم",
+    "expectedPrimary": "SUPPORT_REQUEST",
+    "expectedSecondary": [
+      "OBJECTION"
+    ],
+    "predictedPrimary": "OBJECTION",
+    "predictedSecondary": [
+      "SUPPORT_REQUEST"
+    ],
+    "mismatchType": "BOTH_PRIMARY_AND_SECONDARY_MISMATCH",
+    "confidence": 0.92,
+    "reasonCodes": [
+      "STRONG_OBJECTION_OVERRIDE",
+      "OBJECTION_DETECTED",
+      "OBJECTION_USABILITY_DOUBT"
+    ]
+  },
+  {
+    "caseId": "holdout_137",
+    "inputText": "تخفیف دانشجویی ندارید؟ ارزونتر حساب کن بردارم",
+    "expectedPrimary": "OBJECTION",
+    "expectedSecondary": [
+      "PURCHASE_INTENT"
+    ],
+    "predictedPrimary": "OBJECTION",
+    "predictedSecondary": [
+      "PRICE_REQUEST"
+    ],
+    "mismatchType": "SECONDARY_MISMATCH",
+    "confidence": 0.92,
+    "reasonCodes": [
+      "STRONG_OBJECTION_OVERRIDE",
+      "OBJECTION_DETECTED",
+      "OBJECTION_PRICE_RESISTANCE"
+    ]
+  }
+]

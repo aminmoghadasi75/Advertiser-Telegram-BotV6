@@ -1,0 +1,56 @@
+{
+  "auditTimestamp": "2026-08-21T16:01:47.182Z",
+  "commercialFPR": {
+    "metricName": "Commercial False Positive Rate (FPR)",
+    "authoritativeDefinition": {
+      "commercialIntents": [
+        "PRICE_REQUEST",
+        "TRIAL_REQUEST",
+        "PURCHASE_INTENT",
+        "SUPPORT_REQUEST",
+        "VPN_REQUEST",
+        "PLAN_REQUEST",
+        "PRODUCT_CURIOUS"
+      ],
+      "commercialCasesCount": 83,
+      "nonCommercialDenominator": 117,
+      "falsePositivesCount": 0,
+      "rate": "0.00% (0 / 117)"
+    },
+    "alternativeObservedDefinition": {
+      "commercialIntents": [
+        "PRICE_REQUEST",
+        "TRIAL_REQUEST",
+        "PURCHASE_INTENT",
+        "SUPPORT_REQUEST",
+        "VPN_REQUEST"
+      ],
+      "commercialCasesCount": 61,
+      "nonCommercialDenominator": 139,
+      "falsePositivesCount": 0,
+      "rate": "0.00% (0 / 139)"
+    },
+    "reconciliationVerdict": "COMPATIBLE_AND_RECONCILED",
+    "explanation": "The authoritative Step 5.2.2-C baseline uses the complete 7-class commercial taxonomy yielding 117 non-commercial cases. An informal summary script used a 5-class subset yielding 139 non-commercial cases. In both taxonomic definitions, exactly 0 false positives occurred (0.00% FPR in both). The authoritative 117 denominator is certified."
+  },
+  "rejectionFNR": {
+    "metricName": "Rejection False Negative Rate (FNR)",
+    "authoritativeDefinition": {
+      "targetIntent": "REJECTION",
+      "groundTruthCasesCount": 14,
+      "falseNegativesCount": 0,
+      "rate": "0.00% (0 / 14)"
+    },
+    "alternativeObservedDefinition": {
+      "targetIntents": [
+        "REJECTION (14)",
+        "SUSPICION_BOT (9)"
+      ],
+      "groundTruthCasesCount": 23,
+      "falseNegativesCount": 0,
+      "rate": "0.00% (0 / 23)"
+    },
+    "reconciliationVerdict": "COMPATIBLE_AND_RECONCILED",
+    "explanation": "The authoritative Step 5.2.2-C baseline strictly isolates Intent.REJECTION with ground-truth support of 14 cases. An alternative grouped aggregator combined REJECTION (14) with SUSPICION_BOT (9) yielding 23 cases. In both definitions, false negatives are exactly 0 (0.00% FNR in both). The authoritative 14 denominator is certified."
+  }
+}

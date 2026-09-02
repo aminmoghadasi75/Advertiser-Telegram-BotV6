@@ -1,0 +1,95 @@
+{
+  "allInvariantsPassed": false,
+  "invariants": {
+    "raw_records_match": {
+      "passed": true,
+      "expected": 1500,
+      "actual": 1500
+    },
+    "no_duplicate_case_ids": {
+      "passed": true,
+      "expected": 100,
+      "actual": 100
+    },
+    "confusion_matrix_total_match": {
+      "passed": true,
+      "expected": 200,
+      "actual": 200
+    },
+    "confusion_diagonal_matches_correct": {
+      "passed": false,
+      "expected": 166,
+      "actual": 163
+    },
+    "accuracy_formula_exact": {
+      "passed": false,
+      "expected": 0.83,
+      "actual": 0.815
+    },
+    "weighted_recall_equals_accuracy": {
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    "supports_sum_to_total": {
+      "passed": true,
+      "expected": 200,
+      "actual": 200
+    },
+    "multi_intent_denominator_match": {
+      "passed": true,
+      "expected": 66,
+      "actual": 66
+    },
+    "promotion_denominator_match": {
+      "passed": true,
+      "expected": 1500,
+      "actual": 1500
+    },
+    "rejection_denominator_match": {
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    "errors_map_to_raw_traces": {
+      "passed": true,
+      "expected": 0,
+      "actual": 0
+    },
+    "no_raw_prediction_missing": {
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    "no_case_counted_twice": {
+      "passed": true,
+      "expected": 1500,
+      "actual": 1500
+    },
+    "state_transition_counts_reconcile": {
+      "passed": true,
+      "expected": 1500,
+      "actual": 1500
+    },
+    "promotion_decision_counts_reconcile": {
+      "passed": true,
+      "expected": 1500,
+      "actual": 1500
+    },
+    "safety_counts_reconcile": {
+      "passed": true,
+      "expected": 100,
+      "actual": 100
+    },
+    "context_slice_counts_reconcile": {
+      "passed": true,
+      "expected": 0,
+      "actual": 0
+    },
+    "long_conversation_counts_reconcile": {
+      "passed": true,
+      "expected": ">= 100 convs, >= 1500 turns",
+      "actual": "100 convs, 1500 turns"
+    }
+  }
+}

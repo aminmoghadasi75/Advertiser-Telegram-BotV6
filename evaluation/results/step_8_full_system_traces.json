@@ -1,0 +1,1762 @@
+{
+  "timestamp": "2026-08-21T22:19:11.230Z",
+  "userJourneys": [
+    {
+      "journeyId": "journey_1_new_visitor",
+      "journeyName": "New Visitor Discovery & Soft Conversion Journey",
+      "description": "A cold user starts with greeting, explores products, asks clarification questions, hesitates with a trust objection, then converts.",
+      "turns": [
+        {
+          "turnNumber": 1,
+          "userUtterance": "سلام وقت بخیر چطوری",
+          "detectedIntent": "GREETING",
+          "expectedIntent": "GREETING",
+          "intentMatch": true,
+          "currentState": "INITIAL_GREETING",
+          "nextState": "EARLY_CONVERSATION",
+          "expectedState": "EARLY_CONVERSATION",
+          "stateMatch": true,
+          "promotionLevel": "NO_PROMOTION",
+          "expectedPromotionLevel": "NO_PROMOTION",
+          "promoMatch": true,
+          "leadScore": 5,
+          "scoreBounds": "[5, 15]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 1) ===\n• Current State: EARLY_CONVERSATION (from INITIAL_GREETING)\n• Detected Intent: GREETING (Confidence: 90%)\n• Lead Score: 5/100 (COLD)\n• Promotion Policy: NO_PROMOTION (Locked: NO)\n💬 MODE: CASUAL RAPPORT ONLY. Do not sell or pitch yet.\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 2,
+          "userUtterance": "فیلترشکن اختصاصی شما چطوری کار میکنه و چه ویژگی‌هایی داره؟",
+          "detectedIntent": "QUESTION",
+          "expectedIntent": "QUESTION",
+          "intentMatch": true,
+          "currentState": "EARLY_CONVERSATION",
+          "nextState": "ENGAGED",
+          "expectedState": "ENGAGED",
+          "stateMatch": true,
+          "promotionLevel": "NO_PROMOTION",
+          "expectedPromotionLevel": "NO_PROMOTION",
+          "promoMatch": true,
+          "leadScore": 10,
+          "scoreBounds": "[5, 20]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 2) ===\n• Current State: ENGAGED (from EARLY_CONVERSATION)\n• Detected Intent: QUESTION (Confidence: 85%)\n• Lead Score: 10/100 (COLD)\n• Promotion Policy: NO_PROMOTION (Locked: NO)\n💬 MODE: CASUAL RAPPORT ONLY. Do not sell or pitch yet.\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 3,
+          "userUtterance": "قیمت و تعرفه بسته‌ها چقدر میشه؟",
+          "detectedIntent": "PLAN_REQUEST",
+          "expectedIntent": "PLAN_REQUEST",
+          "intentMatch": true,
+          "currentState": "ENGAGED",
+          "nextState": "PRODUCT_INTEREST",
+          "expectedState": "PRODUCT_INTEREST",
+          "stateMatch": true,
+          "promotionLevel": "DIRECT_OFFER",
+          "expectedPromotionLevel": "DIRECT_OFFER",
+          "promoMatch": true,
+          "leadScore": 50,
+          "scoreBounds": "[45, 70]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 3) ===\n• Current State: PRODUCT_INTEREST (from ENGAGED)\n• Detected Intent: PLAN_REQUEST (Confidence: 96%)\n• Lead Score: 50/100 (WARM)\n• Promotion Policy: DIRECT_OFFER (Locked: NO)\n⚡ EXPLICIT OVERRIDE ACTIVE: User asked for product/VPN directly. Answer immediately without stalling.\n🎯 MODE: DIRECT OFFER. Answer questions with product details, pricing, test config offer, and support link.\n• Support Handle: Nova_vpn10\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 4,
+          "userUtterance": "خیلی گرونه، همکاراتون نصف این قیمت میدن",
+          "detectedIntent": "OBJECTION",
+          "expectedIntent": "OBJECTION",
+          "intentMatch": true,
+          "currentState": "PRODUCT_INTEREST",
+          "nextState": "OBJECTION_HANDLING",
+          "expectedState": "OBJECTION_HANDLING",
+          "stateMatch": true,
+          "promotionLevel": "SOFT_MENTION",
+          "expectedPromotionLevel": "SOFT_MENTION",
+          "promoMatch": true,
+          "leadScore": 45,
+          "scoreBounds": "[35, 60]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 4) ===\n• Current State: OBJECTION_HANDLING (from PRODUCT_INTEREST)\n• Detected Intent: OBJECTION (Confidence: 92%)\n• Lead Score: 45/100 (WARM)\n• Promotion Policy: SOFT_MENTION (Locked: NO)\n🌱 MODE: SOFT BRIDGE. You may casually mention that you use a fast private config/VPN without sounding like a salesperson.\n🛡️ OBJECTION HANDLING (PRICE):\n• Strategy: توضیح کیفیت، پایداری، سرورهای اختصاصی و پشتیبانی ۲۴ ساعته + ارزش در برابر هزینه\n  - سرورها کاملاً اختصاصی و با پهنای باند نامحدود پرسرعت هستند.\n  - بدون افت سرعت در ساعات پیک مصرف و قطعی‌های سراسری اینترنت.\n  - ضمانت بازگشت وجه کامل در صورت عدم رضایت.\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 5,
+          "userUtterance": "اکانت تست رایگان برام بفرستید تست کنم",
+          "detectedIntent": "TRIAL_REQUEST",
+          "expectedIntent": "TRIAL_REQUEST",
+          "intentMatch": true,
+          "currentState": "OBJECTION_HANDLING",
+          "nextState": "TRIAL_DISCUSSION",
+          "expectedState": "TRIAL_DISCUSSION",
+          "stateMatch": true,
+          "promotionLevel": "DIRECT_OFFER",
+          "expectedPromotionLevel": "DIRECT_OFFER",
+          "promoMatch": true,
+          "leadScore": 85,
+          "scoreBounds": "[75, 100]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 5) ===\n• Current State: TRIAL_DISCUSSION (from OBJECTION_HANDLING)\n• Detected Intent: TRIAL_REQUEST (Confidence: 94%)\n• Lead Score: 85/100 (HOT)\n• Promotion Policy: DIRECT_OFFER (Locked: NO)\n⚡ EXPLICIT OVERRIDE ACTIVE: User asked for product/VPN directly. Answer immediately without stalling.\n🎯 MODE: DIRECT OFFER. Answer questions with product details, pricing, test config offer, and support link.\n• Support Handle: Nova_vpn10\n========================================================",
+          "isTerminal": false
+        }
+      ],
+      "analyticsEvents": [
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "userMessage": "سلام وقت بخیر چطوری",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "confidence": 0.9,
+            "isExplicitProductIntent": false,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "secondaryIntents": [
+              "QUESTION"
+            ],
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "fromState": "INITIAL_GREETING",
+            "toState": "EARLY_CONVERSATION",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "enteredState": "EARLY_CONVERSATION",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "oldScore": 0,
+            "newScore": 5,
+            "reason": "سلام و احوال‌پرسی اولیه",
+            "turn": 1
+          }
+        },
+        {
+          "eventName": "LEAD_CREATED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "initialScore": 5,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "ENGAGED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 10,
+          "metadata": {
+            "userMessage": "فیلترشکن اختصاصی شما چطوری کار میکنه و چه ویژگی‌هایی داره؟",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "ENGAGED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 10,
+          "metadata": {
+            "confidence": 0.85,
+            "isExplicitProductIntent": false,
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "ENGAGED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 10,
+          "metadata": {
+            "fromState": "EARLY_CONVERSATION",
+            "toState": "ENGAGED",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "ENGAGED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 10,
+          "metadata": {
+            "enteredState": "ENGAGED",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.923Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 10,
+          "metadata": {
+            "oldScore": 5,
+            "newScore": 10,
+            "reason": "پرسیدن سوال و تعامل فعال",
+            "turn": 2
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "ENGAGED",
+          "currentState": "PRODUCT_INTEREST",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "userMessage": "قیمت و تعرفه بسته‌ها چقدر میشه؟",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "ENGAGED",
+          "currentState": "PRODUCT_INTEREST",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "confidence": 0.96,
+            "isExplicitProductIntent": true,
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "HIGH_VALUE_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "ENGAGED",
+          "currentState": "PRODUCT_INTEREST",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "intent": "PLAN_REQUEST",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "ENGAGED",
+          "currentState": "PRODUCT_INTEREST",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "fromState": "ENGAGED",
+            "toState": "PRODUCT_INTEREST",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "ENGAGED",
+          "currentState": "PRODUCT_INTEREST",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "enteredState": "PRODUCT_INTEREST",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "oldScore": 10,
+            "newScore": 50,
+            "reason": "پرسش درباره انواع پلن‌ها و حجم",
+            "turn": 3
+          }
+        },
+        {
+          "eventName": "PRICE_REQUESTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "ENGAGED",
+          "currentState": "PRODUCT_INTEREST",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "CTA_SHOWN",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "ENGAGED",
+          "currentState": "PRODUCT_INTEREST",
+          "detectedIntent": "PLAN_REQUEST",
+          "leadScore": 50,
+          "metadata": {
+            "allowedLevel": "DIRECT_OFFER",
+            "promotionLevel": "DIRECT_OFFER",
+            "isPromotionLocked": false,
+            "cooldownRemainingTurns": 0,
+            "isExplicitOverride": true,
+            "canSendBannerPhoto": false,
+            "promotionBlocked": false,
+            "ctaShown": true,
+            "ctaAccepted": false,
+            "ctaRejected": false,
+            "previousState": "ENGAGED",
+            "currentState": "PRODUCT_INTEREST",
+            "detectedIntent": "PLAN_REQUEST",
+            "leadScore": 50,
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "PRODUCT_INTEREST",
+          "currentState": "OBJECTION_HANDLING",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 45,
+          "metadata": {
+            "userMessage": "خیلی گرونه، همکاراتون نصف این قیمت میدن",
+            "turnCount": 4
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "PRODUCT_INTEREST",
+          "currentState": "OBJECTION_HANDLING",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 45,
+          "metadata": {
+            "confidence": 0.92,
+            "isExplicitProductIntent": false,
+            "turnCount": 4
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "PRODUCT_INTEREST",
+          "currentState": "OBJECTION_HANDLING",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 45,
+          "metadata": {
+            "secondaryIntents": [
+              "PRICE_REQUEST"
+            ],
+            "turnCount": 4
+          }
+        },
+        {
+          "eventName": "OBJECTION_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "PRODUCT_INTEREST",
+          "currentState": "OBJECTION_HANDLING",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 45,
+          "metadata": {
+            "objectionCategory": "PRICE",
+            "userMessage": "خیلی گرونه، همکاراتون نصف این قیمت میدن",
+            "turnCount": 4
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "PRODUCT_INTEREST",
+          "currentState": "OBJECTION_HANDLING",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 45,
+          "metadata": {
+            "fromState": "PRODUCT_INTEREST",
+            "toState": "OBJECTION_HANDLING",
+            "turnCount": 4
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "PRODUCT_INTEREST",
+          "currentState": "OBJECTION_HANDLING",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 45,
+          "metadata": {
+            "enteredState": "OBJECTION_HANDLING",
+            "turnCount": 4
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 45,
+          "metadata": {
+            "oldScore": 50,
+            "newScore": 45,
+            "reason": "ایراد و اعتراض به قیمت یا اعتماد",
+            "turn": 4
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "userMessage": "اکانت تست رایگان برام بفرستید تست کنم",
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "confidence": 0.94,
+            "isExplicitProductIntent": true,
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "secondaryIntents": [
+              "VPN_REQUEST"
+            ],
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "HIGH_VALUE_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "intent": "TRIAL_REQUEST",
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "fromState": "OBJECTION_HANDLING",
+            "toState": "TRIAL_DISCUSSION",
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "enteredState": "TRIAL_DISCUSSION",
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "oldScore": 45,
+            "newScore": 85,
+            "reason": "درخواست اکانت تست رایگان",
+            "turn": 5
+          }
+        },
+        {
+          "eventName": "TRIAL_REQUESTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "userId": "test_user",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "CTA_SHOWN",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "OBJECTION_HANDLING",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "allowedLevel": "DIRECT_OFFER",
+            "promotionLevel": "DIRECT_OFFER",
+            "isPromotionLocked": false,
+            "cooldownRemainingTurns": 0,
+            "isExplicitOverride": true,
+            "canSendBannerPhoto": false,
+            "promotionBlocked": false,
+            "ctaShown": true,
+            "ctaAccepted": false,
+            "ctaRejected": false,
+            "previousState": "OBJECTION_HANDLING",
+            "currentState": "TRIAL_DISCUSSION",
+            "detectedIntent": "TRIAL_REQUEST",
+            "leadScore": 85,
+            "turnCount": 5
+          }
+        },
+        {
+          "eventName": "CONVERSION_COMPLETED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_1_new_visitor",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 85,
+          "metadata": {
+            "converted": true,
+            "turnCount": 5
+          }
+        }
+      ]
+    },
+    {
+      "journeyId": "journey_2_high_intent_buyer",
+      "journeyName": "High-Intent Commercial Buyer Journey",
+      "description": "A high-intent buyer directly requests purchase, tests, pricing, and VPN configurations.",
+      "turns": [
+        {
+          "turnNumber": 1,
+          "userUtterance": "من میخوام یه اکانت اختصاصی بخرم لینک پرداخت بدید",
+          "detectedIntent": "PURCHASE_INTENT",
+          "expectedIntent": "PURCHASE_INTENT",
+          "intentMatch": true,
+          "currentState": "INITIAL_GREETING",
+          "nextState": "SUPPORT_HANDOFF",
+          "expectedState": "SUPPORT_HANDOFF",
+          "stateMatch": true,
+          "promotionLevel": "DIRECT_OFFER",
+          "expectedPromotionLevel": "DIRECT_OFFER",
+          "promoMatch": true,
+          "leadScore": 60,
+          "scoreBounds": "[50, 70]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 1) ===\n• Current State: SUPPORT_HANDOFF (from INITIAL_GREETING)\n• Detected Intent: PURCHASE_INTENT (Confidence: 94%)\n• Lead Score: 60/100 (HOT)\n• Promotion Policy: DIRECT_OFFER (Locked: NO)\n⚡ EXPLICIT OVERRIDE ACTIVE: User asked for product/VPN directly. Answer immediately without stalling.\n🎯 MODE: DIRECT OFFER. Answer questions with product details, pricing, test config offer, and support link.\n• Support Handle: Nova_vpn10\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 2,
+          "userUtterance": "آیدی پشتیبانی تلگرام رو برای دریافت کانفیگ بفرستید",
+          "detectedIntent": "SUPPORT_REQUEST",
+          "expectedIntent": "SUPPORT_REQUEST",
+          "intentMatch": true,
+          "currentState": "SUPPORT_HANDOFF",
+          "nextState": "SUPPORT_HANDOFF",
+          "expectedState": "SUPPORT_HANDOFF",
+          "stateMatch": true,
+          "promotionLevel": "DIRECT_OFFER",
+          "expectedPromotionLevel": "DIRECT_OFFER",
+          "promoMatch": true,
+          "leadScore": 100,
+          "scoreBounds": "[85, 100]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 2) ===\n• Current State: SUPPORT_HANDOFF (from SUPPORT_HANDOFF)\n• Detected Intent: SUPPORT_REQUEST (Confidence: 95%)\n• Lead Score: 100/100 (HOT)\n• Promotion Policy: DIRECT_OFFER (Locked: NO)\n⚡ EXPLICIT OVERRIDE ACTIVE: User asked for product/VPN directly. Answer immediately without stalling.\n🎯 MODE: DIRECT OFFER. Answer questions with product details, pricing, test config offer, and support link.\n• Support Handle: Nova_vpn10\n========================================================",
+          "isTerminal": false
+        }
+      ],
+      "analyticsEvents": [
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "userMessage": "من میخوام یه اکانت اختصاصی بخرم لینک پرداخت بدید",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "confidence": 0.94,
+            "isExplicitProductIntent": true,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "secondaryIntents": [
+              "VPN_REQUEST"
+            ],
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "HIGH_VALUE_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "intent": "PURCHASE_INTENT",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "fromState": "INITIAL_GREETING",
+            "toState": "SUPPORT_HANDOFF",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "enteredState": "SUPPORT_HANDOFF",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "oldScore": 0,
+            "newScore": 60,
+            "reason": "قصد خرید قطعی و درخواست واریز",
+            "turn": 1
+          }
+        },
+        {
+          "eventName": "LEAD_CREATED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "initialScore": 60,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "PURCHASE_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.924Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "CTA_SHOWN",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "allowedLevel": "DIRECT_OFFER",
+            "promotionLevel": "DIRECT_OFFER",
+            "isPromotionLocked": false,
+            "cooldownRemainingTurns": 0,
+            "isExplicitOverride": true,
+            "canSendBannerPhoto": true,
+            "promotionBlocked": false,
+            "ctaShown": true,
+            "ctaAccepted": false,
+            "ctaRejected": false,
+            "previousState": "INITIAL_GREETING",
+            "currentState": "SUPPORT_HANDOFF",
+            "detectedIntent": "PURCHASE_INTENT",
+            "leadScore": 60,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "CONVERSION_COMPLETED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "previousState": "SUPPORT_HANDOFF",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 60,
+          "metadata": {
+            "converted": true,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "SUPPORT_HANDOFF",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "SUPPORT_REQUEST",
+          "leadScore": 100,
+          "metadata": {
+            "userMessage": "آیدی پشتیبانی تلگرام رو برای دریافت کانفیگ بفرستید",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "SUPPORT_HANDOFF",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "SUPPORT_REQUEST",
+          "leadScore": 100,
+          "metadata": {
+            "confidence": 0.95,
+            "isExplicitProductIntent": true,
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "userId": "test_user",
+          "previousState": "SUPPORT_HANDOFF",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "SUPPORT_REQUEST",
+          "leadScore": 100,
+          "metadata": {
+            "secondaryIntents": [
+              "VPN_REQUEST"
+            ],
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "SUPPORT_REQUEST",
+          "leadScore": 100,
+          "metadata": {
+            "oldScore": 50,
+            "newScore": 100,
+            "reason": "درخواست آیدی پشتیبانی و لینک خرید",
+            "turn": 2
+          }
+        },
+        {
+          "eventName": "CTA_SHOWN",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "previousState": "SUPPORT_HANDOFF",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "SUPPORT_REQUEST",
+          "leadScore": 100,
+          "metadata": {
+            "allowedLevel": "DIRECT_OFFER",
+            "promotionLevel": "DIRECT_OFFER",
+            "isPromotionLocked": false,
+            "cooldownRemainingTurns": 0,
+            "isExplicitOverride": true,
+            "canSendBannerPhoto": true,
+            "promotionBlocked": false,
+            "ctaShown": true,
+            "ctaAccepted": false,
+            "ctaRejected": false,
+            "previousState": "SUPPORT_HANDOFF",
+            "currentState": "SUPPORT_HANDOFF",
+            "detectedIntent": "SUPPORT_REQUEST",
+            "leadScore": 100,
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "CONVERSION_COMPLETED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_2_high_intent_buyer",
+          "previousState": "SUPPORT_HANDOFF",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "SUPPORT_REQUEST",
+          "leadScore": 100,
+          "metadata": {
+            "converted": true,
+            "turnCount": 2
+          }
+        }
+      ]
+    },
+    {
+      "journeyId": "journey_3_resistant_user",
+      "journeyName": "Resistant User Strict Guardrail & Objection Journey",
+      "description": "A resistant user expresses rejection, objections, and competitor comparisons without facing pushy promotion.",
+      "turns": [
+        {
+          "turnNumber": 1,
+          "userUtterance": "اصلا نیازی به فیلترشکن ندارم لطفا تبلیغ نکنید",
+          "detectedIntent": "REJECTION",
+          "expectedIntent": "REJECTION",
+          "intentMatch": true,
+          "currentState": "INITIAL_GREETING",
+          "nextState": "REJECTED",
+          "expectedState": "REJECTED",
+          "stateMatch": true,
+          "promotionLevel": "NO_PROMOTION",
+          "expectedPromotionLevel": "NO_PROMOTION",
+          "promoMatch": true,
+          "leadScore": 0,
+          "scoreBounds": "[0, 0]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 1) ===\n• Current State: REJECTED (from INITIAL_GREETING)\n• Detected Intent: REJECTION (Confidence: 96%)\n• Lead Score: 0/100 (COLD)\n• Promotion Policy: NO_PROMOTION (Locked: YES)\n⛔ PROMOTION LOCKED: The user previously rejected. DO NOT mention VPN, sales, or channels. Speak purely as a friendly human.\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 2,
+          "userUtterance": "همه جا قیمت‌ها خیلی ارزونتره شما خیلی گرون میگید",
+          "detectedIntent": "OBJECTION",
+          "expectedIntent": "OBJECTION",
+          "intentMatch": true,
+          "currentState": "REJECTED",
+          "nextState": "REJECTED",
+          "expectedState": "REJECTED",
+          "stateMatch": true,
+          "promotionLevel": "NO_PROMOTION",
+          "expectedPromotionLevel": "NO_PROMOTION",
+          "promoMatch": true,
+          "leadScore": 0,
+          "scoreBounds": "[0, 0]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 2) ===\n• Current State: REJECTED (from REJECTED)\n• Detected Intent: OBJECTION (Confidence: 92%)\n• Lead Score: 0/100 (COLD)\n• Promotion Policy: NO_PROMOTION (Locked: YES)\n⛔ PROMOTION LOCKED: The user previously rejected. DO NOT mention VPN, sales, or channels. Speak purely as a friendly human.\n🛡️ OBJECTION HANDLING (PRICE):\n• Strategy: توضیح کیفیت، پایداری، سرورهای اختصاصی و پشتیبانی ۲۴ ساعته + ارزش در برابر هزینه\n  - سرورها کاملاً اختصاصی و با پهنای باند نامحدود پرسرعت هستند.\n  - بدون افت سرعت در ساعات پیک مصرف و قطعی‌های سراسری اینترنت.\n  - ضمانت بازگشت وجه کامل در صورت عدم رضایت.\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 3,
+          "userUtterance": "اصلا نمیشه به شما اعتماد کرد معلوم نیست کی هستید",
+          "detectedIntent": "QUESTION",
+          "expectedIntent": "QUESTION",
+          "intentMatch": true,
+          "currentState": "REJECTED",
+          "nextState": "REJECTED",
+          "expectedState": "REJECTED",
+          "stateMatch": true,
+          "promotionLevel": "NO_PROMOTION",
+          "expectedPromotionLevel": "NO_PROMOTION",
+          "promoMatch": true,
+          "leadScore": 5,
+          "scoreBounds": "[0, 10]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 3) ===\n• Current State: REJECTED (from REJECTED)\n• Detected Intent: QUESTION (Confidence: 85%)\n• Lead Score: 5/100 (COLD)\n• Promotion Policy: NO_PROMOTION (Locked: YES)\n⛔ PROMOTION LOCKED: The user previously rejected. DO NOT mention VPN, sales, or channels. Speak purely as a friendly human.\n========================================================",
+          "isTerminal": false
+        }
+      ],
+      "analyticsEvents": [
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "REJECTED",
+          "detectedIntent": "REJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "userMessage": "اصلا نیازی به فیلترشکن ندارم لطفا تبلیغ نکنید",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "REJECTED",
+          "detectedIntent": "REJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "confidence": 0.96,
+            "isExplicitProductIntent": false,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "REJECTION_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "REJECTED",
+          "detectedIntent": "REJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "REJECTED",
+          "detectedIntent": "REJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "fromState": "INITIAL_GREETING",
+            "toState": "REJECTED",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "REJECTED",
+          "detectedIntent": "REJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "enteredState": "REJECTED",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "REJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "oldScore": 50,
+            "newScore": 0,
+            "reason": "رد صریح پیشنهاد و عدم تمایل",
+            "turn": 1
+          }
+        },
+        {
+          "eventName": "PROMOTION_BLOCKED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "REJECTED",
+          "detectedIntent": "REJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "reason": "REJECTION_LOCK",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "userMessage": "همه جا قیمت‌ها خیلی ارزونتره شما خیلی گرون میگید",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "confidence": 0.92,
+            "isExplicitProductIntent": false,
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "secondaryIntents": [
+              "OFF_TOPIC"
+            ],
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "OBJECTION_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "objectionCategory": "PRICE",
+            "userMessage": "همه جا قیمت‌ها خیلی ارزونتره شما خیلی گرون میگید",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "oldScore": 5,
+            "newScore": 0,
+            "reason": "ایراد و اعتراض به قیمت یا اعتماد",
+            "turn": 2
+          }
+        },
+        {
+          "eventName": "PROMOTION_BLOCKED",
+          "timestamp": "2026-08-21T22:19:11.925Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "OBJECTION",
+          "leadScore": 0,
+          "metadata": {
+            "reason": "REJECTION_LOCK",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 5,
+          "metadata": {
+            "userMessage": "اصلا نمیشه به شما اعتماد کرد معلوم نیست کی هستید",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 5,
+          "metadata": {
+            "confidence": 0.85,
+            "isExplicitProductIntent": false,
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 5,
+          "metadata": {
+            "oldScore": 0,
+            "newScore": 5,
+            "reason": "پرسیدن سوال و تعامل فعال",
+            "turn": 3
+          }
+        },
+        {
+          "eventName": "LEAD_CREATED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 5,
+          "metadata": {
+            "initialScore": 5,
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "PROMOTION_BLOCKED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_3_resistant_user",
+          "userId": "test_user",
+          "previousState": "REJECTED",
+          "currentState": "REJECTED",
+          "detectedIntent": "QUESTION",
+          "leadScore": 5,
+          "metadata": {
+            "reason": "REJECTION_LOCK",
+            "turnCount": 3
+          }
+        }
+      ]
+    },
+    {
+      "journeyId": "journey_4_returning_user_resumption",
+      "journeyName": "Returning User Memory & Context Resumption Journey",
+      "description": "A user who previously interacted returns in a new session with preserved objection memory and accelerated conversion.",
+      "turns": [
+        {
+          "turnNumber": 1,
+          "userUtterance": "سلام درباره مشخصات فنی فیلترشکن سوال داشتم",
+          "detectedIntent": "GREETING",
+          "expectedIntent": "GREETING",
+          "intentMatch": true,
+          "currentState": "INITIAL_GREETING",
+          "nextState": "EARLY_CONVERSATION",
+          "expectedState": "EARLY_CONVERSATION",
+          "stateMatch": true,
+          "promotionLevel": "NO_PROMOTION",
+          "expectedPromotionLevel": "NO_PROMOTION",
+          "promoMatch": true,
+          "leadScore": 5,
+          "scoreBounds": "[5, 20]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 1) ===\n• Current State: EARLY_CONVERSATION (from INITIAL_GREETING)\n• Detected Intent: GREETING (Confidence: 90%)\n• Lead Score: 5/100 (COLD)\n• Promotion Policy: NO_PROMOTION (Locked: NO)\n💬 MODE: CASUAL RAPPORT ONLY. Do not sell or pitch yet.\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 2,
+          "userUtterance": "اکانت تست رایگان برام بفرستید الان تست کنم",
+          "detectedIntent": "TRIAL_REQUEST",
+          "expectedIntent": "TRIAL_REQUEST",
+          "intentMatch": true,
+          "currentState": "EARLY_CONVERSATION",
+          "nextState": "TRIAL_DISCUSSION",
+          "expectedState": "TRIAL_DISCUSSION",
+          "stateMatch": true,
+          "promotionLevel": "DIRECT_OFFER",
+          "expectedPromotionLevel": "DIRECT_OFFER",
+          "promoMatch": true,
+          "leadScore": 45,
+          "scoreBounds": "[40, 65]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 2) ===\n• Current State: TRIAL_DISCUSSION (from EARLY_CONVERSATION)\n• Detected Intent: TRIAL_REQUEST (Confidence: 94%)\n• Lead Score: 45/100 (WARM)\n• Promotion Policy: DIRECT_OFFER (Locked: NO)\n⚡ EXPLICIT OVERRIDE ACTIVE: User asked for product/VPN directly. Answer immediately without stalling.\n🎯 MODE: DIRECT OFFER. Answer questions with product details, pricing, test config offer, and support link.\n• Support Handle: Nova_vpn10\n========================================================",
+          "isTerminal": false
+        },
+        {
+          "turnNumber": 3,
+          "userUtterance": "سرعتش عالیه میخوام خرید کنم شماره کارت بدید",
+          "detectedIntent": "PURCHASE_INTENT",
+          "expectedIntent": "PURCHASE_INTENT",
+          "intentMatch": true,
+          "currentState": "TRIAL_DISCUSSION",
+          "nextState": "SUPPORT_HANDOFF",
+          "expectedState": "SUPPORT_HANDOFF",
+          "stateMatch": true,
+          "promotionLevel": "DIRECT_OFFER",
+          "expectedPromotionLevel": "DIRECT_OFFER",
+          "promoMatch": true,
+          "leadScore": 100,
+          "scoreBounds": "[85, 100]",
+          "scoreWithinBounds": true,
+          "promptDirective": "=== CONVERSATION ENGINE DIRECTIVE (Turn 3) ===\n• Current State: SUPPORT_HANDOFF (from TRIAL_DISCUSSION)\n• Detected Intent: PURCHASE_INTENT (Confidence: 94%)\n• Lead Score: 100/100 (HOT)\n• Promotion Policy: DIRECT_OFFER (Locked: NO)\n⚡ EXPLICIT OVERRIDE ACTIVE: User asked for product/VPN directly. Answer immediately without stalling.\n🎯 MODE: DIRECT OFFER. Answer questions with product details, pricing, test config offer, and support link.\n• Support Handle: Nova_vpn10\n========================================================",
+          "isTerminal": false
+        }
+      ],
+      "analyticsEvents": [
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "userMessage": "سلام درباره مشخصات فنی فیلترشکن سوال داشتم",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "confidence": 0.9,
+            "isExplicitProductIntent": false,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "secondaryIntents": [
+              "QUESTION"
+            ],
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "fromState": "INITIAL_GREETING",
+            "toState": "EARLY_CONVERSATION",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "enteredState": "EARLY_CONVERSATION",
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "oldScore": 0,
+            "newScore": 5,
+            "reason": "سلام و احوال‌پرسی اولیه",
+            "turn": 1
+          }
+        },
+        {
+          "eventName": "LEAD_CREATED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "INITIAL_GREETING",
+          "currentState": "EARLY_CONVERSATION",
+          "detectedIntent": "GREETING",
+          "leadScore": 5,
+          "metadata": {
+            "initialScore": 5,
+            "turnCount": 1
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "userMessage": "اکانت تست رایگان برام بفرستید الان تست کنم",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "confidence": 0.94,
+            "isExplicitProductIntent": true,
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "MULTI_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "secondaryIntents": [
+              "VPN_REQUEST"
+            ],
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "HIGH_VALUE_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "intent": "TRIAL_REQUEST",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "fromState": "EARLY_CONVERSATION",
+            "toState": "TRIAL_DISCUSSION",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "enteredState": "TRIAL_DISCUSSION",
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "oldScore": 5,
+            "newScore": 45,
+            "reason": "درخواست اکانت تست رایگان",
+            "turn": 2
+          }
+        },
+        {
+          "eventName": "TRIAL_REQUESTED",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "CTA_SHOWN",
+          "timestamp": "2026-08-21T22:19:11.926Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "previousState": "EARLY_CONVERSATION",
+          "currentState": "TRIAL_DISCUSSION",
+          "detectedIntent": "TRIAL_REQUEST",
+          "leadScore": 45,
+          "metadata": {
+            "allowedLevel": "DIRECT_OFFER",
+            "promotionLevel": "DIRECT_OFFER",
+            "isPromotionLocked": false,
+            "cooldownRemainingTurns": 0,
+            "isExplicitOverride": true,
+            "canSendBannerPhoto": false,
+            "promotionBlocked": false,
+            "ctaShown": true,
+            "ctaAccepted": false,
+            "ctaRejected": false,
+            "previousState": "EARLY_CONVERSATION",
+            "currentState": "TRIAL_DISCUSSION",
+            "detectedIntent": "TRIAL_REQUEST",
+            "leadScore": 45,
+            "turnCount": 2
+          }
+        },
+        {
+          "eventName": "MESSAGE_RECEIVED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "userMessage": "سرعتش عالیه میخوام خرید کنم شماره کارت بدید",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "confidence": 0.94,
+            "isExplicitProductIntent": true,
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "HIGH_VALUE_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "intent": "PURCHASE_INTENT",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "STATE_CHANGED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "fromState": "TRIAL_DISCUSSION",
+            "toState": "SUPPORT_HANDOFF",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "STATE_ENTERED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "enteredState": "SUPPORT_HANDOFF",
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "LEAD_SCORE_UPDATED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "previousState": "ENGAGED",
+          "currentState": "ENGAGED",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "oldScore": 40,
+            "newScore": 100,
+            "reason": "قصد خرید قطعی و درخواست واریز",
+            "turn": 3
+          }
+        },
+        {
+          "eventName": "PURCHASE_INTENT_DETECTED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "userId": "test_user",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "CTA_SHOWN",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "previousState": "TRIAL_DISCUSSION",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "allowedLevel": "DIRECT_OFFER",
+            "promotionLevel": "DIRECT_OFFER",
+            "isPromotionLocked": false,
+            "cooldownRemainingTurns": 0,
+            "isExplicitOverride": true,
+            "canSendBannerPhoto": true,
+            "promotionBlocked": false,
+            "ctaShown": true,
+            "ctaAccepted": false,
+            "ctaRejected": false,
+            "previousState": "TRIAL_DISCUSSION",
+            "currentState": "SUPPORT_HANDOFF",
+            "detectedIntent": "PURCHASE_INTENT",
+            "leadScore": 100,
+            "turnCount": 3
+          }
+        },
+        {
+          "eventName": "CONVERSION_COMPLETED",
+          "timestamp": "2026-08-21T22:19:11.927Z",
+          "sessionId": "session_journey_4_returning_user_resumption",
+          "previousState": "SUPPORT_HANDOFF",
+          "currentState": "SUPPORT_HANDOFF",
+          "detectedIntent": "PURCHASE_INTENT",
+          "leadScore": 100,
+          "metadata": {
+            "converted": true,
+            "turnCount": 3
+          }
+        }
+      ]
+    }
+  ]
+}

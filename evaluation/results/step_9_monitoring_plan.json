@@ -1,0 +1,81 @@
+{
+  "step": "STEP_9_MONITORING_AND_ALERTING_PLAN",
+  "timestamp": "2026-08-21T22:32:56.185Z",
+  "version": "1.0.0-prod",
+  "criticalAlerts": [
+    {
+      "alertId": "ALERT_CRIT_01_RUNTIME_CRASH",
+      "name": "Runtime Process Crash / Restart Loop",
+      "severity": "CRITICAL",
+      "triggerCondition": "rate(process_crash_total[1m]) > 0 or bot_errors_total > 5",
+      "window": "1 minute",
+      "action": "PagerDuty to On-Call Engineer, automatic container restart",
+      "remediationRunbook": "Check /api/health logs, verify database/disk accessibility, inspect unhandled exception traces."
+    },
+    {
+      "alertId": "ALERT_CRIT_02_STATE_MACHINE_VIOLATION",
+      "name": "State Machine Illegal Transition or Terminal Resurrection",
+      "severity": "CRITICAL",
+      "triggerCondition": "bot_state_violations_total > 0",
+      "window": "Immediate",
+      "action": "Notify AI Engineering Team, isolate affected bot instance",
+      "remediationRunbook": "Verify state machine transition tables in src/conversation/stateMachine.ts."
+    },
+    {
+      "alertId": "ALERT_CRIT_03_PROMOTION_SAFETY_VIOLATION",
+      "name": "Premature Promotion or Cooldown Bypass Detected",
+      "severity": "CRITICAL",
+      "triggerCondition": "bot_premature_promotions_total > 0",
+      "window": "Immediate",
+      "action": "Enforce Promotion Lock (LockLevel=0), audit promotion policy",
+      "remediationRunbook": "Check promotion policy evaluator cooldown timer and turn counters."
+    },
+    {
+      "alertId": "ALERT_CRIT_04_CIRCUIT_BREAKER_OPEN",
+      "name": "Telegram Downstream Circuit Breaker Open",
+      "severity": "CRITICAL",
+      "triggerCondition": "bot_circuit_breaker_state{name=\"telegram_api\"} == 1",
+      "window": "2 minutes",
+      "action": "Alert Telegram Integration Owner, throttle outbound requests",
+      "remediationRunbook": "Check MTProto connectivity, FloodWait timeouts, IP rate limits."
+    }
+  ],
+  "warningAlerts": [
+    {
+      "alertId": "ALERT_WARN_01_LATENCY_DEGRADATION",
+      "name": "Engine Turn Latency p95 > 2.0ms",
+      "severity": "WARNING",
+      "triggerCondition": "bot_turn_latency_ms{quantile=\"0.95\"} > 2.0",
+      "window": "5 minutes",
+      "action": "Slack Notification to AI Performance Channel",
+      "remediationRunbook": "Profile normalizer regexes, check garbage collector pauses."
+    },
+    {
+      "alertId": "ALERT_WARN_02_INTENT_DRIFT",
+      "name": "Intent UNKNOWN / FALLBACK Rate > 10%",
+      "severity": "WARNING",
+      "triggerCondition": "rate(bot_intent_turns_total{intent=\"UNKNOWN\"}[15m]) / rate(bot_conversation_turns_total[15m]) > 0.10",
+      "window": "15 minutes",
+      "action": "Review unrecognized user utterances in telemetry logs",
+      "remediationRunbook": "Expand gold dataset and intent keyword patterns."
+    },
+    {
+      "alertId": "ALERT_WARN_03_CONVERSION_DROP",
+      "name": "CTA Effectiveness Drop > 25% Baseline",
+      "severity": "WARNING",
+      "triggerCondition": "rate(bot_business_conversions_total[1h]) / rate(bot_business_cta_total[1h]) < 0.15",
+      "window": "1 hour",
+      "action": "Notify Product Campaign Manager",
+      "remediationRunbook": "A/B test prompt variations and promotional card creative copy."
+    },
+    {
+      "alertId": "ALERT_WARN_04_HIGH_REJECTION_RATE",
+      "name": "User Rejection Rate > 35%",
+      "severity": "WARNING",
+      "triggerCondition": "rate(bot_state_turns_total{state=\"REJECTED\"}[30m]) / rate(bot_conversation_turns_total[30m]) > 0.35",
+      "window": "30 minutes",
+      "action": "Inspect conversation transcripts for pushy promotion patterns",
+      "remediationRunbook": "Increase natural conversation turns before Level 1 soft mention."
+    }
+  ]
+}

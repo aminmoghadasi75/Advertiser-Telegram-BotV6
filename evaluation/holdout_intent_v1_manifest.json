@@ -1,0 +1,40 @@
+{
+  "datasetVersion": "v1",
+  "createdBeforeEvaluation": true,
+  "modifiedAfterPrediction": false,
+  "goldOverlapExact": 0,
+  "goldOverlapNormalized": 0,
+  "potentialNearDuplicates": [],
+  "caseCount": 200,
+  "intentDistribution": {
+    "GREETING": 11,
+    "SMALL_TALK": 13,
+    "QUESTION": 12,
+    "RELEVANT_NEED": 14,
+    "VPN_REQUEST": 13,
+    "PRODUCT_CURIOUS": 13,
+    "TRIAL_REQUEST": 12,
+    "PRICE_REQUEST": 12,
+    "PLAN_REQUEST": 8,
+    "SUPPORT_REQUEST": 13,
+    "PURCHASE_INTENT": 12,
+    "OBJECTION": 13,
+    "REJECTION": 14,
+    "GOODBYE": 12,
+    "SUSPICION_BOT": 9,
+    "INAPPROPRIATE": 7,
+    "SPAM": 6,
+    "OFF_TOPIC": 4,
+    "UNKNOWN": 2
+  },
+  "difficultyDistribution": {
+    "easy": 118,
+    "medium": 72,
+    "hard": 10
+  },
+  "contextualCaseCount": 168,
+  "contextualPercentage": "84.0%",
+  "multiIntentCaseCount": 66,
+  "multiIntentPercentage": "33.0%",
+  "timestamp": "2026-08-21T13:00:02.977Z"
+}

@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "redTeamScenariosTotal": 5,
+  "hardRejectionBreaches": 0,
+  "curiosityAsPurchaseFPs": 0,
+  "objectionAggressiveSellingFPs": 0,
+  "duplicateCTAViolations": 0,
+  "terminalStatePromotionViolations": 0,
+  "redTeamPassRate": 1,
+  "status": "PASSED"
+}

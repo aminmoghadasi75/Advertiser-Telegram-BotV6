@@ -1,0 +1,2308 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
+export interface HoldoutCase {
+  id: string;
+  message: string;
+  context: {
+    previousUserMessages: string[];
+    previousIntents: string[];
+    conversationState: string | null;
+    lastAssistantMessage: string | null;
+    productMentioned: boolean;
+    promotionState: string | null;
+  };
+  expectedPrimaryIntent: string;
+  expectedSecondaryIntents: string[];
+  category: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  sourceType: 'synthetic_blind';
+  immutable: true;
+}
+
+export const holdoutCases: HoldoutCase[] = [
+  // -------------------------------------------------------------
+  // 1. GREETING (11 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_001',
+    message: 'سلام روزتون بخیر و شادی',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_002',
+    message: 'درود، وقتت بخیر رفیق',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_003',
+    message: 'سلااام چطوری؟ خوبی چه خبرا؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: ['SMALL_TALK'],
+    category: 'GREETING',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_004',
+    message: 'سلام عصرتون بخیر',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_005',
+    message: 'سلام وقت بخیر اصل میدی آشنا بشیم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: ['SMALL_TALK'],
+    category: 'GREETING',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_006',
+    message: 'سلامممم، شبت خوش داداش',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_007',
+    message: 'سلام احوال شما؟ اوضاع روبه‌راهه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'GREETING',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_008',
+    message: 'hi doste aziz khobi',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_009',
+    message: 'slm khobi',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_010',
+    message: 'سلام، از آشناییت خوشوقتم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_011',
+    message: 'سلام، صبحت بخیر',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GREETING',
+    expectedSecondaryIntents: [],
+    category: 'GREETING',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 2. SMALL_TALK (13 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_012',
+    message: 'من ۲۸ سالمه ساکن کرجم، تو چند سالته؟',
+    context: { previousUserMessages: ['سلام'], previousIntents: ['GREETING'], conversationState: 'EARLY_CONVERSATION', lastAssistantMessage: 'سلام خوبی؟ اصل میدی؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'SMALL_TALK',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_013',
+    message: 'من کارمند بانکم، تایم بیکاریم گیم میزنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'EARLY_CONVERSATION', lastAssistantMessage: 'شغلت چیه؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_014',
+    message: 'امروز خیلی خسته شدم از صبح تا حالا سر کار بودم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'EARLY_CONVERSATION', lastAssistantMessage: 'روزت چطور گذشت؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_015',
+    message: '۲۵ یزد، رشته مکانیک خوندم',
+    context: { previousUserMessages: ['سلام'], previousIntents: ['GREETING'], conversationState: 'EARLY_CONVERSATION', lastAssistantMessage: 'اصل بده آشنا شیم', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_016',
+    message: 'بیشتر سبک سنتی و همایون شجریان گوش میدم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'چه سبکی موزیک گوش میدی؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_017',
+    message: 'یه سگ ژرمن شیپرد شیطون دارم که کل وقتمو میگیره',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'حیوون خونگی داری؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_018',
+    message: 'هوا اینجا خیلی گرم و شرجیه کلافه شدیم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'EARLY_CONVERSATION', lastAssistantMessage: 'اوضاع هوا چطوره؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_019',
+    message: 'من ۲۹ تبریز، کار طراحی وب انجام میدم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_020',
+    message: 'شام پیتزا سفارش دادم منتظرم بیارن',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'شام چی خوردی؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_021',
+    message: 'دارم برای آیلتس میخونم روزی ۵ ساعت زبان کار میکنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'مشغولی چیکار میکنی؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_022',
+    message: 'منم خوشحال شدم از همصحبتیت',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'خوشبختم از صحبت باهات', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_023',
+    message: 'عاشق سفر و کوهنوردیم آخر هفته‌ها میرم توچال',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'تفریحاتت چیه؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_024',
+    message: '۳۰ سالمه و ساکن اهوازم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SMALL_TALK',
+    expectedSecondaryIntents: [],
+    category: 'SMALL_TALK',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 3. QUESTION (12 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_025',
+    message: 'تو چه ورزشی رو دنبال میکنی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_026',
+    message: 'به نظرت یادگیری فلاتر بهتره یا ری‌اکت نیتیو؟',
+    context: { previousUserMessages: ['من برنامه نویسم'], previousIntents: ['SMALL_TALK'], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_027',
+    message: 'کدوم منطقه تهران میشینی؟',
+    context: { previousUserMessages: ['من تهرانم'], previousIntents: ['SMALL_TALK'], conversationState: 'EARLY_CONVERSATION', lastAssistantMessage: 'منم تهرانم', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_028',
+    message: 'فیلم علمی تخیلی خوب چی پیشنهاد میکنی ببینم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_029',
+    message: 'چند وقته توی این ربات چت میکنی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_030',
+    message: 'آیا برای مهاجرت اقدام کردی تا حالا؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_031',
+    message: 'شغل رویاییت چیه اگه محدودیت مالی نداشتی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_032',
+    message: 'پادکست چی گوش میدی تو تایم خالیت؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_033',
+    message: 'چرا انقدر دیر جواب میدی؟ سرت شلوغه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_034',
+    message: 'کتاب خوندن رو دوست داری؟ آخرین کتابی که خوندی چی بود؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_035',
+    message: 'تو خونه قهوه دم میکنی یا بیرون میخوری؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_036',
+    message: 'معمولاً چه ساعتی از شب میخوابی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'QUESTION',
+    expectedSecondaryIntents: [],
+    category: 'QUESTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 4. RELEVANT_NEED (14 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_037',
+    message: 'اینترنت همراه اول افتضاح شده هیچ عکسی تو تلگرام لود نمیشه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'اوضاع چطوره؟', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_038',
+    message: 'برای کارهای یوتیوبم ویدیوها رو ۴k آپلود میکنم ولی با این پینگ نمیشه',
+    context: { previousUserMessages: ['من یوتیوبرم'], previousIntents: ['SMALL_TALK'], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_039',
+    message: 'کل فیلترشکنام روی ایرانسل از کار افتاده واقعاً درمونده شدم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_040',
+    message: 'آنلاین شاپ دارم نمیتونم به دایرکت مشتریام تو اینستاگرام برسم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_041',
+    message: 'پینگ سرور بازی بالای ۳۰۰ رفته کلاً نمیشه پلی داد',
+    context: { previousUserMessages: ['وارزون بازی میکنم'], previousIntents: ['SMALL_TALK'], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_042',
+    message: 'توی شرکت اینترنت وای‌فای بشدت کنده و گیت‌هاب باز نمیشه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_043',
+    message: 'برای ترید و صرافی بایننس به یه آیپی بدون قطعی نیاز دارم وگرنه حسابم بسته میشه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'RELEVANT_NEED',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_044',
+    message: 'تحریم و فیلترینگ اعصاب نذاشته واسمون هیچی کار نمیکنه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_045',
+    message: 'دانشجو ام مقالات ساینس دایرکت رو نمیتونم دانلود کنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_046',
+    message: 'هر روز ۱۰ تا vpn رایگان نصب میکنم همشون قطع میشن خسته شدم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'RELEVANT_NEED',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_047',
+    message: 'سرعت دانلودم زیر ۵۰ کیلوبایته نمیتونم فایل کاریمو بفرستم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_048',
+    message: 'تماس واتساپم با خانوادم در خارج از کشور کلاً قطع و وصل میشه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_049',
+    message: 'نت خونه ما رایتله از دیشب کلاً فیلترینگ شدید شده هیچی بالا نمیاد',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_050',
+    message: 'توی یوتیوب میخوام آموزش پایتون ببینم ولی ارور کانکشن میده',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'RELEVANT_NEED',
+    expectedSecondaryIntents: [],
+    category: 'RELEVANT_NEED',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 5. VPN_REQUEST (13 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_051',
+    message: 'کانفیگ v2ray پرسرعت و بدون قطعی داری واسم بفرستی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'VPN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_052',
+    message: 'خودت از چه وی پی انی استفاده میکنی که وصل شدی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'VPN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_053',
+    message: 'فیلترشکن خوب برای همراه اول چی سراغ داری؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'VPN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_054',
+    message: 'پروکسی تلگرام با پینگ پایین داری به منم بدی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'VPN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_055',
+    message: 'یه vpn میخوام که راحت روی ویندوز لپ‌تاپم ست بشه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'VPN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_056',
+    message: 'کانفیگ vless یا vmess اختصاصی برای شاتل داری؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'VPN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_057',
+    message: 'فیلترشکن پولی خوب معرفی میکنی بخرم راحت شم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: ['PURCHASE_INTENT'],
+    category: 'VPN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_058',
+    message: 'سرویسی داری که استوری اینستا رو زیر ۳ ثانیه باز کنه؟',
+    context: { previousUserMessages: ['اینستام باز نمیشه'], previousIntents: ['RELEVANT_NEED'], conversationState: 'PRODUCT_INTRODUCTION', lastAssistantMessage: 'من یه سرویس با سرور آلمان دارم', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'VPN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_059',
+    message: 'یه فیلترشکن میخوام که سرعت دانلودش افت نکنه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'VPN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_060',
+    message: 'داری کانفیگ v2box که روی ios وصل بشه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'VPN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_061',
+    message: 'فیلترشکن خوب چی داری واسه گیم با پینگ زیر ۱۰۰؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'NEED_DETECTED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'VPN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_062',
+    message: 'سرور Shadowsocks هم ارائه میدید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTRODUCTION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'VPN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_063',
+    message: 'یه چیز قوی میخوام که با نت مخابرات جواب بده',
+    context: { previousUserMessages: ['نت مخابرات قطعه'], previousIntents: ['RELEVANT_NEED'], conversationState: 'NEED_DETECTED', lastAssistantMessage: 'راه حل خوب دارم', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'VPN_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'VPN_REQUEST',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 6. PRODUCT_CURIOUS (13 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_064',
+    message: 'سروراتون مال کدوم کشوره؟ هلنده یا فنلاند؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: 'سرویس ما سرورهای مختلفی داره', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_065',
+    message: 'روی آیفون با برنامه Streisand یا v2rayNG کار میکنه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_066',
+    message: 'آیپی ثابت هست برای صرافی کوین‌بیس و ترید امنه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_067',
+    message: 'پروتکل اتصالش چیه؟ ریالیتی و tls داره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_068',
+    message: 'اگر احیاناً سرور مسدود شد تعویض کانفیگ رایگان دارید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_069',
+    message: 'پینگ سرور آلمانتون برای دوتا ۲ چنده معمولاً؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_070',
+    message: 'سرور اختصاصی خودتونه یا از پنل‌های عمومی استفاده میکنید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_071',
+    message: 'تضمین بدون قطعی میدید اگر تا آخر ماه قطع شد؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_072',
+    message: 'با سیستم عامل مک‌بوک سازگاری کامل داره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_073',
+    message: 'لوکیشن ترکیه هم دارین برای بازی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_074',
+    message: 'سرعت آپلودش چقدره برای ارسال ویدیو؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_075',
+    message: 'روی مودم ایرانسل td-lte جواب میده تست کردی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_076',
+    message: 'آیا برای یوتیوب مناسبه یا محدودیت پهنای باند داره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRODUCT_CURIOUS',
+    expectedSecondaryIntents: [],
+    category: 'PRODUCT_CURIOUS',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 7. TRIAL_REQUEST (12 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_077',
+    message: 'میشه اول یه کانفیگ تست نیم ساعته بدی روی گوشیم چک کنم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: 'سرویس ما عالیه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_078',
+    message: 'اکانت تست رایگان دارید ببینم چطوره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_079',
+    message: 'اگه تست ۲۴ ساعته میدی بفرست اگه خوب بود قطعی میخرم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: ['PURCHASE_INTENT'],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_080',
+    message: 'دمو داری ۱۰ دقیقه یوتیوب باز کنم تست کنم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_081',
+    message: 'تست میدی؟',
+    context: { previousUserMessages: ['سرویس فیلترشکن داریم'], previousIntents: ['PRODUCT_CURIOUS'], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: 'سرویس عالی با پینگ پایین داریم', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_082',
+    message: 'یه ساعت تست بده اگه سرعت دانلودش اوکی بود واریز کنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: ['PURCHASE_INTENT'],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_083',
+    message: 'میشه اول امتحان کنم؟ بدون تست خرید نمیکنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: 'پلن‌های ماهانه داریم', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_084',
+    message: 'تست ۱ گیگابایتی رایگان داری واسه بررسی سرعت؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_085',
+    message: 'اولش تست بدی که مطمئن بشم کلاهبرداری نیست',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_086',
+    message: 'تست خوب بدی مشتری میشم رفقامم میارم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_087',
+    message: 'امکانش هست یه کانفیگ تستی بفرستی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_088',
+    message: 'تست رایگان چند ساعته دارید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRODUCT_INTEREST', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'TRIAL_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'TRIAL_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 8. PRICE_REQUEST (12 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_089',
+    message: 'ماهی چقدر باید بابتش بدم؟',
+    context: { previousUserMessages: ['سرویس وی پی ان داری'], previousIntents: ['VPN_REQUEST'], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: 'سرویس عالی آلمان داریم', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'PRICE_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_090',
+    message: 'برای اشتراک یه ماهه چقدر درمیاد آخرش؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'PRICE_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_091',
+    message: 'قیمتش چنذه داداش برای دو نفر؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: ['PLAN_REQUEST'],
+    category: 'PRICE_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_092',
+    message: 'لیست قیمت و تعرفه همه پلن‌هاتون رو میفرستی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: ['PLAN_REQUEST'],
+    category: 'PRICE_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_093',
+    message: 'چنده؟',
+    context: { previousUserMessages: ['فیلترشکن خوب دارم'], previousIntents: ['VPN_REQUEST'], conversationState: 'PRODUCT_INTRODUCTION', lastAssistantMessage: 'این سرور اختصاصی بدون قطعی کار میکنه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'PRICE_REQUEST',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_094',
+    message: 'هزینه شارژ ماهانه‌اش چقدره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'PRICE_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_095',
+    message: 'چند هزار تومن باید واریز کنیم برای پلن یک ماهه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'PRICE_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_096',
+    message: 'سلام خسته نباشی، قیمت vpn هاتون چنده؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: ['GREETING'],
+    category: 'PRICE_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_097',
+    message: 'تعرفه حجم ۵۰ گیگ چنده؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: ['PLAN_REQUEST'],
+    category: 'PRICE_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_098',
+    message: 'قیمت دوکاربره چنده الان؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: ['PLAN_REQUEST'],
+    category: 'PRICE_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_099',
+    message: 'چند درمیاد سالیانه‌اش اگه تخفیف بدید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'PRICE_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_100',
+    message: 'هزینش چقدره برام بفرست لطفا',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PRICE_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'PRICE_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 9. PLAN_REQUEST (8 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_101',
+    message: 'چه پلن‌هایی دارید؟ مثلاً سه ماهه یا شش ماهه هم هست؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'PLAN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_102',
+    message: 'پلن نامحدود حجمی هم ارائه میدین یا فقط گیگابایتیه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'PLAN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_103',
+    message: 'پلن خانواده یا چهار کاربره دارید برای اشتراک با اعضای خونه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'PLAN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_104',
+    message: 'تفاوت پلن اختصاصی وی‌آی‌پی با پلن معمولی در چیه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'PLAN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_105',
+    message: 'سقف ترافیک ماهانه توی پلن اقتصادی چقدره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'PLAN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_106',
+    message: 'آیا امکان تمدید خودکار پلن سر ماه وجود داره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'PLAN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_107',
+    message: 'پلن سالیانه با سرور پرسرعت آلمان چه شرایطی داره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'PLAN_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_108',
+    message: 'چند کاربره دارید؟ من برای ۳ تا گوشی میخوام',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PLAN_REQUEST',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'PLAN_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 10. SUPPORT_REQUEST (13 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_109',
+    message: 'ایدی ادمینو میدی برم بهش پیام بدم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: 'قیمت ۱۰۰ تومنه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_110',
+    message: 'از کجا باید تهیه کنم این سرویس رو؟ لینکشو بفرست',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_111',
+    message: 'کانال تلگرامتون کجاست عضوش بشم؟ آیدی کانال رو بده',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_112',
+    message: 'به کی پیام بدم واسه تحویل کانفیگ؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_113',
+    message: 'آیدی پشتیبانی تلگرام رو میدی سوالمو بپرسم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_114',
+    message: 'لینک ربات خرید خودکار یا آیدی فروش رو بفرست',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_115',
+    message: 'آیدیشو داری؟ میخوام با ادمین صحبت کنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_116',
+    message: 'کجا پیام بدم برای خرید اکانت یک ماهه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: ['PURCHASE_INTENT'],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_117',
+    message: 'سلام ایدی پشتیبانی رو میفرستید پیام بدم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: ['GREETING'],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_118',
+    message: 'آیدی بده تا فیش واریزی رو بفرستم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: 'شماره کارت فرستادم', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: ['PURCHASE_INTENT'],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_119',
+    message: 'چطوری تهیه کنم از طریق تلگرام؟ آدرس کانال کجاست؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_120',
+    message: 'آیدی شو بفرست پیوی ادمین صحبت کنیم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: [],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_121',
+    message: 'به کی بگم برام ست کنه بلد نیستم وارد برنامه کنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'SUPPORT_REQUEST',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'SUPPORT_REQUEST',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 11. PURCHASE_INTENT (12 cases) - Note: holdout_122 rewritten to be 100% independent
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_122',
+    message: 'اطلاعات پرداخت و شماره شبا یا کارت رو بفرست تا وجه رو انتقال بدم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: 'قیمت ۱۲۰ تومن', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: [],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_123',
+    message: 'میخام بخرم اکانت دوماهه رو، شماره حساب بدید',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: ['PLAN_REQUEST'],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_124',
+    message: 'اوکی میخوامش، همین الان پرداخت میکنم برام اکانت بساز',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: 'توضیحات داده شد', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: [],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_125',
+    message: 'شماره کارت بفرست با نام صاحب حساب تا انتقال بدم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: [],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_126',
+    message: 'من یه دونه پلن اختصاصی سه ماهه میخوام بخرم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: ['PLAN_REQUEST'],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_127',
+    message: 'خرید قطعی دارم فقط سریع تحویل بدید کار فوری دارم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: [],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_128',
+    message: 'میخوام سفارش بدم، چجوری پرداخت کنم؟ کارت به کارته؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_129',
+    message: 'الان واریز کنم چند دقیقه‌ای تحویل میدید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_130',
+    message: 'برام اوکی کن الان واریز میزنم همراه بانک دستمه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: [],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_131',
+    message: 'اکانت یک ماهه رو میخوام لطفا فعالش کنید مبلغ رو زدم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: [],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_132',
+    message: 'کارت بدید واریز کنم تموم شه بره',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: [],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_133',
+    message: 'من خریدم حتمیه، فقط شماره کارت بانک سامان داری؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'SUPPORT_HANDOFF', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'PURCHASE_INTENT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'PURCHASE_INTENT',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 12. OBJECTION (13 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_134',
+    message: 'خیلی گرونه بابا، جاهای دیگه نصف این قیمت میدن',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: 'قیمت ۱۵۰ هزار تومانه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_135',
+    message: 'از کجا مطمئن باشم کلاهبرداری نیست و پولم هدر نمیره؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_136',
+    message: 'من خودم سایفون رایگان دارم چرا باید الکی پول بدم؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_137',
+    message: 'تخفیف دانشجویی ندارید؟ ارزونتر حساب کن بردارم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: 'قیمت ماهانه اینه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: ['PURCHASE_INTENT'],
+    category: 'OBJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_138',
+    message: 'نصب کانفیگ و برنامه v2ray سخته من بلد نیستم کار کنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_139',
+    message: 'قبلاً از یه کانال خریدم بعد دوروز قطع شد پاسخگو هم نبودن',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_140',
+    message: 'چرا اینقدر گرونه؟ مگه سرور اختصاصی طلاست؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: 'تعرفه ماهانه ۲۰۰ تومن', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: ['PRICE_REQUEST'],
+    category: 'OBJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_141',
+    message: 'اعتماد کردن توی تلگرام خیلی سخته چون نمیشناسمت',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_142',
+    message: 'تضمینیه که اگه نت ملی شد باز هم کار کنه؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'OBJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_143',
+    message: 'بقیه کانالا همین پلن رو با نصف قیمت میدن چرا شما گرونید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_144',
+    message: 'حجمش کمه نسبت به قیمتش ارزش نداره',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'PRICE_DISCUSSION', lastAssistantMessage: '۳۰ گیگ یک ماهه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_145',
+    message: 'نکنه سروراتون فیلتر بشه و پولمون بسوزه؟ گارانتی بازگشت وجه دارید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: ['PRODUCT_CURIOUS'],
+    category: 'OBJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_146',
+    message: 'من بلد نیستم کانفیگ بزنم توی گوشی کار من نیست',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'OBJECTION_HANDLING', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'OBJECTION',
+    expectedSecondaryIntents: [],
+    category: 'OBJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 13. REJECTION (14 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_147',
+    message: 'نه مرسی اصلاً فیلترشکن پولی لازم ندارم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: 'سرویس عالی داریم', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_148',
+    message: 'بیخیال، نمیخوام تبلیغ نکن برام',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_149',
+    message: 'دیگه در این مورد حرف نزن علاقه ندارم به این چیزا',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_150',
+    message: 'نمیخوام داداش ولم کن اومدم چت کنم نه خرید',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: ['SMALL_TALK'],
+    category: 'REJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_151',
+    message: 'خریدار نیستم الکی وقت نذار',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_152',
+    message: 'نه ممنون به کارم نمیاد دستت درد نکنه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_153',
+    message: 'اسپم نکن حوصلتو ندارم بلاکت میکنم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_154',
+    message: 'پول ندارم بدم داداش هیچی نمیخوام',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'REJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_155',
+    message: 'اصلا نمیخوام ولش کن بحثو عوض کنیم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: ['SMALL_TALK'],
+    category: 'REJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_156',
+    message: 'فیلترشکن نمیخوام خودم اختصاصی دارم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: ['OBJECTION'],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_157',
+    message: 'بس کن بازاریاب نباش نمیخوام چیزی بخرم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_158',
+    message: 'قیمتش رو دیدم ولی فعلا قصد خرید ندارم مرسی',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: 'قیمت ۱۰۰ تومنه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_159',
+    message: 'نه بابا پولم کجا بود بیخیالش',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_160',
+    message: 'دستت درد نکنه نمیخوام مزاحم نشو',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'REJECTED', lastAssistantMessage: null, productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'REJECTION',
+    expectedSecondaryIntents: [],
+    category: 'REJECTION',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 14. GOODBYE (12 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_161',
+    message: 'من برم بخوابم شبت آروم و پر از ستاره',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_162',
+    message: 'دمت گرم، شب پیام میدم به ادمین برای خرید فعلاً بای',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: 'آیدی ادمین @admin', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: ['SUPPORT_REQUEST'],
+    category: 'GOODBYE',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_163',
+    message: 'باید برم سر کارم، بعداً میام چت کنیم فعلاً',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_164',
+    message: 'خداحافظ شما، روز خوبی داشته باشی',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_165',
+    message: 'مرسی از اطلاعاتی که دادی، فعلاً برم دوش بگیرم بای',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_166',
+    message: 'شبت شیک و بخیر مراقب خودت باش',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_167',
+    message: 'قربانت فعلا کاری نداری؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'GOODBYE',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_168',
+    message: 'سر ماه حقوق دادن حتماً پیام میدم بخرم فعلاً خدافظ',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: 'قیمت اینه', productMentioned: true, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: ['PURCHASE_INTENT'],
+    category: 'GOODBYE',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_169',
+    message: 'بای بای مراقب خودت باش',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_170',
+    message: 'یا علی داداش خوش گذشت',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_171',
+    message: 'بعد از ظهر میام پیام میدم الان کلاسم شروع شد فعلا',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_172',
+    message: 'برم دیگه دیرم شده فعلا خداحافظ',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'GOODBYE', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'GOODBYE',
+    expectedSecondaryIntents: [],
+    category: 'GOODBYE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 15. SUSPICION_BOT (9 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_173',
+    message: 'تو رباتی یا داری با اسکریپت پیام میدی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: 'سلام من ۲۲ سالمه', productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'SUSPICION_BOT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_174',
+    message: 'انسان نیستی درسته؟ هوش مصنوعی هستی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'SUSPICION_BOT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_175',
+    message: 'چرا مثل باتا سریع و ماشینی جواب میدی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'SUSPICION_BOT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_176',
+    message: 'سلام تو رباتی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: ['GREETING'],
+    category: 'SUSPICION_BOT',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_177',
+    message: 'داری ضبط شده و خودکار چت میکنی شک ندارم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: [],
+    category: 'SUSPICION_BOT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_178',
+    message: 'پشت گوشی کیه واقعاً؟ بات هوش مصنوعی گذاشتید؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'SUSPICION_BOT',
+    difficulty: 'medium',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_179',
+    message: 'تو چت جی پی تی هستی یا ادمی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'SUSPICION_BOT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_180',
+    message: 'باتی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: [],
+    category: 'SUSPICION_BOT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_181',
+    message: 'ai هستی؟ حس میکنم هوش مصنوعی داره مینویسه',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SUSPICION_BOT',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'SUSPICION_BOT',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 16. INAPPROPRIATE (7 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_182',
+    message: 'کصکش گمشو بیرون بی ناموس',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'INAPPROPRIATE',
+    expectedSecondaryIntents: [],
+    category: 'INAPPROPRIATE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_183',
+    message: 'سکس چت میای یا اهلش نیستی لاشی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'INAPPROPRIATE',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'INAPPROPRIATE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_184',
+    message: 'حرومی کونی مزاحم نشو',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'INAPPROPRIATE',
+    expectedSecondaryIntents: [],
+    category: 'INAPPROPRIATE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_185',
+    message: 'سیکتیر بابا حوصله تو ندارم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'INAPPROPRIATE',
+    expectedSecondaryIntents: ['REJECTION'],
+    category: 'INAPPROPRIATE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_186',
+    message: 'جنده خانوم اصل میدی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'INAPPROPRIATE',
+    expectedSecondaryIntents: ['SMALL_TALK'],
+    category: 'INAPPROPRIATE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_187',
+    message: 'عکس ممه بفرست حال کنیم',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'INAPPROPRIATE',
+    expectedSecondaryIntents: [],
+    category: 'INAPPROPRIATE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_188',
+    message: 'کیر تو این شانس و اقبال',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'INAPPROPRIATE',
+    expectedSecondaryIntents: [],
+    category: 'INAPPROPRIATE',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 17. SPAM (6 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_189',
+    message: 'برای دریافت شارژ رایگان ایرانسل وارد لینک شو https://t.me/charge_free',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SPAM',
+    expectedSecondaryIntents: [],
+    category: 'SPAM',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_190',
+    message: 'کانال صیغه‌یابی و همسریابی تلگرام t.me/sighe_iran عضو بشید',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SPAM',
+    expectedSecondaryIntents: [],
+    category: 'SPAM',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_191',
+    message: 'پکیج آموزش کسب درآمد دلاری فقط در https://instagram.com/dolar_earn',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SPAM',
+    expectedSecondaryIntents: [],
+    category: 'SPAM',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_192',
+    message: 'ربات شارژ رایگان همراه اول telegram.me/mci_free_bot',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SPAM',
+    expectedSecondaryIntents: [],
+    category: 'SPAM',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_193',
+    message: 'عضو کانال من شو موزیکای جدید میذارم t.me/joinchat/AAAAAFK',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SPAM',
+    expectedSecondaryIntents: [],
+    category: 'SPAM',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_194',
+    message: 'ثبت نام در سایت شرط بندی با بونوس ۱۰۰ درصد t.me/bet_iran',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'SPAM',
+    expectedSecondaryIntents: [],
+    category: 'SPAM',
+    difficulty: 'easy',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 18. OFF_TOPIC & COMMERCIAL FALSE POSITIVE TRAPS (4 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_195',
+    message: 'قیمت روز طلا و سکه امامی امروز چنده در بازار؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'OFF_TOPIC',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'COMMERCIAL_TRAP',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_196',
+    message: 'برای خرید لپ‌تاپ ایسوس دنبال یه فروشگاه معتبر تو بازار رضام',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'OFF_TOPIC',
+    expectedSecondaryIntents: [],
+    category: 'COMMERCIAL_TRAP',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_197',
+    message: 'ماهی چقدر شهریه دانشگاه آزاد پرداخت میکنی رشته معماری؟',
+    context: { previousUserMessages: ['من دانشجو ام'], previousIntents: ['SMALL_TALK'], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'OFF_TOPIC',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'COMMERCIAL_TRAP',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_198',
+    message: 'تست رانندگی پایه دو قبول شدی بالاخره یا رد شدی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: 'ENGAGED', lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'OFF_TOPIC',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'COMMERCIAL_TRAP',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+
+  // -------------------------------------------------------------
+  // 19. UNKNOWN / AMBIGUOUS STANDALONE (2 cases)
+  // -------------------------------------------------------------
+  {
+    id: 'holdout_199',
+    message: 'خب؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'UNKNOWN',
+    expectedSecondaryIntents: [],
+    category: 'AMBIGUOUS_SHORT',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  },
+  {
+    id: 'holdout_200',
+    message: 'یعنی چی؟',
+    context: { previousUserMessages: [], previousIntents: [], conversationState: null, lastAssistantMessage: null, productMentioned: false, promotionState: null },
+    expectedPrimaryIntent: 'UNKNOWN',
+    expectedSecondaryIntents: ['QUESTION'],
+    category: 'AMBIGUOUS_SHORT',
+    difficulty: 'hard',
+    sourceType: 'synthetic_blind',
+    immutable: true
+  }
+];
+
+// Write file
+const outDir = path.resolve('evaluation');
+if (!fs.existsSync(outDir)) {
+  fs.mkdirSync(outDir, { recursive: true });
+}
+const outPath = path.join(outDir, 'holdout_intent_v1.json');
+fs.writeFileSync(outPath, JSON.stringify(holdoutCases, null, 2), 'utf-8');
+console.log(`Generated ${holdoutCases.length} holdout cases in ${outPath}`);

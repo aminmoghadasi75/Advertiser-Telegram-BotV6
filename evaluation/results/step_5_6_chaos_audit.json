@@ -1,0 +1,157 @@
+{
+  "totalInputsTested": 220,
+  "unhandledExceptions": 0,
+  "invalidOutputs": 0,
+  "tracesSample": [
+    {
+      "input": "",
+      "outputIntent": "SILENCE",
+      "exception": false
+    },
+    {
+      "input": " ",
+      "outputIntent": "SILENCE",
+      "exception": false
+    },
+    {
+      "input": "   ",
+      "outputIntent": "SILENCE",
+      "exception": false
+    },
+    {
+      "input": "\t\n\r",
+      "outputIntent": "SILENCE",
+      "exception": false
+    },
+    {
+      "input": "        ",
+      "outputIntent": "SILENCE",
+      "exception": false
+    },
+    {
+      "input": "a",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "ب",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "؟",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "!",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "1",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "آ",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "ه",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "و",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "?????????",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "!!!!!!!!!!",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "............",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "؟!؟!؟!؟!؟!",
+      "outputIntent": "QUESTION",
+      "exception": false
+    },
+    {
+      "input": "---===---",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "((((()))))",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "?????!!!!!.....",
+      "outputIntent": "QUESTION",
+      "exception": false
+    },
+    {
+      "input": "%%%%%%%",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "$$$$$$$",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "*******",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "سیلللاااااممممم",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "ررررررباااااات",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "قییییییمتتتتت چنــــــــده",
+      "outputIntent": "PRICE_REQUEST",
+      "exception": false
+    },
+    {
+      "input": "خداحااااااافظااااا",
+      "outputIntent": "GOODBYE",
+      "exception": false
+    },
+    {
+      "input": "ههههههههههههههههه",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "خخخخخخخخخخخخخخخخ",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    },
+    {
+      "input": "وااااااای خداااااا",
+      "outputIntent": "UNKNOWN",
+      "exception": false
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "totalInvariants": 26,
+  "passedInvariants": 26,
+  "invariants": [
+    {
+      "id": 1,
+      "name": "Holdout Case Count",
+      "equation": "holdoutCases.length === 200",
+      "passed": true
+    },
+    {
+      "id": 2,
+      "name": "Unique Case IDs",
+      "equation": "uniqueIds === totalCases",
+      "passed": true
+    },
+    {
+      "id": 3,
+      "name": "Accuracy Equation",
+      "equation": "accuracy === correct / total",
+      "passed": true
+    },
+    {
+      "id": 4,
+      "name": "Support Sum Equivalence",
+      "equation": "sum(supports) === totalCases",
+      "passed": true
+    },
+    {
+      "id": 5,
+      "name": "Multi-Intent Denominator Integrity",
+      "equation": "multiTotal > 0 && multiExact <= multiTotal",
+      "passed": true
+    },
+    {
+      "id": 6,
+      "name": "Safety False Negatives Zero",
+      "equation": "safetyFN === 0",
+      "passed": true
+    },
+    {
+      "id": 7,
+      "name": "Rejection False Negatives Zero",
+      "equation": "rejectionFN === 0",
+      "passed": true
+    },
+    {
+      "id": 8,
+      "name": "Commercial FPR Zero on Safety",
+      "equation": "commercialFP === 0",
+      "passed": true
+    },
+    {
+      "id": 9,
+      "name": "Post-Rejection Promo Leaks Zero",
+      "equation": "postRejectionPromoLeaks === 0",
+      "passed": true
+    },
+    {
+      "id": 10,
+      "name": "Duplicate CTA Violations Zero",
+      "equation": "duplicateCTAViolations === 0",
+      "passed": true
+    },
+    {
+      "id": 11,
+      "name": "Illegal State Transitions Zero",
+      "equation": "illegalStateTransitions === 0",
+      "passed": true
+    },
+    {
+      "id": 12,
+      "name": "Terminal Resurrections Zero",
+      "equation": "terminalResurrections === 0",
+      "passed": true
+    },
+    {
+      "id": 13,
+      "name": "State Oscillations Zero",
+      "equation": "stateOscillations === 0",
+      "passed": true
+    },
+    {
+      "id": 14,
+      "name": "Concurrency State Leaks Zero",
+      "equation": "crossConversationLeakageCount === 0",
+      "passed": true
+    },
+    {
+      "id": 15,
+      "name": "Concurrency Context Contamination Zero",
+      "equation": "contextContaminationCount === 0",
+      "passed": true
+    },
+    {
+      "id": 16,
+      "name": "Concurrency Promotion Leaks Zero",
+      "equation": "promotionIsolationFailures === 0",
+      "passed": true
+    },
+    {
+      "id": 17,
+      "name": "Retry Score Accumulation Invariant",
+      "equation": "scoreAccumulationDivergence === 0",
+      "passed": true
+    },
+    {
+      "id": 18,
+      "name": "Lead Score Range Bound",
+      "equation": "0 <= score <= 100",
+      "passed": true
+    },
+    {
+      "id": 19,
+      "name": "Deterministic Replay Bit-Identical",
+      "equation": "hash1 === hash2 === hash3",
+      "passed": true
+    },
+    {
+      "id": 20,
+      "name": "Holdout Accuracy Threshold",
+      "equation": "holdoutAcc >= 0.9950",
+      "passed": true
+    },
+    {
+      "id": 21,
+      "name": "Multi-Intent Match Threshold",
+      "equation": "multiAcc >= 0.90",
+      "passed": true
+    },
+    {
+      "id": 22,
+      "name": "Adversarial Accuracy Threshold",
+      "equation": "advAcc >= 0.9769",
+      "passed": true
+    },
+    {
+      "id": 23,
+      "name": "Safety Accuracy Threshold",
+      "equation": "safetyAcc === 1.0",
+      "passed": true
+    },
+    {
+      "id": 24,
+      "name": "Normalization Consistency Threshold",
+      "equation": "normConsistency === 1.0",
+      "passed": true
+    },
+    {
+      "id": 25,
+      "name": "Long-Horizon State Accuracy Threshold",
+      "equation": "longStateAcc === 1.0",
+      "passed": true
+    },
+    {
+      "id": 26,
+      "name": "Artifact Integrity Verification",
+      "equation": "allArtifactsExistAndNonEmpty === true",
+      "passed": true
+    }
+  ],
+  "allPassed": true,
+  "status": "PASSED"
+}

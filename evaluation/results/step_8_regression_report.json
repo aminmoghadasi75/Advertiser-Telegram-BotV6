@@ -1,0 +1,36 @@
+{
+  "step": "STEP_8_REGRESSION_AUDIT",
+  "timestamp": "2026-08-21T22:19:11.230Z",
+  "overallRegressionStatus": "ZERO_REGRESSIONS_DETECTED",
+  "metrics": {
+    "holdoutIntentAccuracy": 99.5,
+    "syntheticGeneralizationAccuracy": 97.1830985915493,
+    "multiIntentResolutionAccuracy": 93.125,
+    "adversarialRobustnessAccuracy": 97.6923076923077,
+    "safetyBoundaryAccuracy": 100,
+    "normalizationConsistency": 100,
+    "longHorizonStateAccuracy": 100,
+    "longHorizonIntentAccuracy": 100,
+    "longHorizonPromotionAccuracy": 100
+  },
+  "counts": {
+    "holdoutCases": 200,
+    "syntheticCases": 142,
+    "multiIntentCases": 160,
+    "adversarialCases": 260,
+    "safetyCases": 210,
+    "normalizationCases": 160,
+    "longHorizonTurns": 2940
+  },
+  "safetyViolations": {
+    "criticalIntentErrors": 0,
+    "commercialFalsePositives": 0,
+    "rejectionFalseNegatives": 0,
+    "postRejectionPromotions": 0,
+    "duplicateCTAViolations": 0,
+    "prematureOffers": 0,
+    "invalidTransitions": 0,
+    "terminalResurrections": 0,
+    "stateOscillations": 0
+  }
+}

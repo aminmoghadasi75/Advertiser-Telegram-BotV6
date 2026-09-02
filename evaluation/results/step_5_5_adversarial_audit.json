@@ -1,0 +1,406 @@
+{
+  "totalCases": 100,
+  "accuracy": 0.97,
+  "cases": [
+    {
+      "text": "کانکشن واسه دور زدن نت ملی دارین؟",
+      "expected": "PRODUCT_CURIOUS"
+    },
+    {
+      "text": "اکانت برای یوتیوب و تلگرام میخوام",
+      "expected": "UNKNOWN"
+    },
+    {
+      "text": "سرویسی داری که روی همراه اول وصل بشه و پینگش زیر ۱۰۰ باشه؟",
+      "expected": "VPN_REQUEST"
+    },
+    {
+      "text": "برای ترید بایننس آیپی ثابت میخوام",
+      "expected": "PRODUCT_CURIOUS"
+    },
+    {
+      "text": "واسه اینستاگرام و واتساپ یه چیزی میخوام که قطع نشه",
+      "expected": "UNKNOWN"
+    },
+    {
+      "text": "قیمت دلار امروز چنده؟",
+      "expected": "OFF_TOPIC"
+    },
+    {
+      "text": "رفتم بازار گوشی بخرم قیمت پلن پرومکس خیلی بالا بود",
+      "expected": "PRICE_REQUEST"
+    },
+    {
+      "text": "اشتراک اینترنت مخابراتم تموم شده",
+      "expected": "PLAN_REQUEST"
+    },
+    {
+      "text": "سرور دیسکورد رو ساختم خیلی خوب شد",
+      "expected": "UNKNOWN"
+    },
+    {
+      "text": "ماهی چقدر بهت حقوق میدن",
+      "expected": "PRICE_REQUEST"
+    },
+    {
+      "text": "اینترنتم خیلی کنده، شما سرویستون روی رایتل چطوریه",
+      "expected": "RELEVANT_NEED"
+    },
+    {
+      "text": "شما وی پی ان میفروشید یا کانفیگ شخصی هم میسازید",
+      "expected": "UNKNOWN"
+    },
+    {
+      "text": "سلام تو رباتی؟ قیمت وی پی ان چنده",
+      "expected": "SUSPICION_BOT"
+    },
+    {
+      "text": "میخوام تست کنم ولی قیمتش چنده",
+      "expected": "PRICE_REQUEST"
+    },
+    {
+      "text": "دوستم گفت قیمت اکانتتون چنده منم گفتم نمیدونم",
+      "expected": "PRICE_REQUEST"
+    },
+    {
+      "text": "اگه بخوام بخرم اول باید بدونم سرعتش چطوره",
+      "expected": "PRODUCT_CURIOUS"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    },
+    {
+      "text": "سلام خسته نباشید",
+      "expected": "GREETING"
+    }
+  ]
+}

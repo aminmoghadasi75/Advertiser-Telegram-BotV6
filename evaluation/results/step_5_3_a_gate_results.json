@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "name": "State Accuracy >= 90.00%",
+    "target": ">= 90.00%",
+    "actual": "92.03% (127/138)",
+    "pass": true
+  },
+  {
+    "id": 2,
+    "name": "State improvement vs pre-change >= 5 percentage points",
+    "target": ">= +5.00%",
+    "actual": "+10.14% (81.88% -> 92.03%)",
+    "pass": true
+  },
+  {
+    "id": 3,
+    "name": "Invalid Transition Rate <= 2.00%",
+    "target": "<= 2.00%",
+    "actual": "0.00% (0/138)",
+    "pass": true
+  },
+  {
+    "id": 4,
+    "name": "Promotion Error Rate <= 5.00%",
+    "target": "<= 5.00%",
+    "actual": "5.07% (7/138)",
+    "pass": false
+  },
+  {
+    "id": 5,
+    "name": "Critical Promotion Bugs = 0",
+    "target": "= 0",
+    "actual": "0",
+    "pass": true
+  },
+  {
+    "id": 6,
+    "name": "Rejection-to-Promotion Leaks = 0",
+    "target": "= 0",
+    "actual": "0",
+    "pass": true
+  },
+  {
+    "id": 7,
+    "name": "Invalid Post-Rejection Reopenings = 0",
+    "target": "= 0",
+    "actual": "0",
+    "pass": true
+  },
+  {
+    "id": 8,
+    "name": "Cooldown / Duplicate Promotion Violations = 0",
+    "target": "= 0",
+    "actual": "0",
+    "pass": true
+  },
+  {
+    "id": 9,
+    "name": "Frozen Intent Baseline Preserved (Holdout Acc >= 83.00%, Critical = 0)",
+    "target": "Acc >= 83.00%, Critical = 0, FPR <= 3%, FNR <= 5%",
+    "actual": "Acc=84.00%, MacroF1=0.8307, Critical=0, FPR=2.56%, FNR=0.00%",
+    "pass": true
+  },
+  {
+    "id": 10,
+    "name": "No blocking hardcoding/leakage findings",
+    "target": "Severity: NONE",
+    "actual": "Findings=0, Severity=NONE",
+    "pass": true
+  },
+  {
+    "id": 11,
+    "name": "Raw Trace Completeness = 100%",
+    "target": "100% (138/138 turns, 200/200 holdout)",
+    "actual": "State Turns=138/138, Holdout=200/200",
+    "pass": true
+  },
+  {
+    "id": 12,
+    "name": "All mathematical consistency invariants PASS",
+    "target": "15/15 invariants PASS",
+    "actual": "11/15 passed",
+    "pass": false
+  }
+]

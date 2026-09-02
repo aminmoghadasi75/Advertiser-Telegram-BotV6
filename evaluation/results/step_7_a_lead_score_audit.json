@@ -1,0 +1,168 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "totalSessionsEvaluated": 88,
+  "averageLeadScore": 55.4,
+  "medianLeadScore": 50,
+  "scoreProgressionRate": 62.5,
+  "distribution": {
+    "cold": 33,
+    "warm": 13,
+    "hot": 42
+  },
+  "distributionSumMatchesTotal": true,
+  "totalRecordedScoreChanges": 507,
+  "unexplainableDeltas": 0,
+  "scoreBoundViolations": 0,
+  "negativeSignalScoreIncreases": 0,
+  "commercialSignalScoreDecreases": 0,
+  "determinismMismatches": 0,
+  "leadScoreDeterminism": "100%",
+  "highestConvertingIntents": [
+    {
+      "intent": "PURCHASE_INTENT",
+      "conversionRate": 100,
+      "conversions": 32,
+      "total": 32
+    },
+    {
+      "intent": "PLAN_REQUEST",
+      "conversionRate": 100,
+      "conversions": 30,
+      "total": 30
+    },
+    {
+      "intent": "SUPPORT_REQUEST",
+      "conversionRate": 100,
+      "conversions": 7,
+      "total": 7
+    },
+    {
+      "intent": "PRODUCT_CURIOUS",
+      "conversionRate": 96.88,
+      "conversions": 31,
+      "total": 32
+    },
+    {
+      "intent": "RELEVANT_NEED",
+      "conversionRate": 94.59,
+      "conversions": 35,
+      "total": 37
+    },
+    {
+      "intent": "OBJECTION",
+      "conversionRate": 83.33,
+      "conversions": 30,
+      "total": 36
+    },
+    {
+      "intent": "PRICE_REQUEST",
+      "conversionRate": 82.5,
+      "conversions": 33,
+      "total": 40
+    },
+    {
+      "intent": "REJECTION",
+      "conversionRate": 81.08,
+      "conversions": 30,
+      "total": 37
+    },
+    {
+      "intent": "QUESTION",
+      "conversionRate": 79.49,
+      "conversions": 31,
+      "total": 39
+    },
+    {
+      "intent": "SMALL_TALK",
+      "conversionRate": 73.81,
+      "conversions": 31,
+      "total": 42
+    },
+    {
+      "intent": "GOODBYE",
+      "conversionRate": 65.22,
+      "conversions": 30,
+      "total": 46
+    },
+    {
+      "intent": "GREETING",
+      "conversionRate": 44.32,
+      "conversions": 39,
+      "total": 88
+    },
+    {
+      "intent": "VPN_REQUEST",
+      "conversionRate": 40,
+      "conversions": 4,
+      "total": 10
+    },
+    {
+      "intent": "TRIAL_REQUEST",
+      "conversionRate": 25,
+      "conversions": 1,
+      "total": 4
+    },
+    {
+      "intent": "OFF_TOPIC",
+      "conversionRate": 0,
+      "conversions": 0,
+      "total": 1
+    },
+    {
+      "intent": "SUSPICION_BOT",
+      "conversionRate": 0,
+      "conversions": 0,
+      "total": 2
+    },
+    {
+      "intent": "SPAM",
+      "conversionRate": 0,
+      "conversions": 0,
+      "total": 1
+    },
+    {
+      "intent": "INAPPROPRIATE",
+      "conversionRate": 0,
+      "conversions": 0,
+      "total": 1
+    }
+  ],
+  "highScoreLowConversionIntents": [
+    {
+      "intent": "GREETING",
+      "averageScore": 55.4,
+      "conversionRate": 44.32,
+      "dropOffCount": 49
+    },
+    {
+      "intent": "VPN_REQUEST",
+      "averageScore": 69.5,
+      "conversionRate": 40,
+      "dropOffCount": 6
+    },
+    {
+      "intent": "TRIAL_REQUEST",
+      "averageScore": 56.25,
+      "conversionRate": 25,
+      "dropOffCount": 3
+    }
+  ],
+  "objectionsBlockingConversion": [
+    {
+      "category": "OTHER",
+      "count": 36,
+      "dropOffRate": 16.67
+    },
+    {
+      "category": "PRICE",
+      "count": 36,
+      "dropOffRate": 16.67
+    },
+    {
+      "category": "FEATURE_GAP",
+      "count": 1,
+      "dropOffRate": 100
+    }
+  ],
+  "status": "PASSED"
+}

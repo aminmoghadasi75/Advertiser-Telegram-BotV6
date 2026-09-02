@@ -1,0 +1,10 @@
+{
+  "auditTimestamp": "2026-08-21T16:01:47.182Z",
+  "totalCtaCount": 33,
+  "totalCtaPairs": 10,
+  "compliantCtaPairs": 10,
+  "violatingCtaPairs": 0,
+  "duplicateOffersCount": 0,
+  "violations": [],
+  "status": "PASSED"
+}

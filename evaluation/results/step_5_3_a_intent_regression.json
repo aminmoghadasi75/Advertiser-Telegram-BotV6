@@ -1,0 +1,213 @@
+{
+  "auditTimestamp": "2026-08-21T16:01:47.182Z",
+  "holdoutSha256": "deb6d74e403e1476dee6b5259d9b873fee1020bdd0e8214d50c3d32c6546b821",
+  "totalCases": 200,
+  "correctPredictions": 168,
+  "overallAccuracy": 84,
+  "macroPrecision": 0.8398,
+  "macroRecall": 0.8657,
+  "macroF1": 0.8307,
+  "weightedPrecision": 0.8715,
+  "weightedRecall": 0.84,
+  "weightedF1": 0.8437,
+  "criticalErrors": 0,
+  "commercialFPR": 2.56,
+  "commercialFPRFraction": "3/117",
+  "rejectionFNR": 0,
+  "rejectionFNRFraction": "0/14",
+  "multiIntentCount": 66,
+  "multiIntentExactMatches": 53,
+  "multiIntentExactMatchRate": 80.3,
+  "perClassMetrics": {
+    "GREETING": {
+      "intent": "GREETING",
+      "support": 11,
+      "tp": 11,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SMALL_TALK": {
+      "intent": "SMALL_TALK",
+      "support": 13,
+      "tp": 8,
+      "fp": 3,
+      "fn": 5,
+      "precision": 0.7273,
+      "recall": 0.6154,
+      "f1": 0.6667
+    },
+    "QUESTION": {
+      "intent": "QUESTION",
+      "support": 12,
+      "tp": 10,
+      "fp": 3,
+      "fn": 2,
+      "precision": 0.7692,
+      "recall": 0.8333,
+      "f1": 0.8
+    },
+    "RELEVANT_NEED": {
+      "intent": "RELEVANT_NEED",
+      "support": 14,
+      "tp": 7,
+      "fp": 0,
+      "fn": 7,
+      "precision": 1,
+      "recall": 0.5,
+      "f1": 0.6667
+    },
+    "VPN_REQUEST": {
+      "intent": "VPN_REQUEST",
+      "support": 13,
+      "tp": 10,
+      "fp": 2,
+      "fn": 3,
+      "precision": 0.8333,
+      "recall": 0.7692,
+      "f1": 0.8
+    },
+    "PRODUCT_CURIOUS": {
+      "intent": "PRODUCT_CURIOUS",
+      "support": 13,
+      "tp": 8,
+      "fp": 4,
+      "fn": 5,
+      "precision": 0.6667,
+      "recall": 0.6154,
+      "f1": 0.64
+    },
+    "TRIAL_REQUEST": {
+      "intent": "TRIAL_REQUEST",
+      "support": 12,
+      "tp": 10,
+      "fp": 0,
+      "fn": 2,
+      "precision": 1,
+      "recall": 0.8333,
+      "f1": 0.9091
+    },
+    "PRICE_REQUEST": {
+      "intent": "PRICE_REQUEST",
+      "support": 12,
+      "tp": 11,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.9167,
+      "recall": 0.9167,
+      "f1": 0.9167
+    },
+    "PLAN_REQUEST": {
+      "intent": "PLAN_REQUEST",
+      "support": 8,
+      "tp": 6,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.8571,
+      "recall": 0.75,
+      "f1": 0.8
+    },
+    "SUPPORT_REQUEST": {
+      "intent": "SUPPORT_REQUEST",
+      "support": 13,
+      "tp": 11,
+      "fp": 0,
+      "fn": 2,
+      "precision": 1,
+      "recall": 0.8462,
+      "f1": 0.9167
+    },
+    "PURCHASE_INTENT": {
+      "intent": "PURCHASE_INTENT",
+      "support": 12,
+      "tp": 12,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.8571,
+      "recall": 1,
+      "f1": 0.9231
+    },
+    "OBJECTION": {
+      "intent": "OBJECTION",
+      "support": 13,
+      "tp": 10,
+      "fp": 2,
+      "fn": 3,
+      "precision": 0.8333,
+      "recall": 0.7692,
+      "f1": 0.8
+    },
+    "REJECTION": {
+      "intent": "REJECTION",
+      "support": 14,
+      "tp": 14,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "GOODBYE": {
+      "intent": "GOODBYE",
+      "support": 12,
+      "tp": 12,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.8571,
+      "recall": 1,
+      "f1": 0.9231
+    },
+    "SUSPICION_BOT": {
+      "intent": "SUSPICION_BOT",
+      "support": 9,
+      "tp": 9,
+      "fp": 3,
+      "fn": 0,
+      "precision": 0.75,
+      "recall": 1,
+      "f1": 0.8571
+    },
+    "INAPPROPRIATE": {
+      "intent": "INAPPROPRIATE",
+      "support": 7,
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SPAM": {
+      "intent": "SPAM",
+      "support": 6,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "OFF_TOPIC": {
+      "intent": "OFF_TOPIC",
+      "support": 4,
+      "tp": 4,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.6667,
+      "recall": 1,
+      "f1": 0.8
+    },
+    "UNKNOWN": {
+      "intent": "UNKNOWN",
+      "support": 2,
+      "tp": 2,
+      "fp": 7,
+      "fn": 0,
+      "precision": 0.2222,
+      "recall": 1,
+      "f1": 0.3636
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "totalCases": 20,
+  "accuracy": 1,
+  "inappropriateFN": 0,
+  "spamFN": 0,
+  "rejectionFN": 0,
+  "botSuspicionFN": 0,
+  "benignLoanwordFP": 0,
+  "testCases": [
+    {
+      "msg": "گوه نخور بابا آشغال بی خاصیت",
+      "expected": "INAPPROPRIATE"
+    },
+    {
+      "msg": "کصکش گمشو بیرون",
+      "expected": "INAPPROPRIATE"
+    },
+    {
+      "msg": "حرومزاده کثافت اشغال",
+      "expected": "INAPPROPRIATE"
+    },
+    {
+      "msg": "برو گمشو دیوث روانی",
+      "expected": "INAPPROPRIATE"
+    },
+    {
+      "msg": "برای خرید ممبر واقعی و ویو تلگرام به @member_store پیام بدید",
+      "expected": "SPAM"
+    },
+    {
+      "msg": "کانال صیغه‌یابی و دوست‌یابی تلگرام https://t.me/sigheh_botjoin",
+      "expected": "SPAM"
+    },
+    {
+      "msg": "کسب درامد دلاری تضمینی با واریز روزانه به آیدی @crypto_signal_vip",
+      "expected": "SPAM"
+    },
+    {
+      "msg": "سلام تو رباتی؟",
+      "expected": "SUSPICION_BOT"
+    },
+    {
+      "msg": "شما هوش مصنوعی هستی یا ادم واقعی؟",
+      "expected": "SUSPICION_BOT"
+    },
+    {
+      "msg": "داری پیامای از قبل آماده شده می‌فرستی بات؟",
+      "expected": "SUSPICION_BOT"
+    },
+    {
+      "msg": "نه داداش علاقه ای به خرید vpn ندارم",
+      "expected": "REJECTION"
+    },
+    {
+      "msg": "تبلیغ نکن حوصله وی پی ان ندارم",
+      "expected": "REJECTION"
+    },
+    {
+      "msg": "بیخیال بابا نیازی به فیلترشکن ندارم",
+      "expected": "REJECTION"
+    },
+    {
+      "msg": "من مهندس شبکه هستم و روی سرورهای ابری کانفیگ لینوکس میزنم",
+      "expected": "SMALL_TALK"
+    },
+    {
+      "msg": "امروز ایمیلم پر از پیام‌های اسپم شده بود اعصابم خورد شد",
+      "expected": "RELEVANT_NEED"
+    },
+    {
+      "msg": "توی کانال تلگرام اخبار دانشگاه رو میخونم",
+      "expected": "SMALL_TALK"
+    },
+    {
+      "msg": "دوستم رباتیک دانشگاه شریف درس میخونه",
+      "expected": "SMALL_TALK"
+    },
+    {
+      "msg": "امروز سر کار با یکی از همکارا دعوام شد ولی بهش فحش ندادم",
+      "expected": "SMALL_TALK"
+    },
+    {
+      "msg": "توی شهر لار و خوی زندگی میکنم و هوا عالیه",
+      "expected": "SMALL_TALK"
+    },
+    {
+      "msg": "شغلم سفالگری در میبد یزده",
+      "expected": "SMALL_TALK"
+    }
+  ]
+}

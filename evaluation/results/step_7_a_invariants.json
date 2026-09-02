@@ -1,0 +1,184 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "totalInvariants": 25,
+  "passedCount": 25,
+  "failedCount": 0,
+  "invariants": [
+    {
+      "id": 1,
+      "name": "Total Sessions Non-Zero",
+      "formula": "totalSessions > 0",
+      "passed": true,
+      "details": "totalSessions = 88"
+    },
+    {
+      "id": 2,
+      "name": "Lead Score Strict Range",
+      "formula": "0 <= averageLeadScore <= 100",
+      "passed": true,
+      "details": "averageLeadScore = 55.4"
+    },
+    {
+      "id": 3,
+      "name": "Lead Tier Distribution Conservation",
+      "formula": "cold + warm + hot == totalSessions",
+      "passed": true,
+      "details": "33 + 13 + 42 == 88"
+    },
+    {
+      "id": 4,
+      "name": "Stage 1 Funnel Session Count",
+      "formula": "Stage_1_Count == totalSessions",
+      "passed": true,
+      "details": "Stage 1 Count = 88, totalSessions = 88"
+    },
+    {
+      "id": 5,
+      "name": "Funnel Stage Max Count Bound",
+      "formula": "Stage_N_Count <= Stage_1_Count for all N",
+      "passed": true,
+      "details": "All stage counts <= 88"
+    },
+    {
+      "id": 6,
+      "name": "Stage Conversion and Drop-off Complementarity",
+      "formula": "conversionRateFromPrevious + dropOffRate == 100% for stages 2..8",
+      "passed": true,
+      "details": "Evaluated across all stages 2..8"
+    },
+    {
+      "id": 7,
+      "name": "CTA Acceptance Bounded by Opportunities",
+      "formula": "ctaAcceptedCount <= ctaShownCount + directPurchaseCount",
+      "passed": true,
+      "details": "Accepted = 96, Shown = 123"
+    },
+    {
+      "id": 8,
+      "name": "Safety Guardrail Violation Rate Zero",
+      "formula": "safetyViolationRate == 0.00%",
+      "passed": true,
+      "details": "safetyViolationRate = 0%"
+    },
+    {
+      "id": 9,
+      "name": "Observer State Non-Invasiveness",
+      "formula": "observerStateRegressions == 0",
+      "passed": true,
+      "details": "Regressions = 0"
+    },
+    {
+      "id": 10,
+      "name": "Observer Intent Non-Invasiveness",
+      "formula": "observerIntentRegressions == 0",
+      "passed": true,
+      "details": "Regressions = 0"
+    },
+    {
+      "id": 11,
+      "name": "Observer Promotion Policy Non-Invasiveness",
+      "formula": "observerPromotionRegressions == 0",
+      "passed": true,
+      "details": "Regressions = 0"
+    },
+    {
+      "id": 12,
+      "name": "Observer Runtime Exceptions Zero",
+      "formula": "observerExceptions == 0",
+      "passed": true,
+      "details": "Exceptions = 0"
+    },
+    {
+      "id": 13,
+      "name": "Event Envelope Field Completeness",
+      "formula": "missingRequiredFieldsCount == 0",
+      "passed": true,
+      "details": "Missing fields = 0"
+    },
+    {
+      "id": 14,
+      "name": "Event Timestamp ISO 8601 Validity",
+      "formula": "timestampFormatViolations == 0",
+      "passed": true,
+      "details": "Violations = 0"
+    },
+    {
+      "id": 15,
+      "name": "Session Event Chronological Monotonicity",
+      "formula": "outOfOrderTimestamps == 0",
+      "passed": true,
+      "details": "Out of order = 0"
+    },
+    {
+      "id": 16,
+      "name": "Session Correlation Non-Orphan Invariant",
+      "formula": "orphanEventsCount == 0",
+      "passed": true,
+      "details": "Orphan events = 0"
+    },
+    {
+      "id": 17,
+      "name": "Objection Taxonomy Mapping Precision",
+      "formula": "objectionClassificationErrors == 0",
+      "passed": true,
+      "details": "Classification errors = 0"
+    },
+    {
+      "id": 18,
+      "name": "Lead Score Change Delta Explainability",
+      "formula": "unexplainableDeltas == 0",
+      "passed": true,
+      "details": "Unexplainable deltas = 0"
+    },
+    {
+      "id": 19,
+      "name": "Negative Intent Score Suppression",
+      "formula": "negativeSignalScoreIncreases == 0",
+      "passed": true,
+      "details": "Score increases on rejection = 0"
+    },
+    {
+      "id": 20,
+      "name": "Rejection Lock Promotion Suppression",
+      "formula": "postRejectionCTACount == 0",
+      "passed": true,
+      "details": "Post-rejection CTA breaches = 0"
+    },
+    {
+      "id": 21,
+      "name": "CTA Cooldown Enforcement",
+      "formula": "duplicateCTAViolationCount == 0",
+      "passed": true,
+      "details": "Duplicate CTA violations = 0"
+    },
+    {
+      "id": 22,
+      "name": "CTA Acceptance Causality Invariant",
+      "formula": "impossibleCTAAcceptanceCount == 0",
+      "passed": true,
+      "details": "Impossible acceptances = 0"
+    },
+    {
+      "id": 23,
+      "name": "Conversion Turn Horizon Realism",
+      "formula": "avgTurnsToConversion >= 1",
+      "passed": true,
+      "details": "avgTurnsToConversion = 11.62"
+    },
+    {
+      "id": 24,
+      "name": "Lead Scoring Bit-for-Bit Determinism",
+      "formula": "determinismMismatches == 0",
+      "passed": true,
+      "details": "Mismatches = 0"
+    },
+    {
+      "id": 25,
+      "name": "Taxonomy Event Name Definition Completeness",
+      "formula": "definedEventTypes >= 21",
+      "passed": true,
+      "details": "Defined types = 24"
+    }
+  ],
+  "status": "PASSED"
+}

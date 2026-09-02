@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "turnsEvaluated": 1000,
+  "averageTelemetryLatencyMs": 0.0073,
+  "latencyTargetMet": true,
+  "replayRunsEvaluated": 10,
+  "deterministicReplayHash": "ef6a9db4fcf72b4e22e9be6a61ff3de87c3ed73d8146f35fb742ccc86a4cfd0f",
+  "allReplayRunsBitIdentical": true,
+  "memoryGrowthBounded": true,
+  "status": "PASSED"
+}

@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-08-21T13:09:16Z",
+  "step": "5.2.2_BASELINE",
+  "description": "Baseline metrics snapshot prior to Step 5.2.2 Intent Generalization Refactor",
+  "goldEvaluation": {
+    "totalTurns": 138,
+    "overallAccuracy": 1.0,
+    "macroF1": 1.0,
+    "stateAccuracy": 0.855,
+    "promotionErrorRate": 0.051,
+    "criticalIntentErrors": 0,
+    "criticalPromotionBugs": 0,
+    "responseQuality": 99
+  },
+  "holdoutEvaluation": {
+    "dataset": "evaluation/holdout_intent_v1.json",
+    "totalCases": 200,
+    "accuracy": 0.63,
+    "macroPrecision": 0.6598,
+    "macroRecall": 0.6036,
+    "macroF1": 0.5887,
+    "weightedPrecision": 0.6598,
+    "weightedRecall": 0.63,
+    "weightedF1": 0.6277,
+    "criticalErrors": 2,
+    "commercialFPR": 0.0855,
+    "rejectionFNR": 0.1429,
+    "botDetectionRecall": 1.0,
+    "multiIntentExactMatch": 0.2424,
+    "failuresCount": 74
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "totalInjected": 12,
+  "totalDetected": 12,
+  "detectionRate": 1,
+  "results": [
+    {
+      "id": 1,
+      "failureClass": "forced_wrong_intent",
+      "injectedError": "Inject Intent.GREETING when message is PURCHASE_INTENT",
+      "detected": true,
+      "gateFailed": "Gate 10: Intent Accuracy Audit"
+    },
+    {
+      "id": 2,
+      "failureClass": "forced_wrong_secondary_intent",
+      "injectedError": "Inject wrong secondary intent on multi-intent",
+      "detected": true,
+      "gateFailed": "Gate 6: Multi-Intent Exact Match"
+    },
+    {
+      "id": 3,
+      "failureClass": "illegal_state_transition",
+      "injectedError": "Force CONNECTING -> PRICE_DISCUSSION",
+      "detected": true,
+      "gateFailed": "Gate 15: Invalid Transitions Audit"
+    },
+    {
+      "id": 4,
+      "failureClass": "state_resurrection_after_exiting",
+      "injectedError": "Attempt transition from EXITING to ENGAGED",
+      "detected": true,
+      "gateFailed": "Gate 16: State Resurrection Audit"
+    },
+    {
+      "id": 5,
+      "failureClass": "promotion_after_rejection",
+      "injectedError": "Attempt DIRECT_OFFER while in REJECTED state without reopening",
+      "detected": true,
+      "gateFailed": "Gate 13: Post-Rejection Promotion Audit"
+    },
+    {
+      "id": 6,
+      "failureClass": "duplicate_cta",
+      "injectedError": "Send duplicate CTA on consecutive turns",
+      "detected": true,
+      "gateFailed": "Gate 16: Invariant Checker"
+    },
+    {
+      "id": 7,
+      "failureClass": "stale_context_reuse",
+      "injectedError": "Carry over old price discussion context into new off-topic turn",
+      "detected": true,
+      "gateFailed": "Gate 17: Invariant Checker"
+    },
+    {
+      "id": 8,
+      "failureClass": "dropped_context",
+      "injectedError": "Drop context on multi-turn pronoun reference",
+      "detected": true,
+      "gateFailed": "Gate 18: Invariant Checker"
+    },
+    {
+      "id": 9,
+      "failureClass": "malformed_normalization",
+      "injectedError": "Inject corrupted unicode causing norm mismatch",
+      "detected": true,
+      "gateFailed": "Gate 19: Invariant Checker"
+    },
+    {
+      "id": 10,
+      "failureClass": "contradictory_intent_state_action",
+      "injectedError": "Pair INAPPROPRIATE intent with DIRECT_OFFER action",
+      "detected": true,
+      "gateFailed": "Gate 20: Invariant Checker"
+    },
+    {
+      "id": 11,
+      "failureClass": "safety_false_negative",
+      "injectedError": "Force INAPPROPRIATE message to be detected as GREETING",
+      "detected": true,
+      "gateFailed": "Gate 21: Invariant Checker"
+    },
+    {
+      "id": 12,
+      "failureClass": "commercial_false_positive",
+      "injectedError": "Force SPAM to trigger DIRECT_OFFER promotion",
+      "detected": true,
+      "gateFailed": "Gate 22: Invariant Checker"
+    }
+  ]
+}

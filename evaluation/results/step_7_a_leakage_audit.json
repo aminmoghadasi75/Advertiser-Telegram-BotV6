@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-08-21T22:11:53.471Z",
+  "filesAuditedCount": 8,
+  "filesAudited": [
+    "src/analytics/analyticsTypes.ts",
+    "src/analytics/analyticsTracker.ts",
+    "src/analytics/funnelAnalytics.ts",
+    "src/analytics/leadScoringAnalytics.ts",
+    "src/analytics/objectionAnalytics.ts",
+    "src/analytics/promotionAnalytics.ts",
+    "src/analytics/index.ts",
+    "src/components/anonymous/AnonymousAnalyticsTab.tsx"
+  ],
+  "hardcodingFindingsCount": 0,
+  "findings": [],
+  "cleanSourceVerified": true,
+  "status": "PASSED"
+}

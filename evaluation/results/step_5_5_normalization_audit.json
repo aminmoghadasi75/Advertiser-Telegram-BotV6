@@ -1,0 +1,606 @@
+{
+  "totalVariants": 100,
+  "consistencyRate": 0.95,
+  "variants": [
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "قيمت فيلترشكن ماهانه چنده؟",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "قیمت فیلترشکن ماهانه چنده؟",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "🌸✨ قیمت فیلترشکن ماهانه چنده؟ !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "قیمت فیلترشکن ۱ ماهه چنده؟",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "قیمت فیلترشکن ماهانه چنده؟",
+      "variant": "   قیمت   فیلترشکن   ماهانه   چنده؟   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "اكانت تست رايگان v2ray ميديد؟",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "اکانت تست رایگان v2ray میدید؟",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "🌸✨ اکانت تست رایگان v2ray میدید؟ !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "اکانت تست رایگان V2RAY میدید؟",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "اکانت تست رایگان v2ray میدید؟",
+      "variant": "   اکانت   تست   رایگان   v2ray   میدید؟   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "TRIAL_REQUEST"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "شماره كارت بديد واريز كنم ميخوام بخرم",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "🌸✨ شماره کارت بدید واریز کنم میخوام بخرم !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره کارت بدید واریز کنم میخوام بخرم",
+      "variant": "   شماره   کارت   بدید   واریز   کنم   میخوام   بخرم   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "نه ممنون اصلا نيازي به vpn ندارم",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "نه ممنون اصلا نیازی به vpn ندارم",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "🌸✨ نه ممنون اصلا نیازی به vpn ندارم !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "نه ممنون اصلا نیازی به VPN ندارم",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "نه ممنون اصلا نیازی به vpn ندارم",
+      "variant": "   نه   ممنون   اصلا   نیازی   به   vpn   ندارم   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "REJECTION"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "سلام وقتتون بخير خسته نباشيد",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "سلام وقتتون بخیر خسته نباشید",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "🌸✨ سلام وقتتون بخیر خسته نباشید !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "سلام وقتتون بخیر خسته نباشید",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "سلام وقتتون بخیر خسته نباشید",
+      "variant": "   سلام   وقتتون   بخیر   خسته   نباشید   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "GREETING"
+    },
+    {
+      "original": "نت ملی شد چطوری دور بزنم",
+      "variant": "نت ملي شد چطوري دور بزنم",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PRODUCT_CURIOUS"
+    },
+    {
+      "original": "نت ملی شد چطوری دور بزنم",
+      "variant": "نت ملی شد چطوری دور بزنم",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PRODUCT_CURIOUS"
+    },
+    {
+      "original": "نت ملی شد چطوری دور بزنم",
+      "variant": "🌸✨ نت ملی شد چطوری دور بزنم !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PRODUCT_CURIOUS"
+    },
+    {
+      "original": "نت ملی شد چطوری دور بزنم",
+      "variant": "نت ملی شد چطوری دور بزنم",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PRODUCT_CURIOUS"
+    },
+    {
+      "original": "نت ملی شد چطوری دور بزنم",
+      "variant": "   نت   ملی   شد   چطوری   دور   بزنم   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PRODUCT_CURIOUS"
+    },
+    {
+      "original": "پشتیبانی جواب نمیده",
+      "variant": "پشتيباني جواب نميده",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "پشتیبانی جواب نمیده",
+      "variant": "پشتیبانی جواب نمیده",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "پشتیبانی جواب نمیده",
+      "variant": "🌸✨ پشتیبانی جواب نمیده !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "پشتیبانی جواب نمیده",
+      "variant": "پشتیبانی جواب نمیده",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "پشتیبانی جواب نمیده",
+      "variant": "   پشتیبانی   جواب   نمیده   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "پلن سه ماهه هم دارید؟",
+      "variant": "پلن سه ماهه هم داريد؟",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PLAN_REQUEST"
+    },
+    {
+      "original": "پلن سه ماهه هم دارید؟",
+      "variant": "پلن سه ماهه هم دارید؟",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PLAN_REQUEST"
+    },
+    {
+      "original": "پلن سه ماهه هم دارید؟",
+      "variant": "🌸✨ پلن سه ماهه هم دارید؟ !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PLAN_REQUEST"
+    },
+    {
+      "original": "پلن سه ماهه هم دارید؟",
+      "variant": "پلن سه ماهه هم دارید؟",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PLAN_REQUEST"
+    },
+    {
+      "original": "پلن سه ماهه هم دارید؟",
+      "variant": "   پلن   سه   ماهه   هم   دارید؟   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PLAN_REQUEST"
+    },
+    {
+      "original": "کانکشن شما پینگ رو پایین میاره؟",
+      "variant": "كانكشن شما پينگ رو پايين مياره؟",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "QUESTION"
+    },
+    {
+      "original": "کانکشن شما پینگ رو پایین میاره؟",
+      "variant": "کانکشن شما پینگ رو پایین میاره؟",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "QUESTION"
+    },
+    {
+      "original": "کانکشن شما پینگ رو پایین میاره؟",
+      "variant": "🌸✨ کانکشن شما پینگ رو پایین میاره؟ !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "QUESTION"
+    },
+    {
+      "original": "کانکشن شما پینگ رو پایین میاره؟",
+      "variant": "کانکشن شما پینگ رو پایین میاره؟",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "QUESTION"
+    },
+    {
+      "original": "کانکشن شما پینگ رو پایین میاره؟",
+      "variant": "   کانکشن   شما   پینگ   رو   پایین   میاره؟   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "QUESTION"
+    },
+    {
+      "original": "دروغ میگی رباتی",
+      "variant": "دروغ ميگي رباتي",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "SUSPICION_BOT"
+    },
+    {
+      "original": "دروغ میگی رباتی",
+      "variant": "دروغ میگی رباتی",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "SUSPICION_BOT"
+    },
+    {
+      "original": "دروغ میگی رباتی",
+      "variant": "🌸✨ دروغ میگی رباتی !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "SUSPICION_BOT"
+    },
+    {
+      "original": "دروغ میگی رباتی",
+      "variant": "دروغ میگی رباتی",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "SUSPICION_BOT"
+    },
+    {
+      "original": "دروغ میگی رباتی",
+      "variant": "   دروغ   میگی   رباتی   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "SUSPICION_BOT"
+    },
+    {
+      "original": "گمشو بابا کلاهبردار",
+      "variant": "گمشو بابا كلاهبردار",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "INAPPROPRIATE"
+    },
+    {
+      "original": "گمشو بابا کلاهبردار",
+      "variant": "گمشو بابا کلاهبردار",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "INAPPROPRIATE"
+    },
+    {
+      "original": "گمشو بابا کلاهبردار",
+      "variant": "🌸✨ گمشو بابا کلاهبردار !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "INAPPROPRIATE"
+    },
+    {
+      "original": "گمشو بابا کلاهبردار",
+      "variant": "گمشو بابا کلاهبردار",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "INAPPROPRIATE"
+    },
+    {
+      "original": "گمشو بابا کلاهبردار",
+      "variant": "   گمشو   بابا   کلاهبردار   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "INAPPROPRIATE"
+    },
+    {
+      "original": "به ربات سکسی تلگرام پیام بده",
+      "variant": "به ربات سكسي تلگرام پيام بده",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "به ربات سکسی تلگرام پیام بده",
+      "variant": "به ربات سکسی تلگرام پیام بده",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "به ربات سکسی تلگرام پیام بده",
+      "variant": "🌸✨ به ربات سکسی تلگرام پیام بده !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "به ربات سکسی تلگرام پیام بده",
+      "variant": "به ربات سکسی تلگرام پیام بده",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "به ربات سکسی تلگرام پیام بده",
+      "variant": "   به   ربات   سکسی   تلگرام   پیام   بده   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "اینستاگرامم باز نمیشه چیکار کنم",
+      "variant": "اينستاگرامم باز نميشه چيكار كنم",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "اینستاگرامم باز نمیشه چیکار کنم",
+      "variant": "اینستاگرامم باز نمیشه چیکار کنم",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "اینستاگرامم باز نمیشه چیکار کنم",
+      "variant": "🌸✨ اینستاگرامم باز نمیشه چیکار کنم !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "اینستاگرامم باز نمیشه چیکار کنم",
+      "variant": "اینستاگرامم باز نمیشه چیکار کنم",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "اینستاگرامم باز نمیشه چیکار کنم",
+      "variant": "   اینستاگرامم   باز   نمیشه   چیکار   کنم   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "من دانشجو هستم کارم اینترنتیه",
+      "variant": "من دانشجو هستم كارم اينترنتيه",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "من دانشجو هستم کارم اینترنتیه",
+      "variant": "من دانشجو هستم کارم اینترنتیه",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "من دانشجو هستم کارم اینترنتیه",
+      "variant": "🌸✨ من دانشجو هستم کارم اینترنتیه !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "من دانشجو هستم کارم اینترنتیه",
+      "variant": "من دانشجو هستم کارم اینترنتیه",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "من دانشجو هستم کارم اینترنتیه",
+      "variant": "   من   دانشجو   هستم   کارم   اینترنتیه   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "گرونه آقا ارزون تر بده",
+      "variant": "گرونه آقا ارزون تر بده",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "OBJECTION"
+    },
+    {
+      "original": "گرونه آقا ارزون تر بده",
+      "variant": "گرونه آقا ارزون تر بده",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "OBJECTION"
+    },
+    {
+      "original": "گرونه آقا ارزون تر بده",
+      "variant": "🌸✨ گرونه آقا ارزون تر بده !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "OBJECTION"
+    },
+    {
+      "original": "گرونه آقا ارزون تر بده",
+      "variant": "گرونه آقا ارزون تر بده",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "OBJECTION"
+    },
+    {
+      "original": "گرونه آقا ارزون تر بده",
+      "variant": "   گرونه   آقا   ارزون   تر   بده   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "OBJECTION"
+    },
+    {
+      "original": "خداحافظ تا فردا",
+      "variant": "خداحافظ تا فردا",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "GOODBYE"
+    },
+    {
+      "original": "خداحافظ تا فردا",
+      "variant": "خداحافظ تا فردا",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "GOODBYE"
+    },
+    {
+      "original": "خداحافظ تا فردا",
+      "variant": "🌸✨ خداحافظ تا فردا !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "GOODBYE"
+    },
+    {
+      "original": "خداحافظ تا فردا",
+      "variant": "خداحافظ تا فردا",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "GOODBYE"
+    },
+    {
+      "original": "خداحافظ تا فردا",
+      "variant": "   خداحافظ   تا   فردا   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "GOODBYE"
+    },
+    {
+      "original": "هزینه سرور المان رو میگید",
+      "variant": "هزينه سرور المان رو ميگيد",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "هزینه سرور المان رو میگید",
+      "variant": "هزینه سرور المان رو میگید",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "هزینه سرور المان رو میگید",
+      "variant": "🌸✨ هزینه سرور المان رو میگید !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "هزینه سرور المان رو میگید",
+      "variant": "هزینه سرور المان رو میگید",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "هزینه سرور المان رو میگید",
+      "variant": "   هزینه   سرور   المان   رو   میگید   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PRICE_REQUEST"
+    },
+    {
+      "original": "واسه دور زدن فیلترینگ چکار کنم",
+      "variant": "واسه دور زدن فيلترينگ چكار كنم",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "واسه دور زدن فیلترینگ چکار کنم",
+      "variant": "واسه دور زدن فیلترینگ چکار کنم",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "واسه دور زدن فیلترینگ چکار کنم",
+      "variant": "🌸✨ واسه دور زدن فیلترینگ چکار کنم !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "واسه دور زدن فیلترینگ چکار کنم",
+      "variant": "واسه دور زدن فیلترینگ چکار کنم",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "واسه دور زدن فیلترینگ چکار کنم",
+      "variant": "   واسه   دور   زدن   فیلترینگ   چکار   کنم   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "RELEVANT_NEED"
+    },
+    {
+      "original": "یوزر پسورد تستی ندارید",
+      "variant": "يوزر پسورد تستي نداريد",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "یوزر پسورد تستی ندارید",
+      "variant": "یوزر پسورد تستی ندارید",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "یوزر پسورد تستی ندارید",
+      "variant": "🌸✨ یوزر پسورد تستی ندارید !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "یوزر پسورد تستی ندارید",
+      "variant": "یوزر پسورد تستی ندارید",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "یوزر پسورد تستی ندارید",
+      "variant": "   یوزر   پسورد   تستی   ندارید   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "UNKNOWN"
+    },
+    {
+      "original": "شماره شبا بده",
+      "variant": "شماره شبا بده",
+      "transform": "ARABIC_CHAR_SUBSTITUTION",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره شبا بده",
+      "variant": "شماره شبا بده",
+      "transform": "NIM_FASELEH_TO_SPACE",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره شبا بده",
+      "variant": "🌸✨ شماره شبا بده !!! 🚀",
+      "transform": "EMOJIS_AND_REPEATED_PUNCTUATION",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره شبا بده",
+      "variant": "شماره شبا بده",
+      "transform": "PERSIAN_NUMERALS_AND_UPPERCASE",
+      "expectedIntent": "PURCHASE_INTENT"
+    },
+    {
+      "original": "شماره شبا بده",
+      "variant": "   شماره   شبا   بده   ",
+      "transform": "EXTRA_WHITESPACE_PADDING",
+      "expectedIntent": "PURCHASE_INTENT"
+    }
+  ]
+}

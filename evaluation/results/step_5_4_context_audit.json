@@ -1,0 +1,919 @@
+{
+  "totalContextCases": 65,
+  "contextResolutionAccuracy": 1,
+  "staleContextRate": 0,
+  "wrongContextReuseRate": 0,
+  "contextDropRate": 0,
+  "cases": [
+    {
+      "convId": "step54-conv-01-full-funnel",
+      "turnId": 2,
+      "message": "من دانشجوی ارشدم، اینترنت خوابگاه خیلی اذیت میکنه واسه تلگرام و یوتیوب.",
+      "expectedIntent": "RELEVANT_NEED",
+      "actualIntent": "RELEVANT_NEED",
+      "expectedState": "NEED_DETECTED",
+      "actualState": "EARLY_CONVERSATION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "اینترنت خوابگاه",
+        "entityType": "IMPLICIT_PRODUCT"
+      }
+    },
+    {
+      "convId": "step54-conv-01-full-funnel",
+      "turnId": 3,
+      "message": "شما خودت از چی استفاده میکنی که قطعی نداره؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "PRODUCT_INTEREST",
+      "actualState": "NEED_DETECTED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پیشنهاد فیلترشکن شخصی",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-01-full-funnel",
+      "turnId": 5,
+      "message": "حالا اگه بخوام، قیمتاش چطوریه؟ چنده ماهانه‌ش؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "قیمت سرور معرفی شده",
+        "entityType": "PREVIOUS_PRICE"
+      }
+    },
+    {
+      "convId": "step54-conv-02-tech-clarification",
+      "turnId": 4,
+      "message": "کانفیگ روی کلاینت v2rayNG و سینگ‌باکس Sing-box ست میشه؟",
+      "expectedIntent": "PRODUCT_CURIOUS",
+      "actualIntent": "PRODUCT_CURIOUS",
+      "expectedState": "PRODUCT_INTEREST",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کانفیگ وی‌تو‌ری",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-03-rejection-reopening",
+      "turnId": 5,
+      "message": "راستی اینستاگرامم کلا قطعه، اون کانفیگی که گفتی قیمتش چنده حالا؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "LOW_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کانفیگی که گفتی",
+        "entityType": "PREVIOUS_REJECTION"
+      }
+    },
+    {
+      "convId": "step54-conv-04-support-troubleshooting",
+      "turnId": 2,
+      "message": "ارور handshake timeout میده توی برنامه نکو باکس.",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "ENGAGED",
+      "actualState": "EARLY_CONVERSATION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "خطای هندشیک کانفیگ",
+        "entityType": "PREVIOUS_TECH_ISSUE"
+      }
+    },
+    {
+      "convId": "step54-conv-06-direct-vpn-inquiry",
+      "turnId": 2,
+      "message": "روی نرم‌افزار v2box و FoXray کار میکنه؟",
+      "expectedIntent": "PRODUCT_CURIOUS",
+      "actualIntent": "PRODUCT_CURIOUS",
+      "expectedState": "PRODUCT_INTEREST",
+      "actualState": "PRODUCT_INTRODUCTION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "فیلترشکن آیفون",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-06-direct-vpn-inquiry",
+      "turnId": 3,
+      "message": "پلن سه ماهه نامحدود چند درمیاد؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن سه ماهه",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-07-topic-drift",
+      "turnId": 4,
+      "message": "آره دمت گرم، حالا اون سروری که گفتی پکت‌لاستش رو گیم صفره؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "GOODBYE",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "سرور گیم بدون پکت‌لاست",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-08-goal-change",
+      "turnId": 3,
+      "message": "راستش برای یه تیم ۱۰ نفره توی شرکتمون میخوام، پلن تیمی یا سازمانی هم دارید؟",
+      "expectedIntent": "PLAN_REQUEST",
+      "actualIntent": "PLAN_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن تیمی سازمانی",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-10-re-engagement-return",
+      "turnId": 4,
+      "message": "همون اکانت وی‌تو‌ری رو الان میخوام فوری بخرم، چطور پرداخت کنم؟",
+      "expectedIntent": "PURCHASE_INTENT",
+      "actualIntent": "PURCHASE_INTENT",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "همون اکانت وی‌توری",
+        "entityType": "IMPLICIT_PRODUCT"
+      }
+    },
+    {
+      "convId": "step54-conv-11-colloquial-ambiguity-1",
+      "turnId": 3,
+      "message": "خب؟",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "ENGAGED",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "توضیحات سرور",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-11-colloquial-ambiguity-1",
+      "turnId": 4,
+      "message": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+      "expectedIntent": "SMALL_TALK",
+      "actualIntent": "SMALL_TALK",
+      "expectedState": "GOODBYE",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کیفیت سرور معرفی شده",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-11-colloquial-ambiguity-1",
+      "turnId": 6,
+      "message": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن سه ماهه",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-11-colloquial-ambiguity-1",
+      "turnId": 7,
+      "message": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+      "expectedIntent": "PURCHASE_INTENT",
+      "actualIntent": "PURCHASE_INTENT",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن یک ماهه قبلی",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-12-colloquial-ambiguity-2",
+      "turnId": 3,
+      "message": "خب؟",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "ENGAGED",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "توضیحات سرور",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-12-colloquial-ambiguity-2",
+      "turnId": 4,
+      "message": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+      "expectedIntent": "SMALL_TALK",
+      "actualIntent": "SMALL_TALK",
+      "expectedState": "GOODBYE",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کیفیت سرور معرفی شده",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-12-colloquial-ambiguity-2",
+      "turnId": 6,
+      "message": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن سه ماهه",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-12-colloquial-ambiguity-2",
+      "turnId": 7,
+      "message": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+      "expectedIntent": "PURCHASE_INTENT",
+      "actualIntent": "PURCHASE_INTENT",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن یک ماهه قبلی",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-13-colloquial-ambiguity-3",
+      "turnId": 3,
+      "message": "خب؟",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "ENGAGED",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "توضیحات سرور",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-13-colloquial-ambiguity-3",
+      "turnId": 4,
+      "message": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+      "expectedIntent": "SMALL_TALK",
+      "actualIntent": "SMALL_TALK",
+      "expectedState": "GOODBYE",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کیفیت سرور معرفی شده",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-13-colloquial-ambiguity-3",
+      "turnId": 6,
+      "message": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن سه ماهه",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-13-colloquial-ambiguity-3",
+      "turnId": 7,
+      "message": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+      "expectedIntent": "PURCHASE_INTENT",
+      "actualIntent": "PURCHASE_INTENT",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن یک ماهه قبلی",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-14-colloquial-ambiguity-4",
+      "turnId": 3,
+      "message": "خب؟",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "ENGAGED",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "توضیحات سرور",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-14-colloquial-ambiguity-4",
+      "turnId": 4,
+      "message": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+      "expectedIntent": "SMALL_TALK",
+      "actualIntent": "SMALL_TALK",
+      "expectedState": "GOODBYE",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کیفیت سرور معرفی شده",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-14-colloquial-ambiguity-4",
+      "turnId": 6,
+      "message": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن سه ماهه",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-14-colloquial-ambiguity-4",
+      "turnId": 7,
+      "message": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+      "expectedIntent": "PURCHASE_INTENT",
+      "actualIntent": "PURCHASE_INTENT",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن یک ماهه قبلی",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-15-colloquial-ambiguity-5",
+      "turnId": 3,
+      "message": "خب؟",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "ENGAGED",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "توضیحات سرور",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-15-colloquial-ambiguity-5",
+      "turnId": 4,
+      "message": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+      "expectedIntent": "SMALL_TALK",
+      "actualIntent": "SMALL_TALK",
+      "expectedState": "GOODBYE",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کیفیت سرور معرفی شده",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-15-colloquial-ambiguity-5",
+      "turnId": 6,
+      "message": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن سه ماهه",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-15-colloquial-ambiguity-5",
+      "turnId": 7,
+      "message": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+      "expectedIntent": "PURCHASE_INTENT",
+      "actualIntent": "PURCHASE_INTENT",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن یک ماهه قبلی",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-16-colloquial-ambiguity-6",
+      "turnId": 3,
+      "message": "خب؟",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "ENGAGED",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "توضیحات سرور",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-16-colloquial-ambiguity-6",
+      "turnId": 4,
+      "message": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+      "expectedIntent": "SMALL_TALK",
+      "actualIntent": "SMALL_TALK",
+      "expectedState": "GOODBYE",
+      "actualState": "ENGAGED",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "کیفیت سرور معرفی شده",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-16-colloquial-ambiguity-6",
+      "turnId": 6,
+      "message": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن سه ماهه",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-16-colloquial-ambiguity-6",
+      "turnId": 7,
+      "message": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+      "expectedIntent": "PURCHASE_INTENT",
+      "actualIntent": "PURCHASE_INTENT",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "پلن یک ماهه قبلی",
+        "entityType": "PREVIOUS_PLAN"
+      }
+    },
+    {
+      "convId": "step54-conv-17-colloquial-rejection-1",
+      "turnId": 6,
+      "message": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+      "expectedIntent": "TRIAL_REQUEST",
+      "actualIntent": "TRIAL_REQUEST",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تست رایگان رد شده",
+        "entityType": "PREVIOUS_REJECTION"
+      }
+    },
+    {
+      "convId": "step54-conv-18-colloquial-rejection-2",
+      "turnId": 6,
+      "message": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+      "expectedIntent": "TRIAL_REQUEST",
+      "actualIntent": "TRIAL_REQUEST",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تست رایگان رد شده",
+        "entityType": "PREVIOUS_REJECTION"
+      }
+    },
+    {
+      "convId": "step54-conv-19-colloquial-rejection-3",
+      "turnId": 6,
+      "message": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+      "expectedIntent": "TRIAL_REQUEST",
+      "actualIntent": "TRIAL_REQUEST",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تست رایگان رد شده",
+        "entityType": "PREVIOUS_REJECTION"
+      }
+    },
+    {
+      "convId": "step54-conv-20-colloquial-rejection-4",
+      "turnId": 6,
+      "message": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+      "expectedIntent": "TRIAL_REQUEST",
+      "actualIntent": "TRIAL_REQUEST",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تست رایگان رد شده",
+        "entityType": "PREVIOUS_REJECTION"
+      }
+    },
+    {
+      "convId": "step54-conv-21-colloquial-rejection-5",
+      "turnId": 6,
+      "message": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+      "expectedIntent": "TRIAL_REQUEST",
+      "actualIntent": "TRIAL_REQUEST",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تست رایگان رد شده",
+        "entityType": "PREVIOUS_REJECTION"
+      }
+    },
+    {
+      "convId": "step54-conv-22-colloquial-rejection-6",
+      "turnId": 6,
+      "message": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+      "expectedIntent": "TRIAL_REQUEST",
+      "actualIntent": "TRIAL_REQUEST",
+      "expectedState": "EXITING",
+      "actualState": "EXITING",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تست رایگان رد شده",
+        "entityType": "PREVIOUS_REJECTION"
+      }
+    },
+    {
+      "convId": "step54-conv-23-adversarial-entities-1",
+      "turnId": 4,
+      "message": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعرفه اشتراک شش ماهه",
+        "entityType": "PREVIOUS_PRICE"
+      }
+    },
+    {
+      "convId": "step54-conv-24-adversarial-entities-2",
+      "turnId": 4,
+      "message": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعرفه اشتراک شش ماهه",
+        "entityType": "PREVIOUS_PRICE"
+      }
+    },
+    {
+      "convId": "step54-conv-25-adversarial-entities-3",
+      "turnId": 4,
+      "message": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعرفه اشتراک شش ماهه",
+        "entityType": "PREVIOUS_PRICE"
+      }
+    },
+    {
+      "convId": "step54-conv-26-adversarial-entities-4",
+      "turnId": 4,
+      "message": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعرفه اشتراک شش ماهه",
+        "entityType": "PREVIOUS_PRICE"
+      }
+    },
+    {
+      "convId": "step54-conv-27-adversarial-entities-5",
+      "turnId": 4,
+      "message": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعرفه اشتراک شش ماهه",
+        "entityType": "PREVIOUS_PRICE"
+      }
+    },
+    {
+      "convId": "step54-conv-28-adversarial-entities-6",
+      "turnId": 4,
+      "message": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTEREST",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعرفه اشتراک شش ماهه",
+        "entityType": "PREVIOUS_PRICE"
+      }
+    },
+    {
+      "convId": "step54-conv-35-deep-context-retention-1",
+      "turnId": 2,
+      "message": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTRODUCTION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "مدل اختصاصی اولی",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-35-deep-context-retention-1",
+      "turnId": 3,
+      "message": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-35-deep-context-retention-1",
+      "turnId": 4,
+      "message": "پس همونو میخوام.",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "همون پلن سه کاربره",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-36-deep-context-retention-2",
+      "turnId": 2,
+      "message": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTRODUCTION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "مدل اختصاصی اولی",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-36-deep-context-retention-2",
+      "turnId": 3,
+      "message": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-36-deep-context-retention-2",
+      "turnId": 4,
+      "message": "پس همونو میخوام.",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "همون پلن سه کاربره",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-37-deep-context-retention-3",
+      "turnId": 2,
+      "message": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTRODUCTION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "مدل اختصاصی اولی",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-37-deep-context-retention-3",
+      "turnId": 3,
+      "message": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-37-deep-context-retention-3",
+      "turnId": 4,
+      "message": "پس همونو میخوام.",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "همون پلن سه کاربره",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-38-deep-context-retention-4",
+      "turnId": 2,
+      "message": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTRODUCTION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "مدل اختصاصی اولی",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-38-deep-context-retention-4",
+      "turnId": 3,
+      "message": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-38-deep-context-retention-4",
+      "turnId": 4,
+      "message": "پس همونو میخوام.",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "همون پلن سه کاربره",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-39-deep-context-retention-5",
+      "turnId": 2,
+      "message": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTRODUCTION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "مدل اختصاصی اولی",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-39-deep-context-retention-5",
+      "turnId": 3,
+      "message": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-39-deep-context-retention-5",
+      "turnId": 4,
+      "message": "پس همونو میخوام.",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "همون پلن سه کاربره",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-40-deep-context-retention-6",
+      "turnId": 2,
+      "message": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+      "expectedIntent": "PRICE_REQUEST",
+      "actualIntent": "PRICE_REQUEST",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRODUCT_INTRODUCTION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "مدل اختصاصی اولی",
+        "entityType": "PRONOUN"
+      }
+    },
+    {
+      "convId": "step54-conv-40-deep-context-retention-6",
+      "turnId": 3,
+      "message": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+      "expectedIntent": "QUESTION",
+      "actualIntent": "QUESTION",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+        "entityType": "OMITTED_SUBJECT"
+      }
+    },
+    {
+      "convId": "step54-conv-40-deep-context-retention-6",
+      "turnId": 4,
+      "message": "پس همونو میخوام.",
+      "expectedIntent": "UNKNOWN",
+      "actualIntent": "UNKNOWN",
+      "expectedState": "PRICE_DISCUSSION",
+      "actualState": "PRICE_DISCUSSION",
+      "contextResolution": {
+        "requiresContext": true,
+        "referencedConcept": "همون پلن سه کاربره",
+        "entityType": "PRONOUN"
+      }
+    }
+  ]
+}

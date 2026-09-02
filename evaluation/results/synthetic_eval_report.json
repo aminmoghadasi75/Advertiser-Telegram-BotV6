@@ -1,0 +1,303 @@
+{
+  "accuracy": 0.9788732394366197,
+  "macroF1": 0.9815273477812178,
+  "weightedF1": 0.9791079812206572,
+  "totalSamples": 142,
+  "correctSamples": 139,
+  "forbiddenViolations": 0,
+  "byCategory": {
+    "GREETING": {
+      "total": 8,
+      "correct": 8,
+      "accuracy": 1
+    },
+    "SMALL_TALK": {
+      "total": 11,
+      "correct": 11,
+      "accuracy": 1
+    },
+    "QUESTION": {
+      "total": 9,
+      "correct": 9,
+      "accuracy": 1
+    },
+    "RELEVANT_NEED": {
+      "total": 9,
+      "correct": 9,
+      "accuracy": 1
+    },
+    "VPN_REQUEST": {
+      "total": 9,
+      "correct": 8,
+      "accuracy": 0.8888888888888888
+    },
+    "PRODUCT_CURIOUS": {
+      "total": 8,
+      "correct": 7,
+      "accuracy": 0.875
+    },
+    "TRIAL_REQUEST": {
+      "total": 7,
+      "correct": 7,
+      "accuracy": 1
+    },
+    "PRICE_REQUEST": {
+      "total": 8,
+      "correct": 8,
+      "accuracy": 1
+    },
+    "PLAN_REQUEST": {
+      "total": 8,
+      "correct": 8,
+      "accuracy": 1
+    },
+    "SUPPORT_REQUEST": {
+      "total": 8,
+      "correct": 7,
+      "accuracy": 0.875
+    },
+    "PURCHASE_INTENT": {
+      "total": 8,
+      "correct": 8,
+      "accuracy": 1
+    },
+    "OBJECTION": {
+      "total": 8,
+      "correct": 8,
+      "accuracy": 1
+    },
+    "REJECTION": {
+      "total": 8,
+      "correct": 8,
+      "accuracy": 1
+    },
+    "GOODBYE": {
+      "total": 7,
+      "correct": 7,
+      "accuracy": 1
+    },
+    "SUSPICION_BOT": {
+      "total": 7,
+      "correct": 7,
+      "accuracy": 1
+    },
+    "INAPPROPRIATE": {
+      "total": 3,
+      "correct": 3,
+      "accuracy": 1
+    },
+    "SPAM": {
+      "total": 5,
+      "correct": 5,
+      "accuracy": 1
+    },
+    "OFF_TOPIC": {
+      "total": 6,
+      "correct": 6,
+      "accuracy": 1
+    },
+    "UNKNOWN": {
+      "total": 5,
+      "correct": 5,
+      "accuracy": 1
+    }
+  },
+  "byIntent": {
+    "UNKNOWN": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "GREETING": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SMALL_TALK": {
+      "tp": 11,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "QUESTION": {
+      "tp": 9,
+      "fp": 2,
+      "fn": 0,
+      "precision": 0.8181818181818182,
+      "recall": 1,
+      "f1": 0.9
+    },
+    "RELEVANT_NEED": {
+      "tp": 9,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "VPN_REQUEST": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1,
+      "recall": 0.8888888888888888,
+      "f1": 0.9411764705882353
+    },
+    "PRODUCT_CURIOUS": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1,
+      "recall": 0.875,
+      "f1": 0.9333333333333333
+    },
+    "TRIAL_REQUEST": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "PRICE_REQUEST": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "PLAN_REQUEST": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SUPPORT_REQUEST": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1,
+      "recall": 0.875,
+      "f1": 0.9333333333333333
+    },
+    "PURCHASE_INTENT": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "OBJECTION": {
+      "tp": 8,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.8888888888888888,
+      "recall": 1,
+      "f1": 0.9411764705882353
+    },
+    "REJECTION": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "GOODBYE": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "INAPPROPRIATE": {
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SPAM": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SUSPICION_BOT": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "OFF_TOPIC": {
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "SILENCE": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    }
+  },
+  "avgLatencyMs": 0.4379843028168976,
+  "failedCases": [
+    {
+      "id": "SYN_VPN_03",
+      "text": "خودت با چه برنامه‌ای وصل میشی به تلگرام؟",
+      "expected": "VPN_REQUEST",
+      "predicted": "QUESTION",
+      "confidence": 0.85,
+      "reasons": [
+        "GENERAL_QUESTION_PRIMARY",
+        "GENERAL_CONVERSATION_QUESTION"
+      ]
+    },
+    {
+      "id": "SYN_CURIOUS_03",
+      "text": "پینگ سرور آلمانتون برای بازی‌های آنلاین چنده معمولاً؟",
+      "expected": "PRODUCT_CURIOUS",
+      "predicted": "QUESTION",
+      "confidence": 0.85,
+      "reasons": [
+        "GENERAL_QUESTION_PRIMARY",
+        "GENERAL_CONVERSATION_QUESTION"
+      ]
+    },
+    {
+      "id": "SYN_SUPP_04",
+      "text": "من بلد نیستم کانفیگ رو وارد نرم افزار کنم میشه پشتیبانی راهنماییم کنه؟",
+      "expected": "SUPPORT_REQUEST",
+      "predicted": "OBJECTION",
+      "confidence": 0.92,
+      "reasons": [
+        "STRONG_OBJECTION_OVERRIDE",
+        "OBJECTION_DETECTED"
+      ]
+    }
+  ]
+}

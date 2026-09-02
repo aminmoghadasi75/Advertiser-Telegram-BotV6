@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-08-21T22:11:44.891Z",
+  "totalConcurrentConversations": 100,
+  "totalInterleavedTurns": 500,
+  "crossConversationLeakageCount": 0,
+  "contextContaminationCount": 0,
+  "stateIsolationFailures": 0,
+  "promotionIsolationFailures": 0,
+  "isolationIntegrityRate": 1,
+  "status": "PASSED"
+}

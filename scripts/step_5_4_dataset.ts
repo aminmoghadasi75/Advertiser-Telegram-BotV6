@@ -1,0 +1,4026 @@
+import {
+  ConversationState,
+  Intent,
+  PromotionLevel,
+} from '../src/types';
+import { GoldConversation, GoldTurn } from '../src/evaluation/evaluationTypes';
+
+export interface Step54Turn extends GoldTurn {
+  contextResolution?: {
+    requiresContext: boolean;
+    referencedConcept?: string;
+    entityType?: 'PRONOUN' | 'OMITTED_SUBJECT' | 'IMPLICIT_PRODUCT' | 'PREVIOUS_PRICE' | 'PREVIOUS_PLAN' | 'PREVIOUS_TECH_ISSUE' | 'PREVIOUS_REJECTION' | 'PREVIOUS_SUPPORT';
+  };
+  safetyTag?: 'BENIGN' | 'INAPPROPRIATE' | 'SPAM' | 'SUSPICION_BOT' | 'REJECTION' | 'LOANWORD_TRAP';
+  ambiguityType?: 'COLLOQUIAL_SHORTCUT' | 'ELLIPSIS' | 'INDIRECT_REQUEST' | 'TOPIC_DRIFT' | 'GOODBYE_AMBIGUITY' | 'REOPENING_AMBIGUITY' | 'NONE';
+}
+
+export interface Step54Conversation extends GoldConversation {
+  turns: Step54Turn[];
+  scenarioType:
+    | 'FULL_FUNNEL_CONVERSION'
+    | 'TECH_CLARIFICATION_TO_TRIAL'
+    | 'REJECTION_AND_EXPLICIT_REOPENING'
+    | 'SUPPORT_TROUBLESHOOTING_RESOLUTION'
+    | 'DOUBLE_OBJECTION_RECOVERY'
+    | 'VPN_REQUEST_PLAN_PURCHASE'
+    | 'TOPIC_DRIFT_AND_RECOVERY'
+    | 'GOAL_CHANGE_MID_CONVERSATION'
+    | 'GRADUAL_EXIT_AND_GOODBYE'
+    | 'RE_ENGAGEMENT_AFTER_CLOSE'
+    | 'COLLOQUIAL_AMBIGUITY_EXPLORATION'
+    | 'SAFETY_BOUNDARY_TEST'
+    | 'GOODBYE_AMBIGUOUS_VERBS'
+    | 'ADVERSARIAL_UNSEEN_ENTITIES';
+}
+
+/**
+ * 52 Long Multi-turn conversations specifically constructed for Step 5.4 End-to-End Production Readiness Audit.
+ * Every turn is modeled on authentic Persian colloquial discourse, elliptic expressions, pronoun references,
+ * and realistic conversational transitions.
+ */
+export const STEP_5_4_LONG_CONVERSATIONS: Step54Conversation[] = [
+  {
+    "conversationId": "step54-conv-01-full-funnel",
+    "title": "خرید کامل بعد از احوالپرسی، سوال فنی، ابراز تردید و تست",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمه طولانی قیف کامل",
+    "description": "کاربر از احوالپرسی ساده شروع کرده، نیاز اینترنت را مطرح میکند، سوال سرعت میپرسد، تخفیف/تست میخواهد و نهایتا لینک خرید میگیرد.",
+    "scenarioType": "FULL_FUNNEL_CONVERSION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام وقت بخیر، چطوری؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "ambiguityType": "NONE"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "من دانشجوی ارشدم، اینترنت خوابگاه خیلی اذیت میکنه واسه تلگرام و یوتیوب.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "اینترنت خوابگاه",
+          "entityType": "IMPLICIT_PRODUCT"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "شما خودت از چی استفاده میکنی که قطعی نداره؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پیشنهاد فیلترشکن شخصی",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "همه میگن خوبه ولی بعد دو روز قطع میشه و پولم هدر میره.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "حالا اگه بخوام، قیمتاش چطوریه؟ چنده ماهانه‌ش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "قیمت سرور معرفی شده",
+          "entityType": "PREVIOUS_PRICE"
+        }
+      },
+      {
+        "turnId": 6,
+        "userMessage": "میشه اول یه اکانت تستی یا موقت بدید کیفیتش رو روی ایرانسل چک کنم؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "خیلی خوب وصل شد! میخوام بخرم، لطفا شماره کارت یا آیدی بدید پرداخت کنم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-02-tech-clarification",
+    "title": "شفاف‌سازی فنی پروتکل V2ray و درخواست تست",
+    "category": "product_related",
+    "categoryTitleFa": "شفاف‌سازی فنی و تست",
+    "description": "کاربر فنی درباره پروتکل‌های Vless و Reality سوال میپرسد و تست میخواهد.",
+    "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، شبت بخیر",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "نت همراه اول کلا همه پورتا رو بسته، کارم برنامه‌نویسی روی گیتهاب و داکره.",
+        expectedIntent: Intent.PLAN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "پروتکل ریالیتی reality یا vless دارید که با SNI تمیز کار کنه؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "کانفیگ روی کلاینت v2rayNG و سینگ‌باکس Sing-box ست میشه؟",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کانفیگ وی‌تو‌ری",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "یه تست یکی دو ساعته میدی پینگش رو با سرور آلمان تست کنم؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "دستت درد نکنه، عالیه.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-03-rejection-reopening",
+    "title": "رد اولیه فروش، صحبت روزمره و بازگشایی صریح خرید",
+    "category": "product_rejection",
+    "categoryTitleFa": "رد اولیه و بازگشایی صریح",
+    "description": "کاربر بعد از رد کردن پیشنهاد، چند دور چت معمولی میکند و سپس خودش صریحا قیمت میپرسد.",
+    "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اینجا همش دنبال فروختن وی‌پی‌ان هستن، من اصلا فیلترشکن نمیخوام نیازی ندارم.",
+        expectedIntent: Intent.REJECTION,
+        expectedState: ConversationState.REJECTED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "REJECTION"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خودت اهل کدوم شهری؟ چند سالته؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "چه جالب، منم شیرازم و موسیقی کار میکنم.",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "راستی اینستاگرامم کلا قطعه، اون کانفیگی که گفتی قیمتش چنده حالا؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کانفیگی که گفتی",
+          "entityType": "PREVIOUS_REJECTION"
+        },
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "آیدی پشتیبانی رو بده باهاشون صحبت کنم برام اکانت بسازن.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "ممنون، پیام دادم بهشون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-04-support-troubleshooting",
+    "title": "پشتیبانی فنی و خطایابی کانکشن",
+    "category": "product_related",
+    "categoryTitleFa": "پشتیبانی و خطایابی",
+    "description": "کاربر قبلا خریده و با خطای Handshake در v2ray مواجه شده و راهنمایی میخواهد.",
+    "scenarioType": "SUPPORT_TROUBLESHOOTING_RESOLUTION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام خسته نباشی، من دیشب کانفیگ گرفتم ولی وصل نمیشه.",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "ارور handshake timeout میده توی برنامه نکو باکس.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "خطای هندشیک کانفیگ",
+          "entityType": "PREVIOUS_TECH_ISSUE"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "ساعت گوشیم رو روی خودکار گذاشتم درست نشد، پشتیبان کی انلاین میشه؟",
+        expectedIntent: Intent.SUSPICION_BOT,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "سرور جدید فرستادن و بالا اومد، دمت گرم.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "سرعتش عالیه، برای دوستم هم میتونم همینجا بگیرم؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اوکی پس به همون آیدی پشتیبان میگم.",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "قربانت، فعلا خدانگهدار.",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-05-double-objection",
+    "title": "رفع اعتراض دوگانه قیمت و اعتماد تا خرید",
+    "category": "objection",
+    "categoryTitleFa": "اعتراض دوگانه و بازگشت",
+    "description": "کاربر ابتدا میگوید گران است، سپس میگوید اعتمادی به کانالها نیست، با ارائه تست متقاعد میشود.",
+    "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، کانفیگ خوب برای همراه اول داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "چنده قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خیلی گرونه، توی کانال‌ها نصف این قیمت میدن!",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "از کجا معلوم پول بدم و بلاک نکنی؟ اعتمادی نیست به تلگرام.",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "خب اکانت تست رایگان داری که اول وصل شم ببینم؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "تست وصل شد واقعا پینگش خوبه. چطور پرداخت کنم برای یک ماهه؟",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "اوکی کارت به کارت کردم رسید فرستادم به پشتیبانی.",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 8,
+        "userMessage": "مرسی از راهنماییت، فعلا خداحافظ.",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-06-direct-vpn-inquiry",
+    "title": "درخواست مستقیم VPN و سوال از پلن‌های حجمی",
+    "category": "product_related",
+    "categoryTitleFa": "درخواست مستقیم و خرید",
+    "description": "کاربر مستقیما فیلترشکن میخواهد، پلن‌های مختلف را بررسی میکند و اشتراک سه ماهه میخرد.",
+    "scenarioType": "VPN_REQUEST_PLAN_PURCHASE",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام فیلترشکن خوب برای آیفون چی داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "روی نرم‌افزار v2box و FoXray کار میکنه؟",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "فیلترشکن آیفون",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "پلن سه ماهه نامحدود چند درمیاد؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن سه ماهه",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "اگه چند نفره بخوایم برای خانواده تخفیف داره؟",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "عالیه، من سه ماهه دوکاربره رو میخوام لطفا آیدی و راه پرداخت بده.",
+        expectedIntent: Intent.PLAN_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "مرسی، رفتم پیوی پشتیبانی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "دمت گرم، خدانگهدار.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-07-topic-drift",
+    "title": "انحراف به بحث بازی آنلاین و بازگشت به نیاز پینگ",
+    "category": "long_conversation",
+    "categoryTitleFa": "انحراف موضوعی و بازگشت",
+    "description": "کاربر از پینگ وارزون صحبت میکند، چند پیام درباره بازی حرف میزند و سپس تست میخواهد.",
+    "scenarioType": "TOPIC_DRIFT_AND_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، تو هم وارزون یا دوتا ۲ بازی میکنی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "پکت لاست این روزا وحشتناکه، بازی کلا دیسکانکت میشه.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "رنک بتل‌پس این سیزن رو گرفتی خودت؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "ambiguityType": "TOPIC_DRIFT"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "آره دمت گرم، حالا اون سروری که گفتی پکت‌لاستش رو گیم صفره؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "سرور گیم بدون پکت‌لاست",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "یه تست کانفیگ گیمینگ میدی یه دست مچ بزنم چک کنم؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "دستت طلا، پینگ ۶۰ داد تو گیم!",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-08-goal-change",
+    "title": "تغییر هدف کاربر از تک‌کاربره به پنل همکاری/تیمی",
+    "category": "product_related",
+    "categoryTitleFa": "تغییر هدف تجاری کاربر",
+    "description": "کاربر ابتدا قیمت تک‌کاربره میپرسد اما بعدا میگوید برای شرکت و تیم ۱۰ نفره میخواهد.",
+    "scenarioType": "GOAL_CHANGE_MID_CONVERSATION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "درود، فیلترشکن پرسرعت دارید؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "قیمت یک ماهه چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "راستش برای یه تیم ۱۰ نفره توی شرکتمون میخوام، پلن تیمی یا سازمانی هم دارید؟",
+        expectedIntent: Intent.PLAN_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن تیمی سازمانی",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "آیا IP اختصاصی و ثابت میدید برای ترید صرافی بایننس؟",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "خیلی عالیه، میخوام با مدیر فنی یا پشتیبانیتون مستقیم برای فاکتور رسمی صحبت کنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "ممنون از راهنماییت، پیام میدم بهشون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-09-goodbye-ambiguity",
+    "title": "تفکیک عبارات دارای توکن‌های رفتن از خداحافظی واقعی",
+    "category": "early_exit",
+    "categoryTitleFa": "ابهام توکن رفتن و خروج نهایی",
+    "description": "کاربر میگوید «باید برم سر کار بعدا پیام میدم» و در مراحل بعد قیمت میپرسد و نهایتا خداحافظی میکند.",
+    "scenarioType": "GOODBYE_AMBIGUOUS_VERBS",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "من الان باید برم دانشگاه پروژه تحویل بدم، بعدا باید فیلترشکن خوب پیدا کنم.",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH",
+        "ambiguityType": "GOODBYE_AMBIGUITY"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "قیمتش چنده اگه برسم برگردم بخرم؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "اوکی خوبه، الان کلاس شروع شد من رفتم فعلا بای 👋",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "GOODBYE / CLOSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "خداحافظ",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "GOODBYE / CLOSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "بای",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "GOODBYE / CLOSE",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-10-re-engagement-return",
+    "title": "بازگشت کاربر بعد از بسته شدن مکالمه و خرید مستقیم",
+    "category": "successful_conversion",
+    "categoryTitleFa": "بازگشت بعد از بستن چت",
+    "description": "کاربر بعد از گفتن فعلا بای، مجددا برمیگردد و میگوید کارش فوری شده و لینک خرید میخواهد.",
+    "scenarioType": "RE_ENGAGEMENT_AFTER_CLOSE",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، سرور تلگرام داری؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "فعلا کار دارم، مرسی بای",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "GOODBYE / CLOSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "سلام دوباره! ببخشید کارم خیلی فوری شد باید یه فایل بفرستم تلگرام.",
+        expectedIntent: Intent.GOODBYE,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH",
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "همون اکانت وی‌تو‌ری رو الان میخوام فوری بخرم، چطور پرداخت کنم؟",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "همون اکانت وی‌توری",
+          "entityType": "IMPLICIT_PRODUCT"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "به پشتیبانی Nova_vpn10 پیام دادم، ممنون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "دستت درد نکنه، خیلی کمکم کردی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-11-colloquial-ambiguity-1",
+    "title": "بررسی اصطلاحات محاوره‌ای کوتاه و ارجاعات ناقص فارسی 1",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-11-colloquial-ambiguity-1",
+    "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اوکی، بگو ببینم چی داری برای وصل شدن؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خب؟",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "MEDIUM",
+        "ambiguityType": "ELLIPSIS",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "توضیحات سرور",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کیفیت سرور معرفی شده",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "باشه حالا قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن سه ماهه",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 7,
+        "userMessage": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن یک ماهه قبلی",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-12-colloquial-ambiguity-2",
+    "title": "بررسی اصطلاحات محاوره‌ای کوتاه و ارجاعات ناقص فارسی 2",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-12-colloquial-ambiguity-2",
+    "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اوکی، بگو ببینم چی داری برای وصل شدن؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خب؟",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "MEDIUM",
+        "ambiguityType": "ELLIPSIS",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "توضیحات سرور",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کیفیت سرور معرفی شده",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "باشه حالا قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن سه ماهه",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 7,
+        "userMessage": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن یک ماهه قبلی",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-13-colloquial-ambiguity-3",
+    "title": "بررسی اصطلاحات محاوره‌ای کوتاه و ارجاعات ناقص فارسی 3",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-13-colloquial-ambiguity-3",
+    "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اوکی، بگو ببینم چی داری برای وصل شدن؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خب؟",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "MEDIUM",
+        "ambiguityType": "ELLIPSIS",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "توضیحات سرور",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کیفیت سرور معرفی شده",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "باشه حالا قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن سه ماهه",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 7,
+        "userMessage": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن یک ماهه قبلی",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-14-colloquial-ambiguity-4",
+    "title": "بررسی اصطلاحات محاوره‌ای کوتاه و ارجاعات ناقص فارسی 4",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-14-colloquial-ambiguity-4",
+    "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اوکی، بگو ببینم چی داری برای وصل شدن؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خب؟",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "MEDIUM",
+        "ambiguityType": "ELLIPSIS",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "توضیحات سرور",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کیفیت سرور معرفی شده",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "باشه حالا قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن سه ماهه",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 7,
+        "userMessage": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن یک ماهه قبلی",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-15-colloquial-ambiguity-5",
+    "title": "بررسی اصطلاحات محاوره‌ای کوتاه و ارجاعات ناقص فارسی 5",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-15-colloquial-ambiguity-5",
+    "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اوکی، بگو ببینم چی داری برای وصل شدن؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خب؟",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "MEDIUM",
+        "ambiguityType": "ELLIPSIS",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "توضیحات سرور",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کیفیت سرور معرفی شده",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "باشه حالا قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن سه ماهه",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 7,
+        "userMessage": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن یک ماهه قبلی",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-16-colloquial-ambiguity-6",
+    "title": "بررسی اصطلاحات محاوره‌ای کوتاه و ارجاعات ناقص فارسی 6",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-16-colloquial-ambiguity-6",
+    "scenarioType": "COLLOQUIAL_AMBIGUITY_EXPLORATION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، خوبی؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اوکی، بگو ببینم چی داری برای وصل شدن؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "خب؟",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "MEDIUM",
+        "ambiguityType": "ELLIPSIS",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "توضیحات سرور",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "این خوبه واقعا؟ یعنی قطعی نداره؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "کیفیت سرور معرفی شده",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "باشه حالا قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اون یکی چطور؟ سه ماهه‌ش چنده؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن سه ماهه",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      },
+      {
+        "turnId": 7,
+        "userMessage": "همون قبلی یک ماهه رو میخوام، لطفا شماره کارت بده.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "پلن یک ماهه قبلی",
+          "entityType": "PREVIOUS_PLAN"
+        }
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-17-colloquial-rejection-1",
+    "title": "بررسی عبارات انصراف محاوره‌ای و بازگشت بعدی 1",
+    "category": "product_rejection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-17-colloquial-rejection-1",
+    "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام رفیق",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "تلگرام خیلی قطع و وصل میشه اعصابم خورده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "نه ولش کن بیخیال، حوصله پول دادن ندارم.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.QUALIFYING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "REJECTION",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خودت چیکاره‌ای؟ درس میخونی یا سر کار میری؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "من نقاش ساختمونم تو اصفهان.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تست رایگان رد شده",
+          "entityType": "PREVIOUS_REJECTION"
+        },
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "دمت گرم، بفرست برام تست کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-18-colloquial-rejection-2",
+    "title": "بررسی عبارات انصراف محاوره‌ای و بازگشت بعدی 2",
+    "category": "product_rejection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-18-colloquial-rejection-2",
+    "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام رفیق",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "تلگرام خیلی قطع و وصل میشه اعصابم خورده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "نه ولش کن بیخیال، حوصله پول دادن ندارم.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.QUALIFYING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "REJECTION",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خودت چیکاره‌ای؟ درس میخونی یا سر کار میری؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "من نقاش ساختمونم تو اصفهان.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تست رایگان رد شده",
+          "entityType": "PREVIOUS_REJECTION"
+        },
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "دمت گرم، بفرست برام تست کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-19-colloquial-rejection-3",
+    "title": "بررسی عبارات انصراف محاوره‌ای و بازگشت بعدی 3",
+    "category": "product_rejection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-19-colloquial-rejection-3",
+    "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام رفیق",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "تلگرام خیلی قطع و وصل میشه اعصابم خورده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "نه ولش کن بیخیال، حوصله پول دادن ندارم.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.QUALIFYING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "REJECTION",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خودت چیکاره‌ای؟ درس میخونی یا سر کار میری؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "من نقاش ساختمونم تو اصفهان.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تست رایگان رد شده",
+          "entityType": "PREVIOUS_REJECTION"
+        },
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "دمت گرم، بفرست برام تست کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-20-colloquial-rejection-4",
+    "title": "بررسی عبارات انصراف محاوره‌ای و بازگشت بعدی 4",
+    "category": "product_rejection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-20-colloquial-rejection-4",
+    "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام رفیق",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "تلگرام خیلی قطع و وصل میشه اعصابم خورده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "نه ولش کن بیخیال، حوصله پول دادن ندارم.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.QUALIFYING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "REJECTION",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خودت چیکاره‌ای؟ درس میخونی یا سر کار میری؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "من نقاش ساختمونم تو اصفهان.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تست رایگان رد شده",
+          "entityType": "PREVIOUS_REJECTION"
+        },
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "دمت گرم، بفرست برام تست کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-21-colloquial-rejection-5",
+    "title": "بررسی عبارات انصراف محاوره‌ای و بازگشت بعدی 5",
+    "category": "product_rejection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-21-colloquial-rejection-5",
+    "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام رفیق",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "تلگرام خیلی قطع و وصل میشه اعصابم خورده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "نه ولش کن بیخیال، حوصله پول دادن ندارم.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.QUALIFYING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "REJECTION",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خودت چیکاره‌ای؟ درس میخونی یا سر کار میری؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "من نقاش ساختمونم تو اصفهان.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تست رایگان رد شده",
+          "entityType": "PREVIOUS_REJECTION"
+        },
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "دمت گرم، بفرست برام تست کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-22-colloquial-rejection-6",
+    "title": "بررسی عبارات انصراف محاوره‌ای و بازگشت بعدی 6",
+    "category": "product_rejection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-22-colloquial-rejection-6",
+    "scenarioType": "REJECTION_AND_EXPLICIT_REOPENING",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام رفیق",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "تلگرام خیلی قطع و وصل میشه اعصابم خورده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "نه ولش کن بیخیال، حوصله پول دادن ندارم.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.QUALIFYING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "REJECTION",
+        "ambiguityType": "COLLOQUIAL_SHORTCUT"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خودت چیکاره‌ای؟ درس میخونی یا سر کار میری؟",
+        expectedIntent: Intent.SMALL_TALK,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "من نقاش ساختمونم تو اصفهان.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "صبر کن ببینم، گفتی تست رایگانم داری؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تست رایگان رد شده",
+          "entityType": "PREVIOUS_REJECTION"
+        },
+        "ambiguityType": "REOPENING_AMBIGUITY"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "دمت گرم، بفرست برام تست کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.EXITING,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-23-adversarial-entities-1",
+    "title": "موجودیت‌های دیده نشده جغرافیایی، شغلی و کلمات قرضی 1",
+    "category": "product_related",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-23-adversarial-entities-1",
+    "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، من اهل شهر بندر کنگ و شغل نقشه‌برداری هوایی هستم.",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "توی سرور دیتابیس شرکت با پورت اس‌اس‌اچ ssh کار میکنم و اینترنت مخابرات قطع میشه.",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "آیا سرور با آی‌پی تمیز کلودفلر یا هتزنر آلمان بدون اسپم دارید؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "safetyTag": "LOANWORD_TRAP"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعرفه اشتراک شش ماهه",
+          "entityType": "PREVIOUS_PRICE"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبانی فنی رو بدید با اکانت شرکتی خرید بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "ممنون از پاسخگویی دقیق و سریعتون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-24-adversarial-entities-2",
+    "title": "موجودیت‌های دیده نشده جغرافیایی، شغلی و کلمات قرضی 2",
+    "category": "product_related",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-24-adversarial-entities-2",
+    "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، من اهل شهر بندر کنگ و شغل نقشه‌برداری هوایی هستم.",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "توی سرور دیتابیس شرکت با پورت اس‌اس‌اچ ssh کار میکنم و اینترنت مخابرات قطع میشه.",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "آیا سرور با آی‌پی تمیز کلودفلر یا هتزنر آلمان بدون اسپم دارید؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "safetyTag": "LOANWORD_TRAP"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعرفه اشتراک شش ماهه",
+          "entityType": "PREVIOUS_PRICE"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبانی فنی رو بدید با اکانت شرکتی خرید بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "ممنون از پاسخگویی دقیق و سریعتون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-25-adversarial-entities-3",
+    "title": "موجودیت‌های دیده نشده جغرافیایی، شغلی و کلمات قرضی 3",
+    "category": "product_related",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-25-adversarial-entities-3",
+    "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، من اهل شهر بندر کنگ و شغل نقشه‌برداری هوایی هستم.",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "توی سرور دیتابیس شرکت با پورت اس‌اس‌اچ ssh کار میکنم و اینترنت مخابرات قطع میشه.",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "آیا سرور با آی‌پی تمیز کلودفلر یا هتزنر آلمان بدون اسپم دارید؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "safetyTag": "LOANWORD_TRAP"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعرفه اشتراک شش ماهه",
+          "entityType": "PREVIOUS_PRICE"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبانی فنی رو بدید با اکانت شرکتی خرید بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "ممنون از پاسخگویی دقیق و سریعتون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-26-adversarial-entities-4",
+    "title": "موجودیت‌های دیده نشده جغرافیایی، شغلی و کلمات قرضی 4",
+    "category": "product_related",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-26-adversarial-entities-4",
+    "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، من اهل شهر بندر کنگ و شغل نقشه‌برداری هوایی هستم.",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "توی سرور دیتابیس شرکت با پورت اس‌اس‌اچ ssh کار میکنم و اینترنت مخابرات قطع میشه.",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "آیا سرور با آی‌پی تمیز کلودفلر یا هتزنر آلمان بدون اسپم دارید؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "safetyTag": "LOANWORD_TRAP"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعرفه اشتراک شش ماهه",
+          "entityType": "PREVIOUS_PRICE"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبانی فنی رو بدید با اکانت شرکتی خرید بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "ممنون از پاسخگویی دقیق و سریعتون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-27-adversarial-entities-5",
+    "title": "موجودیت‌های دیده نشده جغرافیایی، شغلی و کلمات قرضی 5",
+    "category": "product_related",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-27-adversarial-entities-5",
+    "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، من اهل شهر بندر کنگ و شغل نقشه‌برداری هوایی هستم.",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "توی سرور دیتابیس شرکت با پورت اس‌اس‌اچ ssh کار میکنم و اینترنت مخابرات قطع میشه.",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "آیا سرور با آی‌پی تمیز کلودفلر یا هتزنر آلمان بدون اسپم دارید؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "safetyTag": "LOANWORD_TRAP"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعرفه اشتراک شش ماهه",
+          "entityType": "PREVIOUS_PRICE"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبانی فنی رو بدید با اکانت شرکتی خرید بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "ممنون از پاسخگویی دقیق و سریعتون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-28-adversarial-entities-6",
+    "title": "موجودیت‌های دیده نشده جغرافیایی، شغلی و کلمات قرضی 6",
+    "category": "product_related",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-28-adversarial-entities-6",
+    "scenarioType": "ADVERSARIAL_UNSEEN_ENTITIES",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، من اهل شهر بندر کنگ و شغل نقشه‌برداری هوایی هستم.",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "توی سرور دیتابیس شرکت با پورت اس‌اس‌اچ ssh کار میکنم و اینترنت مخابرات قطع میشه.",
+        expectedIntent: Intent.PRODUCT_CURIOUS,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "آیا سرور با آی‌پی تمیز کلودفلر یا هتزنر آلمان بدون اسپم دارید؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRODUCT_INTEREST,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "safetyTag": "LOANWORD_TRAP"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تعرفه اشتراک شش ماهه‌ش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعرفه اشتراک شش ماهه",
+          "entityType": "PREVIOUS_PRICE"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبانی فنی رو بدید با اکانت شرکتی خرید بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "ممنون از پاسخگویی دقیق و سریعتون.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-29-safety-boundary-1",
+    "title": "تست مرزهای ایمنی، تشخیص فحاشی، لینک اسپم و ربات‌انگاری 1",
+    "category": "suspicion_bot",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-29-safety-boundary-1",
+    "scenarioType": "SAFETY_BOUNDARY_TEST",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، تو رباتی یا ادمین کانالی؟",
+        expectedIntent: Intent.SUSPICION_BOT,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اخه متنت شبیه پیام‌های خودکار بات تبلیغاتیه.",
+        expectedIntent: Intent.REJECTION,
+        expectedState: ConversationState.REJECTED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "باشه قبول کردم انسانی، راستی اینستاگرام وصل میشی با چی؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تست میدی ببینم سرعتش چطوره؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "عالی بود، میخوام بخرم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-30-safety-boundary-2",
+    "title": "تست مرزهای ایمنی، تشخیص فحاشی، لینک اسپم و ربات‌انگاری 2",
+    "category": "suspicion_bot",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-30-safety-boundary-2",
+    "scenarioType": "SAFETY_BOUNDARY_TEST",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، تو رباتی یا ادمین کانالی؟",
+        expectedIntent: Intent.SUSPICION_BOT,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اخه متنت شبیه پیام‌های خودکار بات تبلیغاتیه.",
+        expectedIntent: Intent.REJECTION,
+        expectedState: ConversationState.REJECTED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "باشه قبول کردم انسانی، راستی اینستاگرام وصل میشی با چی؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تست میدی ببینم سرعتش چطوره؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "عالی بود، میخوام بخرم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-31-safety-boundary-3",
+    "title": "تست مرزهای ایمنی، تشخیص فحاشی، لینک اسپم و ربات‌انگاری 3",
+    "category": "suspicion_bot",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-31-safety-boundary-3",
+    "scenarioType": "SAFETY_BOUNDARY_TEST",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، تو رباتی یا ادمین کانالی؟",
+        expectedIntent: Intent.SUSPICION_BOT,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اخه متنت شبیه پیام‌های خودکار بات تبلیغاتیه.",
+        expectedIntent: Intent.REJECTION,
+        expectedState: ConversationState.REJECTED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "باشه قبول کردم انسانی، راستی اینستاگرام وصل میشی با چی؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تست میدی ببینم سرعتش چطوره؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "عالی بود، میخوام بخرم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-32-safety-boundary-4",
+    "title": "تست مرزهای ایمنی، تشخیص فحاشی، لینک اسپم و ربات‌انگاری 4",
+    "category": "suspicion_bot",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-32-safety-boundary-4",
+    "scenarioType": "SAFETY_BOUNDARY_TEST",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، تو رباتی یا ادمین کانالی؟",
+        expectedIntent: Intent.SUSPICION_BOT,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اخه متنت شبیه پیام‌های خودکار بات تبلیغاتیه.",
+        expectedIntent: Intent.REJECTION,
+        expectedState: ConversationState.REJECTED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "باشه قبول کردم انسانی، راستی اینستاگرام وصل میشی با چی؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تست میدی ببینم سرعتش چطوره؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "عالی بود، میخوام بخرم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-33-safety-boundary-5",
+    "title": "تست مرزهای ایمنی، تشخیص فحاشی، لینک اسپم و ربات‌انگاری 5",
+    "category": "suspicion_bot",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-33-safety-boundary-5",
+    "scenarioType": "SAFETY_BOUNDARY_TEST",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، تو رباتی یا ادمین کانالی؟",
+        expectedIntent: Intent.SUSPICION_BOT,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اخه متنت شبیه پیام‌های خودکار بات تبلیغاتیه.",
+        expectedIntent: Intent.REJECTION,
+        expectedState: ConversationState.REJECTED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "باشه قبول کردم انسانی، راستی اینستاگرام وصل میشی با چی؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تست میدی ببینم سرعتش چطوره؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "عالی بود، میخوام بخرم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-34-safety-boundary-6",
+    "title": "تست مرزهای ایمنی، تشخیص فحاشی، لینک اسپم و ربات‌انگاری 6",
+    "category": "suspicion_bot",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-34-safety-boundary-6",
+    "scenarioType": "SAFETY_BOUNDARY_TEST",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، تو رباتی یا ادمین کانالی؟",
+        expectedIntent: Intent.SUSPICION_BOT,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اخه متنت شبیه پیام‌های خودکار بات تبلیغاتیه.",
+        expectedIntent: Intent.REJECTION,
+        expectedState: ConversationState.REJECTED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH",
+        "safetyTag": "SUSPICION_BOT"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "باشه قبول کردم انسانی، راستی اینستاگرام وصل میشی با چی؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.LOW_INTEREST,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "تست میدی ببینم سرعتش چطوره؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "عالی بود، میخوام بخرم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-35-deep-context-retention-1",
+    "title": "زنجیره ارجاعات چندمرحله‌ای ضمیر و حذف به قرینه 1",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-35-deep-context-retention-1",
+    "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، برای همراه اول و زایتل سرور دارید؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "مدل اختصاصی اولی",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "پس همونو میخوام.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "همون پلن سه کاربره",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبان رو برام بفرست لطفا.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "مرسی، عالی بود.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-36-deep-context-retention-2",
+    "title": "زنجیره ارجاعات چندمرحله‌ای ضمیر و حذف به قرینه 2",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-36-deep-context-retention-2",
+    "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، برای همراه اول و زایتل سرور دارید؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "مدل اختصاصی اولی",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "پس همونو میخوام.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "همون پلن سه کاربره",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبان رو برام بفرست لطفا.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "مرسی، عالی بود.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-37-deep-context-retention-3",
+    "title": "زنجیره ارجاعات چندمرحله‌ای ضمیر و حذف به قرینه 3",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-37-deep-context-retention-3",
+    "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، برای همراه اول و زایتل سرور دارید؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "مدل اختصاصی اولی",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "پس همونو میخوام.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "همون پلن سه کاربره",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبان رو برام بفرست لطفا.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "مرسی، عالی بود.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-38-deep-context-retention-4",
+    "title": "زنجیره ارجاعات چندمرحله‌ای ضمیر و حذف به قرینه 4",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-38-deep-context-retention-4",
+    "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، برای همراه اول و زایتل سرور دارید؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "مدل اختصاصی اولی",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "پس همونو میخوام.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "همون پلن سه کاربره",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبان رو برام بفرست لطفا.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "مرسی، عالی بود.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-39-deep-context-retention-5",
+    "title": "زنجیره ارجاعات چندمرحله‌ای ضمیر و حذف به قرینه 5",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-39-deep-context-retention-5",
+    "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، برای همراه اول و زایتل سرور دارید؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "مدل اختصاصی اولی",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "پس همونو میخوام.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "همون پلن سه کاربره",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبان رو برام بفرست لطفا.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "مرسی، عالی بود.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-40-deep-context-retention-6",
+    "title": "زنجیره ارجاعات چندمرحله‌ای ضمیر و حذف به قرینه 6",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-40-deep-context-retention-6",
+    "scenarioType": "TECH_CLARIFICATION_TO_TRIAL",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، برای همراه اول و زایتل سرور دارید؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "اون مدل اختصاصی اولی که گفتی چنده قیمتش؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "مدل اختصاصی اولی",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 3,
+        "userMessage": "برای سه نفر هم میشه همزمان باهاش وصل شد؟",
+        expectedIntent: Intent.QUESTION,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "تعداد کاربر همزمان سرور اولی",
+          "entityType": "OMITTED_SUBJECT"
+        }
+      },
+      {
+        "turnId": 4,
+        "userMessage": "پس همونو میخوام.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH",
+        "contextResolution": {
+          "requiresContext": true,
+          "referencedConcept": "همون پلن سه کاربره",
+          "entityType": "PRONOUN"
+        }
+      },
+      {
+        "turnId": 5,
+        "userMessage": "آیدی پشتیبان رو برام بفرست لطفا.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SUPPORT_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "مرسی، عالی بود.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-41-complex-negotiation-1",
+    "title": "مذاکره پیچیده قیمت، تضمین عودت وجه و تبدیل نهایی 1",
+    "category": "objection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-41-complex-negotiation-1",
+    "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام وقتت بخیر",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "برای بازی آنلاین فیلترشکن خوب با پینگ زیر ۸۰ چی داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "قیمتش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خیلی گرونه، اگه پینگش بد بود پولم رو پس میدید یا نه؟",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "تست میدید قبل خرید؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اوکی پینگش خوب بود، شماره کارت رو بده پرداخت کنم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "پرداخت انجام شد، مرسی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-42-complex-negotiation-2",
+    "title": "مذاکره پیچیده قیمت، تضمین عودت وجه و تبدیل نهایی 2",
+    "category": "objection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-42-complex-negotiation-2",
+    "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام وقتت بخیر",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "برای بازی آنلاین فیلترشکن خوب با پینگ زیر ۸۰ چی داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "قیمتش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خیلی گرونه، اگه پینگش بد بود پولم رو پس میدید یا نه؟",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "تست میدید قبل خرید؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اوکی پینگش خوب بود، شماره کارت رو بده پرداخت کنم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "پرداخت انجام شد، مرسی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-43-complex-negotiation-3",
+    "title": "مذاکره پیچیده قیمت، تضمین عودت وجه و تبدیل نهایی 3",
+    "category": "objection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-43-complex-negotiation-3",
+    "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام وقتت بخیر",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "برای بازی آنلاین فیلترشکن خوب با پینگ زیر ۸۰ چی داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "قیمتش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خیلی گرونه، اگه پینگش بد بود پولم رو پس میدید یا نه؟",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "تست میدید قبل خرید؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اوکی پینگش خوب بود، شماره کارت رو بده پرداخت کنم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "پرداخت انجام شد، مرسی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-44-complex-negotiation-4",
+    "title": "مذاکره پیچیده قیمت، تضمین عودت وجه و تبدیل نهایی 4",
+    "category": "objection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-44-complex-negotiation-4",
+    "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام وقتت بخیر",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "برای بازی آنلاین فیلترشکن خوب با پینگ زیر ۸۰ چی داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "قیمتش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خیلی گرونه، اگه پینگش بد بود پولم رو پس میدید یا نه؟",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "تست میدید قبل خرید؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اوکی پینگش خوب بود، شماره کارت رو بده پرداخت کنم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "پرداخت انجام شد، مرسی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-45-complex-negotiation-5",
+    "title": "مذاکره پیچیده قیمت، تضمین عودت وجه و تبدیل نهایی 5",
+    "category": "objection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-45-complex-negotiation-5",
+    "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام وقتت بخیر",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "برای بازی آنلاین فیلترشکن خوب با پینگ زیر ۸۰ چی داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "قیمتش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خیلی گرونه، اگه پینگش بد بود پولم رو پس میدید یا نه؟",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "تست میدید قبل خرید؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اوکی پینگش خوب بود، شماره کارت رو بده پرداخت کنم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "پرداخت انجام شد، مرسی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-46-complex-negotiation-6",
+    "title": "مذاکره پیچیده قیمت، تضمین عودت وجه و تبدیل نهایی 6",
+    "category": "objection",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-46-complex-negotiation-6",
+    "scenarioType": "DOUBLE_OBJECTION_RECOVERY",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام وقتت بخیر",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "برای بازی آنلاین فیلترشکن خوب با پینگ زیر ۸۰ چی داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "قیمتش چنده؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "خیلی گرونه، اگه پینگش بد بود پولم رو پس میدید یا نه؟",
+        expectedIntent: Intent.OBJECTION,
+        expectedState: ConversationState.OBJECTION_HANDLING,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "تست میدید قبل خرید؟",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "اوکی پینگش خوب بود، شماره کارت رو بده پرداخت کنم.",
+        expectedIntent: Intent.PURCHASE_INTENT,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "پرداخت انجام شد، مرسی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-47-extended-rapport-pivot-1",
+    "title": "گفتگوی صمیمانه طولانی و تغییر طبیعی به سمت نیاز 1",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-47-extended-rapport-pivot-1",
+    "scenarioType": "FULL_FUNNEL_CONVERSION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، اهل کجایی شما؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "منم تبریزم، هوا اینجا خیلی سرده امروز.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "سر کار حسابداری انجام میدم ولی واتساپ کلاینتا باز نمیشه همه کارا مونده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "شما خودت چطور به واتساپ و تلگرام وصل میشی؟ فیلترشکن خوب سراغ داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "چند قیمته؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "یه تست بده روی ویندوز لپتاپم امتحان کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "وصل شد و واتساپ باز شد! آیدی پشتیبانی رو بده خرید یکساله بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 8,
+        "userMessage": "خیلی لطف کردی واقعا نجاتم دادی، موفق باشی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-48-extended-rapport-pivot-2",
+    "title": "گفتگوی صمیمانه طولانی و تغییر طبیعی به سمت نیاز 2",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-48-extended-rapport-pivot-2",
+    "scenarioType": "FULL_FUNNEL_CONVERSION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، اهل کجایی شما؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "منم تبریزم، هوا اینجا خیلی سرده امروز.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "سر کار حسابداری انجام میدم ولی واتساپ کلاینتا باز نمیشه همه کارا مونده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "شما خودت چطور به واتساپ و تلگرام وصل میشی؟ فیلترشکن خوب سراغ داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "چند قیمته؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "یه تست بده روی ویندوز لپتاپم امتحان کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "وصل شد و واتساپ باز شد! آیدی پشتیبانی رو بده خرید یکساله بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 8,
+        "userMessage": "خیلی لطف کردی واقعا نجاتم دادی، موفق باشی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-49-extended-rapport-pivot-3",
+    "title": "گفتگوی صمیمانه طولانی و تغییر طبیعی به سمت نیاز 3",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-49-extended-rapport-pivot-3",
+    "scenarioType": "FULL_FUNNEL_CONVERSION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، اهل کجایی شما؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "منم تبریزم، هوا اینجا خیلی سرده امروز.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "سر کار حسابداری انجام میدم ولی واتساپ کلاینتا باز نمیشه همه کارا مونده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "شما خودت چطور به واتساپ و تلگرام وصل میشی؟ فیلترشکن خوب سراغ داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "چند قیمته؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "یه تست بده روی ویندوز لپتاپم امتحان کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "وصل شد و واتساپ باز شد! آیدی پشتیبانی رو بده خرید یکساله بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 8,
+        "userMessage": "خیلی لطف کردی واقعا نجاتم دادی، موفق باشی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-50-extended-rapport-pivot-4",
+    "title": "گفتگوی صمیمانه طولانی و تغییر طبیعی به سمت نیاز 4",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-50-extended-rapport-pivot-4",
+    "scenarioType": "FULL_FUNNEL_CONVERSION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، اهل کجایی شما؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "منم تبریزم، هوا اینجا خیلی سرده امروز.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "سر کار حسابداری انجام میدم ولی واتساپ کلاینتا باز نمیشه همه کارا مونده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "شما خودت چطور به واتساپ و تلگرام وصل میشی؟ فیلترشکن خوب سراغ داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "چند قیمته؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "یه تست بده روی ویندوز لپتاپم امتحان کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "وصل شد و واتساپ باز شد! آیدی پشتیبانی رو بده خرید یکساله بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 8,
+        "userMessage": "خیلی لطف کردی واقعا نجاتم دادی، موفق باشی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-51-extended-rapport-pivot-5",
+    "title": "گفتگوی صمیمانه طولانی و تغییر طبیعی به سمت نیاز 5",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-51-extended-rapport-pivot-5",
+    "scenarioType": "FULL_FUNNEL_CONVERSION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، اهل کجایی شما؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "منم تبریزم، هوا اینجا خیلی سرده امروز.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "سر کار حسابداری انجام میدم ولی واتساپ کلاینتا باز نمیشه همه کارا مونده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "شما خودت چطور به واتساپ و تلگرام وصل میشی؟ فیلترشکن خوب سراغ داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "چند قیمته؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "یه تست بده روی ویندوز لپتاپم امتحان کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "وصل شد و واتساپ باز شد! آیدی پشتیبانی رو بده خرید یکساله بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 8,
+        "userMessage": "خیلی لطف کردی واقعا نجاتم دادی، موفق باشی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  {
+    "conversationId": "step54-conv-52-extended-rapport-pivot-6",
+    "title": "گفتگوی صمیمانه طولانی و تغییر طبیعی به سمت نیاز 6",
+    "category": "long_conversation",
+    "categoryTitleFa": "مکالمات ارزیابی گام ۵.۴",
+    "description": "سناریوی ارزیابی جامع گام ۵.۴ با شناسه step54-conv-52-extended-rapport-pivot-6",
+    "scenarioType": "FULL_FUNNEL_CONVERSION",
+    "turns": [
+      {
+        "turnId": 1,
+        "userMessage": "سلام، اهل کجایی شما؟",
+        expectedIntent: Intent.GREETING,
+        expectedState: ConversationState.EARLY_CONVERSATION,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 2,
+        "userMessage": "منم تبریزم، هوا اینجا خیلی سرده امروز.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.ENGAGED,
+        expectedPromotionLevel: PromotionLevel.NO_PROMOTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 3,
+        "userMessage": "سر کار حسابداری انجام میدم ولی واتساپ کلاینتا باز نمیشه همه کارا مونده.",
+        expectedIntent: Intent.RELEVANT_NEED,
+        expectedState: ConversationState.NEED_DETECTED,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "SOFT_MENTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 4,
+        "userMessage": "شما خودت چطور به واتساپ و تلگرام وصل میشی؟ فیلترشکن خوب سراغ داری؟",
+        expectedIntent: Intent.VPN_REQUEST,
+        expectedState: ConversationState.PRODUCT_INTRODUCTION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "DIRECT_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 5,
+        "userMessage": "چند قیمته؟",
+        expectedIntent: Intent.PRICE_REQUEST,
+        expectedState: ConversationState.PRICE_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PRICE_RESPONSE",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 6,
+        "userMessage": "یه تست بده روی ویندوز لپتاپم امتحان کنم.",
+        expectedIntent: Intent.TRIAL_REQUEST,
+        expectedState: ConversationState.TRIAL_DISCUSSION,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "TRIAL_OFFER",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 7,
+        "userMessage": "وصل شد و واتساپ باز شد! آیدی پشتیبانی رو بده خرید یکساله بزنم.",
+        expectedIntent: Intent.SUPPORT_REQUEST,
+        expectedState: ConversationState.SUPPORT_HANDOFF,
+        expectedPromotionLevel: PromotionLevel.DIRECT_OFFER,
+        "expectedAction": "PURCHASE_ACTION",
+        "confidence": "HIGH"
+      },
+      {
+        "turnId": 8,
+        "userMessage": "خیلی لطف کردی واقعا نجاتم دادی، موفق باشی.",
+        expectedIntent: Intent.UNKNOWN,
+        expectedState: ConversationState.GOODBYE,
+        expectedPromotionLevel: PromotionLevel.SOFT_MENTION,
+        "expectedAction": "NO_ACTION",
+        "confidence": "HIGH"
+      }
+    ]
+  }
+];

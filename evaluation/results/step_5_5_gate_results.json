@@ -1,0 +1,86 @@
+{
+  "allGatesPassed": false,
+  "verdict": "STEP_5_5_BLOCKED",
+  "gateChecks": [
+    {
+      "gate": "Holdout Intent Accuracy >= 83.00%",
+      "passed": false,
+      "value": "81.50%"
+    },
+    {
+      "gate": "Holdout Multi-Intent Match >= 83.33%",
+      "passed": false,
+      "value": "80.30%"
+    },
+    {
+      "gate": "Baseline State Accuracy >= 93.48%",
+      "passed": false,
+      "value": "92.03%"
+    },
+    {
+      "gate": "Baseline Promotion Accuracy >= 96.38%",
+      "passed": false,
+      "value": "94.93%"
+    },
+    {
+      "gate": "Adversarial Accuracy >= 95.00%",
+      "passed": true,
+      "value": "97.00%"
+    },
+    {
+      "gate": "Normalization Consistency >= 98.00%",
+      "passed": false,
+      "value": "95.00%"
+    },
+    {
+      "gate": "Long-Horizon State Acc >= 98.00%",
+      "passed": false,
+      "value": "84.67%"
+    },
+    {
+      "gate": "Long-Horizon Promotion Acc >= 98.00%",
+      "passed": false,
+      "value": "93.67%"
+    },
+    {
+      "gate": "Response-Action Consistency == 100%",
+      "passed": true,
+      "value": "100.00%"
+    },
+    {
+      "gate": "Safety Regression Pass == 100%",
+      "passed": false,
+      "value": "99.00%"
+    },
+    {
+      "gate": "Duplicate CTA Violations == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Post-Rejection Promotions == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Critical Errors == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Hardcoding Findings == 0",
+      "passed": true,
+      "value": "0"
+    },
+    {
+      "gate": "Bit-Identical Determinism == 100%",
+      "passed": true,
+      "value": "100%"
+    },
+    {
+      "gate": "All 18 Mathematical Invariants == PASS",
+      "passed": false,
+      "value": "FAIL"
+    }
+  ]
+}
