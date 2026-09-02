@@ -296,7 +296,7 @@ export function buildPromptDirective(
       lines.push(`⚡ PRODUCT PRESENTATION & < 120s PLATFORM RESTRICTION: The conversation is under 2 minutes (120s). Telegram anonymous bot automatically filters out photos and @ handles.`);
       lines.push(`• DIRECTIVE: Highlight the core value proposition for ${targetProductName} clearly and warmly based on Product Specs & FAQ (plans, prices, speed, protocols, free test account).`);
       lines.push(`• ENGAGEMENT & RETENTION: Keep the conversation active naturally until 120s passes (e.g. ask what device they use: Android/iOS/Windows, or their mobile network/carrier: Irancell/MCI/Wifi, or offer to prepare a free test config).`);
-      lines.push(`• SUPPORT ID & PHOTO: STRICTLY DO NOT output any handle or photo yet because Telegram will drop it!`);
+      lines.push(`• ANTI-FILTER DELIVERY: If user urgently asks for the ID/handle under 120s, tell them: «تو سرچ تلگرام بزن nova_vpn10» (STRICTLY NO @ symbol or links).`);
     } else {
       const handle = (productConfig.support.handle || promotionConfig?.contactHandleOrLink || 'nova_vpn10').replace(/^@/, '');
       lines.push(`✅ 2-MINUTE THRESHOLD REACHED (>= 120s): Platform restrictions lifted.`);
@@ -305,8 +305,15 @@ export function buildPromptDirective(
     }
   }
 
+  // Telegram Micro-Bubble Formatting Rule
+  lines.push(`📱 TELEGRAM HUMAN BURST CHAT FORMAT (CRITICAL):`);
+  lines.push(`• Output your response as 1 to 3 ultra-short chat bubbles separated by a newline (\\n).`);
+  lines.push(`• Each line MUST be strictly 2 to 5 words max! Example:`);
+  lines.push(`سلام خوبی\\nسارا ۲۶ تهران\\nشما چطور؟`);
+  lines.push(`• Never output long paragraphs or book punctuation (no ending periods, no colons, no formal emojis).`);
+
   if (context.intent === Intent.REJECTION || (context.state === ConversationState.GOODBYE && context.promotionLock)) {
-    lines.push(`⛔ USER DECLINED / NO NEED DETECTED: User indicated they do not need services. Immediately output a single, ultra-short polite goodbye (3 to 6 words max, e.g. «باشه حله مراقب خودت باش فعلا» or «اوکی موفق باشی فعلا»). Do NOT ask any new questions or drag the conversation, so the system can exit cleanly.`);
+    lines.push(`⛔ USER DECLINED / NO NEED DETECTED: User indicated they do not need services. Immediately output a single, ultra-short polite goodbye (3 words max, e.g. «باشه موفق باشی» or «اوکی فعلا»).`);
   } else if (context.promotionLock) {
     lines.push(`⛔ PROMOTION LOCKED: User has no interest. DO NOT pitch or push offers. Speak politely and briefly without commercial pressure.`);
   } else if (promotionDecision.allowedLevel === PromotionLevel.NO_PROMOTION) {

@@ -43,6 +43,18 @@ import {
   ConversationStepOutput,
 } from './src/conversation/conversationEngine.js';
 import {
+  GEMINI_DEFAULT_MODEL_PRIORITY,
+  GEMINI_MODEL_METADATA,
+  getModelHealth,
+  getAdaptiveCandidateModels,
+  recordGeminiSuccess,
+  recordGeminiFailure,
+  getModelStatusReport,
+  isDailyLimitError,
+  isModelBusyError,
+  isRateLimitError,
+} from './src/conversation/geminiAdaptiveRouter.js';
+import {
   validateAndSanitizeResponse,
   MAX_BOT_MESSAGES_LIMIT,
   MAX_COMMERCIAL_LEAD_MESSAGES_LIMIT,
@@ -183,26 +195,10 @@ app.get('/api/observability/stats', (req, res) => {
 });
 
 app.get('/api/anonymous/gemini-status', (req, res) => {
-  const models = GEMINI_DEFAULT_MODEL_PRIORITY.map((m) => {
-    const health = getModelHealth(m);
-    const now = Date.now();
-    return {
-      modelName: m,
-      status: health.cooldownUntil > now ? 'cooldown' : health.consecutiveFailures > 0 ? 'recovering' : 'healthy',
-      consecutiveFailures: health.consecutiveFailures,
-      totalSuccesses: health.totalSuccesses,
-      totalFailures: health.totalFailures,
-      cooldownSecondsRemaining: Math.max(0, Math.round((health.cooldownUntil - now) / 1000)),
-      lastSuccessTime: health.lastSuccessTime ? new Date(health.lastSuccessTime).toISOString() : null,
-      lastFailureTime: health.lastFailureTime ? new Date(health.lastFailureTime).toISOString() : null,
-      lastError: health.lastError || null,
-    };
-  });
-
+  const report = getModelStatusReport();
   res.json({
     success: true,
-    activePriorityOrder: getAdaptiveCandidateModels(),
-    models,
+    ...report,
   });
 });
 
@@ -492,10 +488,16 @@ const defaultAnonymousAutomatorConfig: AnonymousChatAutomatorConfig = {
     
     // ۱. ارسال پیام‌های چندتکه‌ای (Multi-bubble Messaging)
     enableMultiBubble: true,
-    multiBubbleMaxChunks: 2,
+    multiBubbleMaxChunks: 3,
     multiBubbleDelaySeconds: 1.8,
+    maxWordsPerBubble: 5,
+    antiFilterHandleFormat: 'plain',
 
-    // ۲. سرعت تایپ پویا و هوشمند (Dynamic Typing Speed)
+    // ۲. خروج فوق‌سریع در صورت عدم تمایل (Fast Skip on Rejection)
+    fastDropOnRejection: true,
+    fastDropFarewellText: 'اوکی فعلا',
+
+    // ۳. سرعت تایپ پویا و هوشمند (Dynamic Typing Speed)
     dynamicTypingSpeed: true,
     typingSpeedMsPerChar: 65,
     minTypingDelaySeconds: 2.5,
@@ -5736,109 +5738,6 @@ function getAiClient(): GoogleGenAI | null {
   }
 }
 
-interface GeminiModelHealth {
-  modelName: string;
-  consecutiveFailures: number;
-  lastFailureTime: number;
-  cooldownUntil: number;
-  totalSuccesses: number;
-  totalFailures: number;
-  lastSuccessTime: number;
-  lastError?: string;
-}
-
-const geminiModelHealthMap = new Map<string, GeminiModelHealth>();
-
-// Prioritized hierarchy of fast, reliable conversational models as requested:
-// 1. gemini-3.1-flash-lite (sub-second ~700ms ultra-fast response, no quota block)
-// 2. gemini-3.5-flash (fluent, high-quality reasoning)
-// 3. gemini-3.6-flash (powerful multimodal)
-// 4. gemini-3.7-flash (extended thinking fallback)
-const GEMINI_DEFAULT_MODEL_PRIORITY: string[] = [
-  'gemini-3.1-flash-lite',
-  'gemini-3.5-flash',
-  'gemini-3.6-flash',
-  'gemini-3.7-flash',
-];
-
-function getModelHealth(modelName: string): GeminiModelHealth {
-  let health = geminiModelHealthMap.get(modelName);
-  if (!health) {
-    health = {
-      modelName,
-      consecutiveFailures: 0,
-      lastFailureTime: 0,
-      cooldownUntil: 0,
-      totalSuccesses: 0,
-      totalFailures: 0,
-      lastSuccessTime: 0,
-    };
-    geminiModelHealthMap.set(modelName, health);
-  }
-  return health;
-}
-
-/**
- * Returns candidate models ordered adaptively based on real-time health and priority:
- * 1. Healthy models in default priority order (not currently in cooldown)
- * 2. Models whose cooldown has elapsed (ready for seamless probe/recovery)
- * 3. Degraded models still in cooldown (attempted only as emergency fallback)
- */
-function getAdaptiveCandidateModels(): string[] {
-  const now = Date.now();
-  const available: string[] = [];
-  const recovering: string[] = [];
-  const inCooldown: string[] = [];
-
-  for (const modelName of GEMINI_DEFAULT_MODEL_PRIORITY) {
-    const health = getModelHealth(modelName);
-    if (health.cooldownUntil <= now) {
-      if (health.consecutiveFailures === 0) {
-        available.push(modelName);
-      } else {
-        recovering.push(modelName);
-      }
-    } else {
-      inCooldown.push(modelName);
-    }
-  }
-
-  const sorted = [...available, ...recovering, ...inCooldown];
-  return sorted.length > 0 ? sorted : GEMINI_DEFAULT_MODEL_PRIORITY;
-}
-
-function recordGeminiSuccess(modelName: string): void {
-  const health = getModelHealth(modelName);
-  const hadFailures = health.consecutiveFailures > 0;
-  health.consecutiveFailures = 0;
-  health.cooldownUntil = 0;
-  health.totalSuccesses++;
-  health.lastSuccessTime = Date.now();
-  health.lastError = undefined;
-
-  if (hadFailures) {
-    console.info(`[Gemini Adaptive Router] ✅ Model ${modelName} has recovered and is now fully active.`);
-  }
-}
-
-function recordGeminiFailure(modelName: string, error: any): number {
-  const health = getModelHealth(modelName);
-  const errMsg = String(error?.message || error || 'Unknown error');
-  health.consecutiveFailures++;
-  health.totalFailures++;
-  health.lastFailureTime = Date.now();
-  health.lastError = errMsg;
-
-  // Adaptive exponential cooldown: 15s -> 30s -> 60s (max 120s)
-  const isQuota = errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED');
-  const baseCooldownSec = isQuota ? 15 : 30;
-  const multiplier = Math.pow(2, Math.min(health.consecutiveFailures - 1, 3));
-  const cooldownSec = Math.min(120, baseCooldownSec * multiplier);
-  health.cooldownUntil = Date.now() + cooldownSec * 1000;
-
-  return cooldownSec;
-}
-
 // Helper: Extract partner demographics (gender, age, city) or user tags from bot announcement text
 function extractPartnerMetadata(text: string): { partnerTag?: string; partnerSnippet?: string } {
   if (!text) return {};
@@ -6080,6 +5979,7 @@ async function generateAnonymousAiReply(
 ): Promise<{
   text: string;
   source: 'ai_gemini' | 'offline_fallback';
+  modelUsed?: string;
   shouldSendPromoCard?: boolean;
   promoMentioned?: boolean;
   stepOutput?: ConversationStepOutput;
@@ -6380,7 +6280,7 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
         const modelConfig: any = {
           systemInstruction,
           temperature: 0.70,
-          maxOutputTokens: 600,
+          maxOutputTokens: 500,
         };
         if (modelName.includes('3.7')) {
           modelConfig.thinkingConfig = { thinkingBudget: 0 };
@@ -6392,8 +6292,16 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
           config: modelConfig,
         });
 
-        // Set timeout based on model characteristics (fail fast on slow models so 3.5 and 3.1 can respond immediately)
-        const timeoutMs = modelName.includes('3.1') ? 5000 : modelName.includes('3.5') ? 6000 : 7000;
+        // Fail-fast timeout based on model characteristics so failovers happen rapidly (به سرعت)
+        const timeoutMs =
+          modelName.includes('3.1')
+            ? 4000
+            : modelName.includes('3.5')
+            ? 4500
+            : modelName.includes('3.6')
+            ? 5000
+            : 5500;
+
         const timeoutPromise = new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error(`Timeout after ${timeoutMs}ms on model ${modelName}`)), timeoutMs)
         );
@@ -6449,6 +6357,7 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
           return {
             text: cleanText,
             source: 'ai_gemini',
+            modelUsed: modelName,
             shouldSendPromoCard: !isPromoLocked && (stepOutput.shouldSendPhotoBanner || hasPromoTag),
             promoMentioned: !isPromoLocked && (updatedCtx.promotionLevel !== PromotionLevel.NO_PROMOTION || hasPromoTag),
             stepOutput,
@@ -6457,20 +6366,18 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
       } catch (err: any) {
         const errMsg = err?.message || String(err);
         const cooldownSec = recordGeminiFailure(modelName, err);
-        const isBusyOrRateLimited =
-          errMsg.includes('503') ||
-          errMsg.includes('429') ||
-          errMsg.includes('demand') ||
-          errMsg.includes('UNAVAILABLE') ||
-          errMsg.includes('RESOURCE_EXHAUSTED') ||
-          errMsg.includes('overloaded') ||
-          errMsg.includes('Timeout');
+        const health = getModelHealth(modelName);
+        const reason = health.isDailyLimitExceeded
+          ? 'محدودیت استفاده روزانه (Daily Quota Exceeded)'
+          : health.isServerBusy
+          ? 'شلوغی و ترافیک بالای سرور گوگل (High Demand / Busy)'
+          : errMsg.includes('429')
+          ? 'محدودیت نرخ ارسال در دقیقه (RPM Rate Limit)'
+          : 'تاخیر در پاسخگویی یا خطای موقت (Timeout/Error)';
 
-        if (isBusyOrRateLimited) {
-          console.warn(`[Gemini Adaptive Router] Model ${modelName} is busy/throttled or timed out. Set ${cooldownSec}s cooldown. Seamlessly switching to next model immediately...`);
-        } else {
-          console.warn(`[Gemini Adaptive Router] Model ${modelName} notice: ${errMsg}. Set ${cooldownSec}s cooldown. Trying next available model...`);
-        }
+        console.warn(
+          `[Gemini Adaptive Router] ⚠️ مدل ${modelName} دچار «${reason}» شد. استراحت هوشمند ${cooldownSec} ثانیه فعال شد. سوییچ آنی و هوشمند به مدل بعدی اولویت‌بندی...`
+        );
       }
     }
   }
@@ -6591,26 +6498,62 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
 }
 
 // Helper: Multi-bubble intelligent sentence chunking for natural typing sensation
-// Rule: Keeps complete sentences and cohesive thoughts intact (NO arbitrary splitting of full sentences).
-// Splits ONLY on natural message boundaries: newlines (\n) or distinct question/exclamation marks.
-// Never chops single sentences into awkward pieces.
-function splitIntoNaturalBubbles(text: string, maxChunks: number = 4): string[] {
+// Rule: Human-like chat bursts (micro-bubbles of 3 to 5 words max).
+// Splits on explicit newlines, dash separators, punctuation marks, or conversational conjunctions.
+function splitIntoNaturalBubbles(
+  text: string,
+  maxChunks: number = 4,
+  maxWordsPerBubble: number = 5
+): string[] {
   if (!text) return [];
   const clean = sanitizeAnonymousChatMessage(text).trim();
   if (!clean) return [];
 
-  // 1. Split only on explicit line breaks or distinct sentence boundaries (e.g. ? or ؟)
-  const initialParts = clean
-    .split(/\n+|(?<=[!؟?])\s+/)
+  // 1. Initial split on explicit line breaks, triple dashes, or distinct question/exclamation delimiters
+  const rawSegments = clean
+    .split(/\n+|(?:\s*[-–—]{2,}\s*)|(?<=[!؟?])\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  if (initialParts.length === 0) {
+  if (rawSegments.length === 0) {
     return [clean];
   }
 
+  const effectiveMaxWords = Math.max(3, Math.min(maxWordsPerBubble || 5, 12));
+  const subBubbles: string[] = [];
+
+  for (const seg of rawSegments) {
+    const words = seg.split(/\s+/).filter(Boolean);
+
+    if (words.length <= effectiveMaxWords) {
+      subBubbles.push(seg);
+      continue;
+    }
+
+    // Try splitting on natural Persian conversational conjunctions or comma pauses
+    const conjunctionSplit = seg
+      .split(/(?<=[،,])\s+|\s+(?:راستی|ولی|اما|چون|اگه|پس)\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (conjunctionSplit.length > 1 && conjunctionSplit.every((part) => part.split(/\s+/).length <= effectiveMaxWords * 1.5)) {
+      for (const part of conjunctionSplit) {
+        subBubbles.push(part);
+      }
+      continue;
+    }
+
+    // Fallback: chunk by words keeping maxWordsPerBubble limit
+    for (let i = 0; i < words.length; i += effectiveMaxWords) {
+      const chunk = words.slice(i, i + effectiveMaxWords).join(' ').trim();
+      if (chunk) {
+        subBubbles.push(chunk);
+      }
+    }
+  }
+
   const processedBubbles: string[] = [];
-  for (let part of initialParts) {
+  for (let part of subBubbles) {
     let repaired = repairIncompleteSentences(part);
     repaired = repaired.replace(/[\.\:،,!;؛\-–—]+$/g, '').trim();
     if (repaired.length >= 1) {
@@ -7567,6 +7510,62 @@ function isPartnerGoodbyeOrExitIntent(text: string): boolean {
 
   // Regex patterns for short expressions
   if (/^(بای|خدافظ|خداحافظ|فعلا|شب\s*بخیر|bye|cya)[\s!.,،🌸🌹]*$/i.test(raw)) {
+    return true;
+  }
+
+  return false;
+}
+
+// Helper: Detect if stranger explicitly rejects, says no, insults spam/bots, or demands disconnect
+function isStrangerExplicitRejection(text: string): boolean {
+  if (!text) return false;
+  const raw = text.trim();
+  const normalized = normalizePersianText(raw).toLowerCase();
+
+  // 1. Short standalone rejections
+  if (/^(نه|ن|نچ|خیر|نو|no|nop|nope)[\s!.,،]*$/i.test(raw)) {
+    return true;
+  }
+  if (/^(نه\s*(مرسی|ممنون|نمیخوام|نمی‌خوام|نمیخام|لازم\s*ندارم|نیاز\s*ندارم|داداش|عزیز|آقا|خانوم))[\s!.,،]*$/i.test(raw)) {
+    return true;
+  }
+
+  // 2. Clear rejection and disinterest phrases
+  const rejectionPhrases = [
+    'نمیخوام',
+    'نمی‌خوام',
+    'نمیخام',
+    'لازم ندارم',
+    'نیاز ندارم',
+    'علاقه‌ای ندارم',
+    'علاقه ندارم',
+    'به کارم نمیاد',
+    'به دردم نمیخوره',
+    'به درد من نمیخوره',
+    'تبلیغه',
+    'تبلیغاتیه',
+    'تبلیغ نکن',
+    'اسپمر',
+    'اسپمه',
+    'رباتی',
+    'ربات احمق',
+    'باتی',
+    'لفت بده',
+    'لفت بزن',
+    'قطع کن',
+    'برو پی کارت',
+    'ول کن',
+    'ولم کن',
+    'مزاحم نشو',
+    'پیام نده',
+    'بکشش بیرون',
+    'بلاک میکنم',
+    'بلاک میشی',
+    'ریپورت',
+    'ریپورتت میکنم',
+  ];
+
+  if (rejectionPhrases.some((phrase) => isKeywordMatchInText(raw, phrase) || normalized.includes(normalizePersianText(phrase)))) {
     return true;
   }
 
@@ -9476,6 +9475,47 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
             break;
           }
 
+          // Check if stranger expressed explicit rejection or disinterest (Fast Skip)
+          if (instructions.fastDropOnRejection !== false && isStrangerExplicitRejection(unifiedStrangerText)) {
+            addLog(
+              'info',
+              `[چت ناشناس] ⚡ مخاطب عدم تمایل یا رد پیشنهاد ابراز نمود («${unifiedStrangerText.slice(0, 35)}»). ارسال پاسخ کوتاه و خروج فوق‌سریع...`
+            );
+            const fastDropPhrases = [
+              instructions.fastDropFarewellText || 'اوکی فعلا',
+              'اوکی فعلا',
+              'باشه موفق باشی',
+              'اوکی روزت خوش',
+              'حله فعلا',
+            ];
+            const chosenFastFarewell = (instructions.fastDropFarewellText && instructions.fastDropFarewellText.trim()) || fastDropPhrases[Math.floor(Math.random() * fastDropPhrases.length)];
+            try {
+              await client.sendMessage(botEntity, { message: chosenFastFarewell });
+              activeAnonChatSession.botMessageCount = (activeAnonChatSession.botMessageCount || 0) + 1;
+              activeAnonChatSession.messagesCount++;
+              activeAnonChatSession.transcript.push({
+                id: 'msg_' + Date.now() + '_ai_fast_drop',
+                sender: 'me_melody',
+                text: chosenFastFarewell,
+                timestamp: new Date().toISOString(),
+              });
+              saveData();
+            } catch (sendErr) {
+              console.warn('[چت ناشناس] خطا در ارسال پاسخ کوتاه خروج سریع:', sendErr);
+            }
+
+            await executeExitAndNextPartner(
+              client,
+              botEntity,
+              selectedBot,
+              activeAnonChatSession,
+              'partner_bye_exit',
+              'عدم تمایل مخاطب (Fast Drop). خروج آنی و چرخش به مخاطب بعدی...'
+            );
+            exitTriggered = true;
+            break;
+          }
+
           const sessionDurationSec = activeAnonChatSession.startedAt ? Math.floor((Date.now() - new Date(activeAnonChatSession.startedAt).getTime()) / 1000) : 0;
           const isUnder2Min = sessionDurationSec < 120;
 
@@ -9571,7 +9611,11 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
           // 1. ALWAYS send AI conversational reply (replyResult.text) as natural chat text bubble(s) FIRST
           const shouldMultiBubble = instructions.enableMultiBubble !== false;
           const bubbles = shouldMultiBubble
-            ? splitIntoNaturalBubbles(replyResult.text, instructions.multiBubbleMaxChunks || 2)
+            ? splitIntoNaturalBubbles(
+                replyResult.text,
+                instructions.multiBubbleMaxChunks || 3,
+                instructions.maxWordsPerBubble || 5
+              )
             : [replyResult.text];
 
           const isCommercialSession =
@@ -9745,6 +9789,7 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
           if (
             currentConvState === ConversationState.GOODBYE ||
             currentConvState === ConversationState.EXITING ||
+            currentConvState === ConversationState.REJECTED ||
             replyResult.stepOutput?.isTerminal
           ) {
             addLog('info', `[چت ناشناس] 🚪 مکالمه به مرحله خداحافظی و خروج طبیعی رسید. پایان جلسه و خروج از چت...`);
@@ -10650,10 +10695,17 @@ const handleSimulateReply = async (req: any, res: any) => {
       activeInstructions,
       sessionContext
     );
+    const bubbles = splitIntoNaturalBubbles(
+      replyResult.text,
+      activeInstructions.multiBubbleMaxChunks || 3,
+      activeInstructions.maxWordsPerBubble || 5
+    );
     res.json({
       success: true,
       reply: replyResult.text,
+      bubbles,
       source: replyResult.source,
+      modelUsed: replyResult.modelUsed,
       shouldSendPromoCard: replyResult.shouldSendPromoCard,
       promoMentioned: replyResult.promoMentioned,
       stepOutput: replyResult.stepOutput,

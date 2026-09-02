@@ -137,27 +137,63 @@ export function cleanCodeArtifactsAndPunctuation(rawText: string): string {
 
 /**
  * Splits text into natural Telegram chat bubbles.
- * Rule: Keeps complete sentences and cohesive thoughts intact.
- * Splits ONLY on natural message boundaries: newlines (\n) or distinct question/exclamation marks.
- * Never chops single sentences into awkward pieces.
+ * Rule: Human-like chat bursts (micro-bubbles of 3 to 5 words max).
+ * Splits on explicit newlines, dash separators, punctuation marks, or conversational conjunctions.
  */
-export function splitIntoNaturalBubbles(text: string, maxChunks: number = 4): string[] {
+export function splitIntoNaturalBubbles(
+  text: string,
+  maxChunks: number = 4,
+  maxWordsPerBubble: number = 5
+): string[] {
   if (!text) return [];
   const clean = cleanCodeArtifactsAndPunctuation(text).trim();
   if (!clean) return [];
 
-  // 1. Split only on explicit line breaks or distinct question/exclamation delimiters
-  const initialParts = clean
-    .split(/\n+|(?<=[!؟?])\s+/)
+  // 1. Initial split on explicit line breaks, triple dashes, or distinct question/exclamation delimiters
+  const rawSegments = clean
+    .split(/\n+|(?:\s*[-–—]{2,}\s*)|(?<=[!؟?])\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  if (initialParts.length === 0) {
+  if (rawSegments.length === 0) {
     return [clean];
   }
 
+  const effectiveMaxWords = Math.max(3, Math.min(maxWordsPerBubble || 5, 12));
+  const subBubbles: string[] = [];
+
+  for (const seg of rawSegments) {
+    const words = seg.split(/\s+/).filter(Boolean);
+
+    if (words.length <= effectiveMaxWords) {
+      subBubbles.push(seg);
+      continue;
+    }
+
+    // Try splitting on natural Persian conversational conjunctions or comma pauses
+    const conjunctionSplit = seg
+      .split(/(?<=[،,])\s+|\s+(?:راستی|ولی|اما|چون|اگه|پس)\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (conjunctionSplit.length > 1 && conjunctionSplit.every((part) => part.split(/\s+/).length <= effectiveMaxWords * 1.5)) {
+      for (const part of conjunctionSplit) {
+        subBubbles.push(part);
+      }
+      continue;
+    }
+
+    // Fallback: chunk by words keeping maxWordsPerBubble limit
+    for (let i = 0; i < words.length; i += effectiveMaxWords) {
+      const chunk = words.slice(i, i + effectiveMaxWords).join(' ').trim();
+      if (chunk) {
+        subBubbles.push(chunk);
+      }
+    }
+  }
+
   const processedBubbles: string[] = [];
-  for (let part of initialParts) {
+  for (const part of subBubbles) {
     let cleanedB = repairIncompleteSentences(part);
     cleanedB = cleanedB.replace(/[\.\:،,!;؛\-–—]+$/g, '').trim();
     if (cleanedB.length >= 1) {
@@ -165,8 +201,8 @@ export function splitIntoNaturalBubbles(text: string, maxChunks: number = 4): st
     }
   }
 
-  const effectiveMax = Math.max(1, Math.min(maxChunks, 4));
-  return processedBubbles.length > 0 ? processedBubbles.slice(0, effectiveMax) : [clean];
+  const effectiveMaxChunks = Math.max(1, Math.min(maxChunks, 4));
+  return processedBubbles.length > 0 ? processedBubbles.slice(0, effectiveMaxChunks) : [clean];
 }
 
 /**

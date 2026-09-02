@@ -67,6 +67,7 @@ interface SimulatedMessage {
   elapsedAtSendSec?: number;
   stepOutput?: any;
   source?: 'ai_gemini' | 'offline_fallback';
+  modelUsed?: string;
 }
 
 export const AnonymousSimulatorTab: React.FC<AnonymousSimulatorTabProps> = ({
@@ -412,6 +413,7 @@ export const AnonymousSimulatorTab: React.FC<AnonymousSimulatorTabProps> = ({
           elapsedAtSendSec: elapsedSec,
           stepOutput: data.stepOutput,
           source: replySource,
+          modelUsed: data.modelUsed,
         };
         const updated = [...messagesRef.current, newMsg];
         messagesRef.current = updated;
@@ -426,6 +428,7 @@ export const AnonymousSimulatorTab: React.FC<AnonymousSimulatorTabProps> = ({
           elapsedAtSendSec: elapsedSec,
           stepOutput: data.stepOutput,
           source: replySource,
+          modelUsed: data.modelUsed,
         };
         const updated = [...messagesRef.current, newMsg];
         messagesRef.current = updated;
@@ -1084,15 +1087,22 @@ export const AnonymousSimulatorTab: React.FC<AnonymousSimulatorTabProps> = ({
 
                 {m.sender === 'ai' && (
                   <div className="pt-2 border-t border-white/5 space-y-1 text-[10px]">
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span className="flex items-center gap-1 text-fuchsia-300 font-medium">
-                        <Sparkles className="w-3 h-3" />
-                        {m.isPromo
-                          ? 'ارسال عکس و محصول'
-                          : m.source === 'offline_fallback'
-                          ? 'موتور مکالمه و سناریو (پشتیبان)'
-                          : 'هوش مصنوعی زنده (Gemini)'}
-                      </span>
+                    <div className="flex items-center justify-between text-slate-400 gap-1 flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="flex items-center gap-1 text-fuchsia-300 font-medium">
+                          <Sparkles className="w-3 h-3" />
+                          {m.isPromo
+                            ? 'ارسال عکس و محصول'
+                            : m.source === 'offline_fallback'
+                            ? 'موتور مکالمه و سناریو (پشتیبان)'
+                            : 'هوش مصنوعی زنده (Gemini)'}
+                        </span>
+                        {m.modelUsed && (
+                          <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
+                            {m.modelUsed}
+                          </span>
+                        )}
+                      </div>
                       <span>{m.time} {m.elapsedAtSendSec !== undefined ? `(${m.elapsedAtSendSec}s)` : ''}</span>
                     </div>
 

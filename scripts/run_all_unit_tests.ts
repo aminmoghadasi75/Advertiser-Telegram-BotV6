@@ -1,9 +1,19 @@
 import { runAllConversationTests } from '../src/conversation/conversationTests';
 import { runAllEvaluationTests } from '../src/evaluation/evaluationTests';
 import { runAllStep7AnalyticsTests } from '../src/conversation/step_7_analytics_tests';
+import { runAllGeminiAdaptiveRouterTests } from '../src/conversation/geminiAdaptiveRouterTests';
 
 async function main() {
-  console.log('--- RUNNING ALL CONVERSATION UNIT & E2E TESTS ---');
+  console.log('--- RUNNING GEMINI ADAPTIVE MULTI-MODEL ROUTER TESTS ---');
+  const routerSuite = runAllGeminiAdaptiveRouterTests();
+  console.log(`Passed: ${routerSuite.passed}/${routerSuite.total}`);
+  for (const r of routerSuite.results) {
+    if (!r.passed) {
+      console.log(`FAILED: ${r.name} | Expected: ${r.expected} | Actual: ${r.actual}`);
+    }
+  }
+
+  console.log('\n--- RUNNING ALL CONVERSATION UNIT & E2E TESTS ---');
   const convSuite = runAllConversationTests();
   console.log(`Passed: ${convSuite.passed}/${convSuite.total}`);
   for (const r of convSuite.results) {

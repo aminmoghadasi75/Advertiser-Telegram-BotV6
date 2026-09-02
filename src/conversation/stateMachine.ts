@@ -46,12 +46,23 @@ export function transitionConversationState(
   }
 
   if (currentState === ConversationState.GOODBYE) {
-    return {
-      newState: ConversationState.EXITING,
-      previousState,
-      transitionReason: 'Goodbye concluded, transitioning to exit',
-      isTerminalState: true,
-    };
+    if (
+      intent === Intent.PURCHASE_INTENT ||
+      intent === Intent.SUPPORT_REQUEST ||
+      intent === Intent.TRIAL_REQUEST ||
+      intent === Intent.PRICE_REQUEST ||
+      intent === Intent.VPN_REQUEST ||
+      intent === Intent.PLAN_REQUEST
+    ) {
+      // Allow recovery if user asks explicit commercial inquiry
+    } else {
+      return {
+        newState: ConversationState.EXITING,
+        previousState,
+        transitionReason: 'Goodbye concluded, transitioning to exit',
+        isTerminalState: true,
+      };
+    }
   }
 
   if (intent === Intent.GOODBYE) {
@@ -66,9 +77,9 @@ export function transitionConversationState(
   // 2. Rejection Dominance
   if (intent === Intent.REJECTION) {
     return {
-      newState: ConversationState.GOODBYE,
+      newState: ConversationState.REJECTED,
       previousState,
-      transitionReason: 'User expressed explicit rejection / no need for VPN. Transitioning directly to goodbye & clean exit.',
+      transitionReason: 'User expressed explicit rejection / no need for VPN. Transitioning cleanly to rejected state.',
       isTerminalState: true,
     };
   }
@@ -104,15 +115,6 @@ export function transitionConversationState(
         newState: ConversationState.PRODUCT_INTEREST,
         previousState,
         transitionReason: 'User initiated product interest from rejection/low interest.',
-        isTerminalState: false,
-      };
-    }
-    // If user has rejected or stated no interest, guide towards polite farewell and exit
-    if (context.rejectionsCount >= 1 || currentState === ConversationState.REJECTED) {
-      return {
-        newState: ConversationState.GOODBYE,
-        previousState,
-        transitionReason: 'User expressed rejection / lack of interest. Transitioning cleanly to goodbye and exit.',
         isTerminalState: false,
       };
     }
@@ -334,6 +336,14 @@ export function transitionConversationState(
       };
 
     case ConversationState.INITIAL_GREETING:
+      if (intent === Intent.GREETING || intent === Intent.SMALL_TALK) {
+        return {
+          newState: ConversationState.EARLY_CONVERSATION,
+          previousState,
+          transitionReason: 'User replied to initial greeting, moving to early chit-chat',
+          isTerminalState: false,
+        };
+      }
       if (strategy === 'direct_pitch') {
         return {
           newState: ConversationState.PRODUCT_INTRODUCTION,

@@ -111,14 +111,21 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
 
   // Real-time Adaptive Gemini Multi-Model Status
   const [geminiStatus, setGeminiStatus] = useState<{
+    activeModel?: string;
     activePriorityOrder?: string[];
     models?: Array<{
       modelName: string;
+      displayName?: string;
+      priority?: number;
+      description?: string;
+      role?: string;
       status: 'healthy' | 'recovering' | 'cooldown';
       consecutiveFailures: number;
       totalSuccesses: number;
       totalFailures: number;
       cooldownSecondsRemaining: number;
+      isDailyLimitExceeded?: boolean;
+      isServerBusy?: boolean;
       lastError: string | null;
     }>;
   } | null>(null);
@@ -142,6 +149,73 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
     const interval = setInterval(fetchGeminiStatus, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Live Instant Tester State & Handler
+  const [liveTestInput, setLiveTestInput] = useState('قیمت چنده؟ تست رایگان هم دارین؟');
+  const [liveTestLoading, setLiveTestLoading] = useState(false);
+  const [liveTestElapsedSec, setLiveTestElapsedSec] = useState(60);
+  const [liveTestResult, setLiveTestResult] = useState<{
+    reply: string;
+    bubbles: string[];
+    isFastSkip?: boolean;
+    intent?: string;
+    state?: string;
+    leadScore?: number;
+    source?: string;
+    promoMentioned?: boolean;
+    typingTimeSec?: number;
+  } | null>(null);
+
+  const runLiveTest = async (overrideText?: string) => {
+    const textToSend = (overrideText !== undefined ? overrideText : liveTestInput).trim();
+    if (!textToSend) return;
+    setLiveTestLoading(true);
+    setLiveTestResult(null);
+
+    // Check fast-path rejection locally for instant preview comparison
+    const normalized = textToSend.toLowerCase();
+    const isRejectionPattern = /^(نه|ن|نچ|خیر|no|nop|nope|نمیخوام|نمی‌خوام|لازم ندارم|نیاز ندارم|تبلیغه|اسپمر|ربات|لفت)/i.test(normalized);
+
+    try {
+      const res = await fetch('/api/anonymous/simulate-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          history: [{ sender: 'stranger', text: textToSend }],
+          instructions: localInstructions,
+          sessionContext: {
+            isUnder2Minutes: liveTestElapsedSec < 120,
+            elapsedSeconds: liveTestElapsedSec,
+            currentTurn: 1,
+            maxTurns: localInstructions.maxMessagesPerChat || 4,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const bubbles = data.bubbles || [data.reply];
+        const wordCount = bubbles.reduce((acc: number, b: string) => acc + b.split(/\s+/).filter(Boolean).length, 0);
+        const typingTime = Math.max(1.2, Math.min(6.5, (wordCount * 0.25) + ((bubbles.length - 1) * (localInstructions.multiBubbleDelaySeconds || 1.8))));
+
+        setLiveTestResult({
+          reply: data.reply,
+          bubbles,
+          isFastSkip: (localInstructions.fastDropOnRejection ?? true) && isRejectionPattern,
+          intent: data.stepOutput?.intentResult?.intent,
+          state: data.stepOutput?.updatedContext?.state,
+          leadScore: data.stepOutput?.updatedContext?.leadScore,
+          source: data.source,
+          promoMentioned: data.promoMentioned,
+          typingTimeSec: Number(typingTime.toFixed(1)),
+        });
+      }
+    } catch (e) {
+      console.error('Failed to run live test:', e);
+    } finally {
+      setLiveTestLoading(false);
+    }
+  };
 
   // Synchronize from parent props ONLY when parent changes externally (e.g. bot switch or initial load),
   // protecting local state from stale parent props during in-flight saves.
@@ -665,14 +739,17 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
           </button>
         </div>
 
-        {/* Models Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+        {/* Models Grid (5-Tier Priority Hierarchy) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-2">
           {(geminiStatus?.models || [
-            { modelName: 'gemini-3.7-flash', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, lastError: null },
-            { modelName: 'gemini-3.1-flash-lite', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, lastError: null },
-            { modelName: 'gemini-flash-latest', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, lastError: null },
+            { modelName: 'gemini-3.8-flash', displayName: 'Gemini 3.8 Flash', priority: 1, role: 'اصلی و پیش‌فرض', description: 'مدل اولویت اول (هوش برتر کلامی، طبیعی‌ترین لحن)', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, isDailyLimitExceeded: false, isServerBusy: false, lastError: null },
+            { modelName: 'gemini-3.7-flash', displayName: 'Gemini 3.7 Flash', priority: 2, role: 'پشتیبان اولویت ۲', description: 'مدل اولویت دوم (پشتیبان پیشرفته هیبریدی)', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, isDailyLimitExceeded: false, isServerBusy: false, lastError: null },
+            { modelName: 'gemini-3.6-flash', displayName: 'Gemini 3.6 Flash', priority: 3, role: 'پشتیبان اولویت ۳', description: 'مدل اولویت سوم (پشتیبان چندمنظوره سریع)', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, isDailyLimitExceeded: false, isServerBusy: false, lastError: null },
+            { modelName: 'gemini-3.5-flash', displayName: 'Gemini 3.5 Flash', priority: 4, role: 'پشتیبان اولویت ۴', description: 'مدل اولویت چهارم (سبک و روان)', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, isDailyLimitExceeded: false, isServerBusy: false, lastError: null },
+            { modelName: 'gemini-3.1-flash-lite', displayName: 'Gemini 3.1 Flash lite', priority: 5, role: 'پشتیبان نهایی ضد قطعی', description: 'مدل اولویت پنجم (فوق‌سریع Lite ضد محدودیت)', status: 'healthy', consecutiveFailures: 0, totalSuccesses: 0, totalFailures: 0, cooldownSecondsRemaining: 0, isDailyLimitExceeded: false, isServerBusy: false, lastError: null },
           ]).map((m, idx) => {
-            const isPrimary = idx === 0;
+            const activeCurrentModel = geminiStatus?.activeModel || geminiStatus?.activePriorityOrder?.[0] || 'gemini-3.8-flash';
+            const isCurrentlyServing = m.modelName === activeCurrentModel;
             const isHealthy = m.status === 'healthy';
             const isCooldown = m.status === 'cooldown';
             const isRecovering = m.status === 'recovering';
@@ -680,48 +757,76 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
             return (
               <div
                 key={m.modelName}
-                className={`p-3 rounded-xl border transition-all ${
+                className={`p-3 rounded-xl border flex flex-col justify-between transition-all ${
+                  isCurrentlyServing
+                    ? 'ring-2 ring-cyan-500/70 shadow-lg shadow-cyan-500/10'
+                    : ''
+                } ${
                   isCooldown
-                    ? 'bg-amber-950/20 border-amber-500/40 text-amber-200'
+                    ? 'bg-amber-950/25 border-amber-500/50 text-amber-200'
                     : isRecovering
-                    ? 'bg-blue-950/20 border-blue-500/40 text-blue-200'
-                    : 'bg-slate-950/50 border-slate-800/80 text-slate-200'
+                    ? 'bg-blue-950/25 border-blue-500/50 text-blue-200'
+                    : isCurrentlyServing
+                    ? 'bg-slate-900 border-cyan-500/50 text-slate-100'
+                    : 'bg-slate-950/60 border-slate-800/80 text-slate-300'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-2">
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
                       اولویت {idx + 1}
                     </span>
-                    <span className="text-xs font-bold text-white font-mono">{m.modelName}</span>
+                    {isCurrentlyServing ? (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        سرویس‌دهنده فعال
+                      </span>
+                    ) : isCooldown ? (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5" />
+                        {m.isDailyLimitExceeded ? 'محدودیت روزانه' : m.isServerBusy ? 'شلوغی سرور' : 'استراحت'} ({m.cooldownSecondsRemaining}s)
+                      </span>
+                    ) : isRecovering ? (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1">
+                        <Activity className="w-2.5 h-2.5" />
+                        تست سلامت
+                      </span>
+                    ) : (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1">
+                        <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                        آماده
+                      </span>
+                    )}
                   </div>
-                  {isCooldown ? (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-                      <Clock className="w-2.5 h-2.5" />
-                      استراحت ({m.cooldownSecondsRemaining}s)
-                    </span>
-                  ) : isRecovering ? (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1">
-                      <Activity className="w-2.5 h-2.5" />
-                      تست سلامت
-                    </span>
-                  ) : (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                      <CheckCircle2 className="w-2.5 h-2.5" />
-                      آماده و سریع
-                    </span>
-                  )}
+
+                  <div className="text-xs font-bold text-white font-mono tracking-tight">
+                    {m.displayName || m.modelName}
+                  </div>
+                  <div className="text-[10px] text-cyan-400/90 mt-0.5 font-medium">
+                    {m.role || (idx === 0 ? 'اصلی و پیش‌فرض' : `پشتیبان اولویت ${idx + 1}`)}
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 pt-2 border-t border-slate-800/60">
-                  <span>
-                    {isPrimary ? 'مدل اصلی (بالاترین هوش)' : idx === 1 ? 'مدل دوم (فوق‌سریع Lite)' : 'مدل پشتیبان سوم'}
-                  </span>
-                  <span>موفق: {m.totalSuccesses}</span>
+                <div className="flex items-center justify-between text-[10px] text-slate-400 mt-2.5 pt-2 border-t border-slate-800/80">
+                  <span>موفق: <strong className="text-emerald-400 font-mono">{m.totalSuccesses}</strong></span>
+                  {m.totalFailures > 0 && (
+                    <span className="text-amber-400 font-mono">سوییچ: {m.totalFailures}</span>
+                  )}
                 </div>
               </div>
             );
           })}
+        </div>
+
+        {/* Explain priority & failover mechanics */}
+        <div className="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-cyan-400 font-semibold">چرخه هوشمند:</span>
+            <span>Gemini 3.8 Flash ← 3.7 Flash ← 3.6 Flash ← 3.5 Flash ← 3.1 Flash lite</span>
+          </div>
+          <span className="text-slate-500 text-[10px]">
+            سوییچ خودکار زیر ۱ ثانیه هنگام ترافیک یا محدودیت روزانه + بازگشت خودکار به اولویت ۱ پس از رفع محدودیت
+          </span>
         </div>
       </div>
 
@@ -2386,6 +2491,137 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
                 فاصله زمانی واقع‌گرایانه همراه با انیمیشن تایپ بین ارسال هر حباب تا حباب بعدی.
               </p>
             </div>
+
+            {/* Strict word count limit per bubble */}
+            <div className="bg-slate-900/70 p-3 rounded-xl border border-slate-800 space-y-1.5 sm:col-span-2">
+              <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                <span>سقف کلمات در هر حباب (محدودیت سخت‌گیرانه برای لحن کوتاه تلگرامی):</span>
+                <span className="text-emerald-400 font-bold font-mono text-xs">
+                  {localInstructions.maxWordsPerBubble ?? 5} کلمه در هر حباب
+                </span>
+              </label>
+              <input
+                type="range"
+                min="3"
+                max="8"
+                step="1"
+                value={localInstructions.maxWordsPerBubble ?? 5}
+                onChange={(e) => updateField('maxWordsPerBubble', parseInt(e.target.value) || 5)}
+                className="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+              />
+              <div className="flex items-center justify-between text-[10px] text-slate-400">
+                <span>۳ کلمه (فوق‌کوتاه و مقطع)</span>
+                <span className="text-emerald-300 font-medium">۵ کلمه (استاندارد تلگرام انسانی)</span>
+                <span>۸ کلمه (حداکثر مجاز)</span>
+              </div>
+            </div>
+
+            {/* Anti-Filter Handle Format */}
+            <div className="bg-slate-900/70 p-3 rounded-xl border border-slate-800 space-y-1.5 sm:col-span-2">
+              <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                <span>فرمت ضد سانسور آیدی پشتیبانی (دور زدن فیلتر ربات ناشناس قبل از ۲ دقیقه):</span>
+                <span className="text-cyan-400 font-bold text-[11px]">
+                  {(localInstructions.antiFilterHandleFormat || 'plain') === 'plain'
+                    ? 'ساده بدون @ (nova_vpn10)'
+                    : (localInstructions.antiFilterHandleFormat === 'search_hint')
+                    ? 'راهنمای سرچ در تلگرام («تو سرچ بزن: nova_vpn10»)'
+                    : 'با فاصله («nova _ vpn10»)'}
+                </span>
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                {[
+                  { id: 'plain', label: 'ساده بدون ات‌ساین', example: 'nova_vpn10' },
+                  { id: 'search_hint', label: 'راهنمای سرچ تلگرام', example: 'تو سرچ تلگرام بزن nova_vpn10' },
+                  { id: 'spaced', label: 'با فاصله ایمن', example: 'nova _ vpn10' },
+                ].map((fmt) => (
+                  <button
+                    key={fmt.id}
+                    type="button"
+                    onClick={() => updateField('antiFilterHandleFormat', fmt.id as any)}
+                    className={`p-2 rounded-lg border text-right transition-all text-xs flex flex-col justify-between ${
+                      (localInstructions.antiFilterHandleFormat || 'plain') === fmt.id
+                        ? 'bg-cyan-500/15 border-cyan-500/50 text-cyan-300 shadow-sm'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className="font-semibold">{fmt.label}</span>
+                    <span className="text-[10px] opacity-75 font-mono dir-ltr mt-1 text-slate-300">{fmt.example}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* FAST SKIP ON EXPLICIT REJECTION (خروج فوق‌سریع در صورت عدم تمایل) */}
+      {/* ========================================================================= */}
+      <div className="bg-slate-950/60 p-4 sm:p-5 rounded-2xl border border-rose-500/30 space-y-4 shadow-lg">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs border border-rose-500/30 shadow">
+              <Zap className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-bold text-sm text-white">خروج فوق‌سریع در صورت عدم تمایل (Fast Skip on Rejection)</h4>
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">
+                  سرعت لیدگیری ۱۵ برابری
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                به محض اینکه مخاطب بگوید «نه»، «نمیخوام»، «لازم ندارم»، «تبلیغ نکن» یا «لفت»، ربات بدون تلف کردن وقت و بدون انتظار برای هوش مصنوعی فوراً یک پاسخ کوتاه داده و لفت می‌دهد تا به نفر بعدی وصل شود.
+              </p>
+            </div>
+          </div>
+
+          <label className="relative inline-flex items-center cursor-pointer gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+            <span className="text-xs font-semibold text-slate-300">
+              {(localInstructions.fastDropOnRejection ?? true) ? 'فعال' : 'غیرفعال'}
+            </span>
+            <input
+              type="checkbox"
+              checked={localInstructions.fastDropOnRejection ?? true}
+              onChange={(e) => updateField('fastDropOnRejection', e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600"></div>
+          </label>
+        </div>
+
+        {(localInstructions.fastDropOnRejection ?? true) && (
+          <div className="space-y-3 pt-3 border-t border-slate-800/80">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                <span>متن پاسخ کوتاه قبل از خروج آنی (حداکثر ۲ الی ۳ کلمه محاوره‌ای):</span>
+                <span className="text-[10px] text-rose-400 font-mono">طبیعی و محترمانه</span>
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  value={localInstructions.fastDropFarewellText || 'اوکی فعلا'}
+                  onChange={(e) => updateField('fastDropFarewellText', e.target.value)}
+                  placeholder="مثال: اوکی فعلا یا باشه موفق باشی"
+                  className="flex-1 bg-slate-900 border border-slate-800 focus:border-rose-500 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none"
+                />
+                <div className="flex gap-1 flex-wrap">
+                  {['اوکی فعلا', 'باشه موفق باشی', 'حله روزت خوش'].map((phrase) => (
+                    <button
+                      key={phrase}
+                      type="button"
+                      onClick={() => updateField('fastDropFarewellText', phrase)}
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] transition-colors border border-slate-700"
+                    >
+                      {phrase}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[10px] text-slate-400">
+                ⚡ این پیام در کسری از ثانیه فرستاده شده و بلافاصله پایان چت زده می‌شود تا روی مخاطب نامناسب وقت تلف نشود.
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -2890,6 +3126,181 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
           placeholder="کلمات را با خط تیره (-) جدا کنید (مثلاً: بلاک - اسپم - فحش - تبلیغات)"
           className="w-full bg-slate-900 border border-slate-800 focus:border-rose-500 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none font-sans"
         />
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 8. INTERACTIVE LIVE BUBBLE & BEHAVIOR TESTER (آزمایشگاه زنده حباب‌ها و رفتار) */}
+      {/* ========================================================================= */}
+      <div className="bg-gradient-to-br from-slate-900/90 via-slate-950 to-slate-900/90 p-4 sm:p-6 rounded-2xl border border-violet-500/40 shadow-2xl space-y-5">
+        <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/30 flex items-center justify-center shadow-lg shadow-violet-500/10">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-bold text-sm text-white">آزمایشگاه تست زنده حباب‌ها و رفتار ربات</h4>
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-violet-500/20 text-violet-300 border border-violet-500/30 font-semibold">
+                  شبیه‌ساز واقعی بدون نیاز به تلگرام
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                پیام‌های مختلف مخاطب را امتحان کنید تا خروج فوق‌سریع، شکستن حباب‌ها به کلمات کم و استراتژی فروش را به صورت زنده ببینید.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <span>زمان سپری‌شده از اتصال:</span>
+            <select
+              value={liveTestElapsedSec}
+              onChange={(e) => setLiveTestElapsedSec(Number(e.target.value))}
+              className="bg-slate-900 border border-slate-800 text-violet-300 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-violet-500"
+            >
+              <option value={45}>۴۵ ثانیه (زیر ۲ دقیقه - فیلتر شدید آیدی تلگرام)</option>
+              <option value={150}>۱۵۰ ثانیه (بالای ۲ دقیقه - مجاز برای ارسال کامل)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Preset Scenario Buttons */}
+        <div className="space-y-1.5">
+          <span className="text-[11px] text-slate-400 font-medium">سناریوهای آماده برای تست سریع:</span>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: '🛑 نه داداش نمیخوام (رد فوری)', text: 'نه داداش فیلترشکن نمیخوام تبلیغ نکن' },
+              { label: '💰 قیمت چنده تست میدین؟', text: 'قیمت چنده تست رایگان هم دارین؟' },
+              { label: '🍏 برای همراه اول و آیفون خوبه؟', text: 'رو همراه اول و آیفون قطعی نداره؟' },
+              { label: '💬 سلام اصل میدی؟', text: 'سلام اصل میدی اهل کجایی؟' },
+              { label: '🆔 آیدی تلگرامتو بده بحرفیم', text: 'آیدی تلگرامتو بده اونجا چت کنیم' },
+            ].map((sc, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => {
+                  setLiveTestInput(sc.text);
+                  runLiveTest(sc.text);
+                }}
+                className="px-3 py-1.5 bg-slate-900/80 hover:bg-violet-950/40 hover:border-violet-500/50 border border-slate-800 text-slate-300 rounded-xl text-xs transition-all flex items-center gap-1.5"
+              >
+                <span>{sc.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Input Box & Execute Button */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={liveTestInput}
+            onChange={(e) => setLiveTestInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') runLiveTest();
+            }}
+            placeholder="پیام فرضی هم‌صحبت را اینجا بنویسید (مثلاً: نه نیاز ندارم یا چقدره قیمتش)..."
+            className="flex-1 bg-slate-900 border border-slate-800 focus:border-violet-500 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none"
+          />
+          <button
+            type="button"
+            disabled={liveTestLoading}
+            onClick={() => runLiveTest()}
+            className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-violet-600/20 flex items-center gap-2 whitespace-nowrap cursor-pointer"
+          >
+            {liveTestLoading ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>در حال تحلیل...</span>
+              </>
+            ) : (
+              <>
+                <Zap className="w-3.5 h-3.5" />
+                <span>⚡ تست و شبیه‌سازی حباب‌ها</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Live Test Results Display */}
+        {liveTestResult && (
+          <div className="bg-slate-950/90 border border-slate-800/90 rounded-xl p-4 space-y-4 animate-in fade-in duration-300">
+            {/* Status and Action Banner */}
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-800/80">
+              <div className="flex items-center gap-2 flex-wrap">
+                {liveTestResult.isFastSkip ? (
+                  <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-rose-400" />
+                    <span>⚡ خروج فوق‌سریع فعال شد (Fast Skip Rejection) - معطلی ۰ ثانیه!</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>مکالمه طبیعی هوشمند</span>
+                  </span>
+                )}
+
+                {liveTestResult.intent && (
+                  <span className="px-2 py-0.5 rounded text-[11px] bg-slate-900 border border-slate-700 text-slate-300 font-mono">
+                    قصد: {liveTestResult.intent}
+                  </span>
+                )}
+
+                {liveTestResult.state && (
+                  <span className="px-2 py-0.5 rounded text-[11px] bg-slate-900 border border-slate-700 text-violet-300 font-mono">
+                    وضعیت: {liveTestResult.state}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                <span>مدت تایپ و مکث: <strong className="text-sky-300 font-mono">{liveTestResult.typingTimeSec}s</strong></span>
+                <span>تعداد حباب: <strong className="text-violet-300 font-mono">{liveTestResult.bubbles.length}</strong></span>
+              </div>
+            </div>
+
+            {/* Simulated Telegram Chat View */}
+            <div className="space-y-3 bg-slate-900/50 p-3.5 rounded-xl border border-slate-800/60 max-w-xl">
+              {/* Stranger Message Bubble */}
+              <div className="flex flex-col items-start space-y-1">
+                <span className="text-[10px] text-slate-400 font-medium">هم‌صحبت ناشناس:</span>
+                <div className="bg-slate-800 text-slate-200 px-3.5 py-2 rounded-2xl rounded-tl-sm text-xs max-w-[85%] leading-relaxed border border-slate-700/50 shadow-sm">
+                  {liveTestInput}
+                </div>
+              </div>
+
+              {/* Bot Response Bubbles (Split by words limit) */}
+              <div className="flex flex-col items-end space-y-2 pt-2">
+                <span className="text-[10px] text-violet-400 font-medium flex items-center gap-1">
+                  <span>ربات (ملودی ۲۶):</span>
+                  <span className="text-slate-400 font-normal">
+                    (سقف {localInstructions.maxWordsPerBubble || 5} کلمه در هر حباب)
+                  </span>
+                </span>
+
+                {liveTestResult.bubbles.map((bubble, idx) => {
+                  const words = bubble.trim().split(/\s+/).filter(Boolean).length;
+                  return (
+                    <div key={idx} className="flex flex-col items-end space-y-0.5 max-w-[85%]">
+                      <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-3.5 py-2 rounded-2xl rounded-tr-sm text-xs leading-relaxed shadow-md">
+                        {bubble}
+                      </div>
+                      <span className="text-[9px] text-slate-400 font-mono px-1">
+                        حباب {idx + 1} • {words} کلمه
+                      </span>
+                    </div>
+                  );
+                })}
+
+                {liveTestResult.isFastSkip && (
+                  <div className="bg-rose-950/40 border border-rose-500/40 text-rose-300 text-[11px] px-3 py-1.5 rounded-xl flex items-center gap-2 mt-1">
+                    <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                    <span>اجرای فوری دکمه خروج و اتصال بلافاصله به هم‌صحبت بعدی...</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -478,8 +478,14 @@ export interface AnonymousChatInstructions {
   enableMultiBubble?: boolean; // شکستن خودکار پاسخ‌های چندجمله‌ای به ۲ الی ۳ حباب پیام مجزا
   multiBubbleMaxChunks?: number; // حداکثر تعداد حباب پیام متوالی (پیش‌فرض: ۲ تا ۳)
   multiBubbleDelaySeconds?: number; // تاخیر بین حباب‌های متوالی (ثانیه، پیش‌فرض: ۱ الی ۲)
+  maxWordsPerBubble?: number; // سقف کلمات در هر حباب پیام برای شبیه‌سازی دقیق تایپ انسانی تلگرام (پیش‌فرض: ۵ کلمه)
+  antiFilterHandleFormat?: 'plain' | 'spaced' | 'search_hint' | 'banner_only'; // فرمت ضد سانسور آیدی پشتیبانی قبل از رفع محدودیت ۲ دقیقه
 
-  // ۲. سرعت تایپ پویا و هوشمند (Dynamic Typing Speed)
+  // ۲. خروج فوق‌سریع در صورت عدم تمایل (Fast Skip on Rejection)
+  fastDropOnRejection?: boolean; // تشخیص فوری رد تمایل (نه، نمیخوام، تبلیغ، لفت) و خروج آنی بدون معطلی و اتصال به نفر بعدی
+  fastDropFarewellText?: string; // متن خداحافظی فوق‌کوتاه و صمیمی قبل از خروج سریع (مثلاً: «اوکی فعلا» یا «باشه موفق باشی»)
+
+  // ۳. سرعت تایپ پویا و هوشمند (Dynamic Typing Speed)
   dynamicTypingSpeed?: boolean; // محاسبه زمان تایپ بر اساس تعداد حروف پیام به جای تاخیر ثابت
   typingSpeedMsPerChar?: number; // مدت زمان تایپ به ازای هر کاراکتر (میلی‌ثانیه، مثلاً ۳۵ میلی‌ثانیه)
   minTypingDelaySeconds?: number; // حداقل زمان تایپ (پیش‌فرض: ۱.۰ ثانیه)

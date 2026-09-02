@@ -219,6 +219,19 @@ export function evaluatePromotionPolicy(
 
   if (isCtaInCooldown) {
     reasonCodes.push('CTA_COOLDOWN_ACTIVE');
+    if (context.leadScore >= 40) {
+      return {
+        allowedLevel: PromotionLevel.SOFT_MENTION,
+        canSendDirectOffer: false,
+        canSendSoftMention: true,
+        canSendBannerPhoto: false,
+        isPromotionLocked: false,
+        isExplicitOverride: false,
+        isSuppressed: false,
+        reasonCodes,
+        reason: `CTA cooldown active (${turnsSinceLastCTA}/${MIN_CTA_TURN_GAP} turns). Downgrading to soft mention.`,
+      };
+    }
     return {
       allowedLevel: PromotionLevel.NO_PROMOTION,
       canSendDirectOffer: false,
