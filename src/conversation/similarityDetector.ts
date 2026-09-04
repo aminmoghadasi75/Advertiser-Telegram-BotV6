@@ -176,6 +176,25 @@ export function detectQuestionRepetition(
     return { isRepeatedQuestion: false, isMirroringLoop: false };
   }
 
+  // 0. Anti-repetition check for cliché counter questions ("شما چطور؟", "شما چی؟", "تو چطور؟")
+  const isClicheCounterQuestion = /(?:شما\s*چطور|تو\s*چطور|شما\s*چی|تو\s*چی|شما\s*چطوری)/i.test(candidate);
+  if (isClicheCounterQuestion) {
+    const wasAlreadyAsked = recentBotMessages.some((m) => /(?:شما\s*چطور|تو\s*چطور|شما\s*چی|تو\s*چی|شما\s*چطوری)/i.test(m));
+    const userAlreadyGaveAsl = Boolean(lastUserMsg && /(?:تهران|مشهد|اصفهان|کرج|شیراز|تبریز|\b\d{2}\b|ساله|سالمه|مجرد|متاهل)/i.test(lastUserMsg));
+
+    if (wasAlreadyAsked || userAlreadyGaveAsl) {
+      const stripped = candidate
+        .replace(/(?:[\n،,؛;\s]+|^)(?:شما\s*چطور\s*[؟?]?|شما\s*چی\s*[؟?]?|تو\s*چطور\s*[؟?]?|شما\s*چطوری\s*[؟?]?|خودت\s*چطور\s*[؟?]?)$/gi, '')
+        .trim();
+      return {
+        isRepeatedQuestion: true,
+        isMirroringLoop: false,
+        category: 'cliche_counter_question',
+        suggestedCorrection: stripped.length >= 3 ? stripped : 'خوشبختم',
+      };
+    }
+  }
+
   const candidateCategories = extractQuestionCategories(candidate);
   if (candidateCategories.length === 0) {
     return { isRepeatedQuestion: false, isMirroringLoop: false };

@@ -385,6 +385,7 @@ export enum ObjectionCategory {
   TRUST = 'TRUST',
   EXISTING_SOLUTION = 'EXISTING_SOLUTION',
   COMPLEXITY = 'COMPLEXITY',
+  IT_PROFESSIONAL = 'IT_PROFESSIONAL',
   GENERAL = 'GENERAL',
 }
 
@@ -417,6 +418,9 @@ export interface ConversationContext {
   endedAt?: string;
   elapsedSeconds?: number;
   supportIdAvailable?: boolean;
+  coinRewarded?: boolean;
+  mediaUnlocked?: boolean;
+  promoBannerSent?: boolean;
   salesState?: string;
   offerCount?: number;
   recentBotMessages?: string[];
@@ -426,6 +430,7 @@ export interface ConversationContext {
   lastObjectionCategory?: ObjectionCategory;
   partnerProfileSnippet?: string;
   partnerTag?: string;
+  isPassiveListeningTurn?: boolean;
 }
 
 export interface AnonymousProductPromotion {
@@ -481,7 +486,12 @@ export interface AnonymousChatInstructions {
   maxWordsPerBubble?: number; // سقف کلمات در هر حباب پیام برای شبیه‌سازی دقیق تایپ انسانی تلگرام (پیش‌فرض: ۵ کلمه)
   antiFilterHandleFormat?: 'plain' | 'spaced' | 'search_hint' | 'banner_only'; // فرمت ضد سانسور آیدی پشتیبانی قبل از رفع محدودیت ۲ دقیقه
 
-  // ۲. خروج فوق‌سریع در صورت عدم تمایل (Fast Skip on Rejection)
+  // ۲. سکوت فعال، واگذاری ابتکار عمل به مخاطب و واکنش‌های مینی‌مال (Passive Listening & Single-Word Telegram Reactions)
+  enablePassiveListening?: boolean; // سکوت هوشمندانه در برخی نوبت‌ها، عدم پرسشگری مداوم و اجازه دادن به مخاطب برای پیش‌بردن بحث
+  enableMinimalReactions?: boolean; // استفاده از پاسخ‌های تک‌کلمه‌ای تلگرامی (اوهوم، آره، نه، نوچ، دقیقا، آره والا)
+  forbidAffectionateTerms?: boolean; // ممنوعیت و پالایش سفت‌وسخت کلمات محبت‌آمیز افراطی برای غریبه‌ها (عزیزم، جانم، جان، گلم، فدات)
+
+  // ۳. خروج فوق‌سریع در صورت عدم تمایل (Fast Skip on Rejection)
   fastDropOnRejection?: boolean; // تشخیص فوری رد تمایل (نه، نمیخوام، تبلیغ، لفت) و خروج آنی بدون معطلی و اتصال به نفر بعدی
   fastDropFarewellText?: string; // متن خداحافظی فوق‌کوتاه و صمیمی قبل از خروج سریع (مثلاً: «اوکی فعلا» یا «باشه موفق باشی»)
 
@@ -501,7 +511,7 @@ export interface AnonymousChatInstructions {
   greetingMode?: 'single' | 'random_list'; // حالت ارسال سلام: تک پیام ثابت یا انتخاب تصادفی از لیست
   greetingDelaySeconds?: number; // تاخیر ارسال پیام سلام پس از اتصال (ثانیه، مثلاً ۰.۵ الی ۵)
   enablePreExitFarewell?: boolean; // ارسال متن خداحافظی دقیقا پس از رسیدن به سقف پیام و قبل از ارسال تبلیغ و خروج
-  preExitFarewellText?: string; // متن پیام خداحافظی مثلاً «خب عزیزم من کار برام پیش اومد باید برم، مراقب خودت باش 🌸»
+  preExitFarewellText?: string; // متن پیام خداحافظی مثلاً «خب من کار برام پیش اومد باید برم مراقب خودت باش»
   preExitFarewells?: string[]; // لیست چندگانه متن‌های خداحافظی برای انتخاب تصادفی
   farewellMode?: 'single' | 'random_list'; // حالت ارسال خداحافظی: تک پیام ثابت یا انتخاب تصادفی از لیست
   farewellDelaySeconds?: number; // تاخیر بین پیام خداحافظی و پیام تبلیغاتی/خروج (ثانیه)
@@ -550,6 +560,9 @@ export interface AnonymousChatSession {
   userMessageCount?: number;
   offerCount?: number;
   supportIdAvailable?: boolean;
+  coinRewarded?: boolean;
+  mediaUnlocked?: boolean;
+  promoBannerSent?: boolean;
   salesState?: string;
   promoSent?: boolean; // مشخص‌کننده اینکه آیا بنر و متن تبلیغاتی کمپین در این چت ارسال شده است یا خیر
   inquiryDetected?: boolean; // آیا مخاطب به تبلیغ علاقه نشان داد یا سوال پرسید؟

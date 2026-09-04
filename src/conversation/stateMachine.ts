@@ -22,7 +22,7 @@ export function transitionConversationState(
   intent: Intent,
   context: ConversationContext,
   maxTurns: number = 4,
-  strategy: ConversationStrategy = 'direct_pitch'
+  strategy: ConversationStrategy = 'social_rapport'
 ): StateTransitionResult {
   const previousState = currentState;
 

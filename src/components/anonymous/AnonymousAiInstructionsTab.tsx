@@ -85,7 +85,10 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [bannerFeedback, setBannerFeedback] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const bannerDirectInputRef = useRef<HTMLInputElement | null>(null);
   const systemPromptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const lastSavedJsonRef = useRef<string>(JSON.stringify(instructions));
   const lastSentSystemPromptRef = useRef<string | null>(null);
@@ -217,45 +220,19 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
     }
   };
 
-  // Synchronize from parent props ONLY when parent changes externally (e.g. bot switch or initial load),
-  // protecting local state from stale parent props during in-flight saves.
+  // Synchronize instructions when changed externally (e.g. from preset load), never overwrite user's in-progress local edits
+  const initialMountDoneRef = useRef(false);
   useEffect(() => {
-    if (isDirty) return;
-
-    const parentPrompt = instructions.systemPrompt || '';
-
-    // If lastSentSystemPromptRef is set, we recently saved a prompt to backend.
-    if (lastSentSystemPromptRef.current !== null) {
-      if (parentPrompt === lastSentSystemPromptRef.current) {
-        // Backend caught up to our last saved prompt
-        lastSentSystemPromptRef.current = null;
-      } else {
-        // Parent is still returning stale prompt before backend catches up, do not revert local state
-        return;
-      }
+    if (!initialMountDoneRef.current) {
+      initialMountDoneRef.current = true;
+      setLocalInstructions(instructions);
+      setRawIgnoredPhrases((instructions.customIgnoredSystemPhrases || []).join(' - '));
+      setRawInappropriateKeywords((instructions.inappropriateKeywords || []).join(' - '));
+      lastSavedJsonRef.current = JSON.stringify(instructions);
+      return;
     }
-
-    setLocalInstructions((prev) => {
-      const parentSaved = Array.isArray(instructions.savedPrompts) ? instructions.savedPrompts : [];
-      const currentSaved = Array.isArray(prev.savedPrompts) ? prev.savedPrompts : [];
-
-      const promptMatches = (prev.systemPrompt || '') === parentPrompt;
-      const savedMatches = JSON.stringify(currentSaved) === JSON.stringify(parentSaved);
-
-      if (promptMatches && (savedMatches || parentSaved.length === 0)) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        ...instructions,
-        savedPrompts: parentSaved.length > 0 ? parentSaved : currentSaved,
-      };
-    });
-    setRawIgnoredPhrases((instructions.customIgnoredSystemPhrases || []).join(' - '));
-    setRawInappropriateKeywords((instructions.inappropriateKeywords || []).join(' - '));
-    setRawSpamBotKeywords((instructions.spamBotKeywords || []).join(' - '));
-  }, [instructions, isDirty]);
+    if (isDirty || isSaving) return;
+  }, [instructions, isDirty, isSaving]);
 
   // Live Auto-Save Effect (Debounced 800ms)
   useEffect(() => {
@@ -285,10 +262,21 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
     value: AnonymousChatInstructions[K]
   ) => {
     setIsDirty(true);
-    setLocalInstructions((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setLocalInstructions((prev) => {
+      let updatedSaved = prev.savedPrompts;
+      if (field === 'systemPrompt' && typeof value === 'string' && loadedPromptId && Array.isArray(prev.savedPrompts)) {
+        updatedSaved = prev.savedPrompts.map((p) =>
+          p.id === loadedPromptId
+            ? { ...p, prompt: value, updatedAt: new Date().toISOString() }
+            : p
+        );
+      }
+      return {
+        ...prev,
+        [field]: value,
+        ...(updatedSaved ? { savedPrompts: updatedSaved } : {}),
+      };
+    });
   };
 
   const updatePromoField = <K extends keyof AnonymousProductPromotion>(
@@ -306,8 +294,18 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
         sendMode: 'send_photo_with_caption_before_exit',
         sendAtMessageNumber: 3,
       };
+
+      let updatedProducts = prev.products;
+      if (field === 'imageUrl' && Array.isArray(prev.products)) {
+        const activeId = prev.activeProductId;
+        updatedProducts = prev.products.map((p) =>
+          p.productId === activeId || p.isActive ? { ...p, bannerImageUrl: (value as string) || '' } : p
+        );
+      }
+
       return {
         ...prev,
+        products: updatedProducts,
         productPromotion: {
           ...currentPromo,
           [field]: value,
@@ -400,7 +398,7 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
 دستورالعمل‌ها:
 ۱. طول هر پیام یا پاسخ کوتاه، روان و طبیعی (۱ الی ۲ جمله کامل، حدود ۴ الی ۱۲ کلمه) باشد.
 ۲. از علائم نگارشی کتابی مثل نقطه در انتهای پیام (.)، علامت تعجب (!)، ویرگول‌های متعدد (،) و گیومه اکیداً خودداری کنید تا حس ربات ندهد.
-۳. در پاسخ به اصل بگویید «ملودی ۲۶ تهران شما چی؟» (سن ۲۶ به صورت عدد باشد و هرگز حروف ننویسید).
+۳. در پاسخ به اصل بگویید «ملودی ۲۶ تهران» (سن ۲۶ به صورت عدد باشد و هرگز حروف ننویسید و از پرسیدن تکراری یا کلیشه‌ای «شما چطور؟» خودداری کنید).
 ۴. حافظه و جلوگیری از تکرار: پیام‌های قبلی چت را در نظر بگیرید و هرگز سوالی را که قبلاً پرسیده‌اید تکرار نکنید.
 ۵. لحن کاملاً خودمانی، صمیمی و روان دخترانه باشد و هرگز نگویید ربات هستید.
 ۶. آیدی پشتیبانی را همیشه بدون علامت @ و با فرمت nova_vpn10 بنویسید.
@@ -583,43 +581,81 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert('حجم فایل عکس نباید بیشتر از ۱۵ مگابایت باشد.');
+      return;
+    }
+
+    setIsUploadingBanner(true);
+    setBannerFeedback('در حال فشرده‌سازی و بارگذاری مستقیم روی سرور...');
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_DIM = 1200;
-        let width = img.width;
-        let height = img.height;
+      img.onload = async () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const MAX_DIM = 1200;
+          let width = img.width;
+          let height = img.height;
 
-        if (width > height) {
-          if (width > MAX_DIM) {
-            height = Math.round((height * MAX_DIM) / width);
-            width = MAX_DIM;
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
           }
-        } else {
-          if (height > MAX_DIM) {
-            width = Math.round((width * MAX_DIM) / height);
-            height = MAX_DIM;
-          }
-        }
 
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressed = canvas.toDataURL('image/jpeg', 0.85);
-          updatePromoField('imageUrl', compressed);
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.85);
+
+            // Send to server
+            const res = await fetch('/api/upload-banner', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                image: compressed,
+                target: 'anonymous',
+                productId: localInstructions.activeProductId,
+              }),
+            });
+
+            const data = await res.json();
+            if (data.success && data.url) {
+              updatePromoField('imageUrl', data.url);
+              setBannerFeedback('عکس بنر با موفقیت روی سرور Google AI Studio و در فایل JSON ذخیره شد ✓');
+            } else {
+              updatePromoField('imageUrl', compressed);
+              setBannerFeedback('عکس بنر بارگذاری شد و در حال ذخیره‌سازی است...');
+            }
+            setTimeout(() => setBannerFeedback(null), 4000);
+          }
+        } catch (err) {
+          console.error('Error uploading image:', err);
+          updatePromoField('imageUrl', event.target?.result as string);
+          setBannerFeedback('عکس بارگذاری شد.');
+          setTimeout(() => setBannerFeedback(null), 3000);
+        } finally {
+          setIsUploadingBanner(false);
         }
       };
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   const promo = localInstructions.productPromotion || {
@@ -943,7 +979,7 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
             <div
               onClick={() => updateStrategy('direct_pitch')}
               className={`p-3.5 rounded-xl border cursor-pointer transition-all space-y-1.5 ${
-                (localInstructions.conversationStrategy || 'direct_pitch') === 'direct_pitch'
+                localInstructions.conversationStrategy === 'direct_pitch'
                   ? 'bg-fuchsia-950/40 border-fuchsia-500 ring-1 ring-fuchsia-500/50 text-white'
                   : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700'
               }`}
@@ -956,7 +992,7 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
                 <input
                   type="radio"
                   name="conversationStrategy"
-                  checked={(localInstructions.conversationStrategy || 'direct_pitch') === 'direct_pitch'}
+                  checked={localInstructions.conversationStrategy === 'direct_pitch'}
                   onChange={() => updateStrategy('direct_pitch')}
                   className="accent-fuchsia-500"
                 />
@@ -997,7 +1033,7 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
             <div
               onClick={() => updateStrategy('social_rapport')}
               className={`p-3.5 rounded-xl border cursor-pointer transition-all space-y-1.5 ${
-                localInstructions.conversationStrategy === 'social_rapport'
+                (localInstructions.conversationStrategy || 'social_rapport') === 'social_rapport'
                   ? 'bg-pink-950/40 border-pink-500 ring-1 ring-pink-500/50 text-white'
                   : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700'
               }`}
@@ -1010,7 +1046,7 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
                 <input
                   type="radio"
                   name="conversationStrategy"
-                  checked={localInstructions.conversationStrategy === 'social_rapport'}
+                  checked={(localInstructions.conversationStrategy || 'social_rapport') === 'social_rapport'}
                   onChange={() => updateStrategy('social_rapport')}
                   className="accent-pink-500"
                 />
@@ -1186,6 +1222,147 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
           isSaving={isSaving}
           savedSuccess={savedSuccess}
         />
+
+        {/* Dedicated Active Product Banner & Photo Box */}
+        <div className="bg-slate-950/70 p-4 sm:p-5 rounded-2xl border border-violet-800/40 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center border border-violet-500/30">
+                <ImageIcon className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs text-white">
+                  عکس و بنر تبلیغاتی محصول فعال در چت ناشناس:
+                </h4>
+                <p className="text-[11px] text-slate-400">
+                  این عکس همراه با پیام تبلیغاتی یا در پایان مکالمه به مخاطب چت ناشناس ارسال می‌شود.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {promo.imageUrl ? (
+                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1">
+                  <Check className="w-3 h-3 text-emerald-400" />
+                  <span>بنر فعال روی سرور و JSON</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
+                  ⚪ بدون بنر تصویری
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Banner Feedback Toast */}
+          {bannerFeedback && (
+            <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span>{bannerFeedback}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Image Preview Window */}
+            <div className="lg:col-span-1 bg-slate-900/90 rounded-xl border border-slate-800 p-3 flex flex-col items-center justify-center min-h-[160px] relative group overflow-hidden">
+              {promo.imageUrl ? (
+                <div className="relative w-full h-full flex flex-col items-center justify-center">
+                  <img
+                    src={promo.imageUrl}
+                    alt="بنر تبلیغاتی"
+                    referrerPolicy="no-referrer"
+                    className="max-h-40 max-w-full rounded-lg object-contain border border-slate-800 shadow"
+                  />
+                  <div className="absolute top-2 left-2 flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updatePromoField('imageUrl', '');
+                        setBannerFeedback('عکس بنر با موفقیت حذف و تنظیمات ذخیره شد ✓');
+                        setTimeout(() => setBannerFeedback(null), 3000);
+                      }}
+                      className="p-1.5 rounded-lg bg-rose-950/90 hover:bg-rose-900 text-rose-300 border border-rose-800/60 shadow transition-all"
+                      title="حذف بنر"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-2 flex-wrap justify-center">
+                    <span className="text-[10px] text-emerald-400 font-medium">✓ عکس فعال</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                      {promo.imageUrl.startsWith('/uploads/') ? '💾 ذخیره دائمی سرور' : '🌐 لینک آنلاین'}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => bannerDirectInputRef.current?.click()}
+                  className="text-center p-4 space-y-2 text-slate-500 cursor-pointer hover:text-violet-400 transition-colors"
+                >
+                  <ImageIcon className="w-10 h-10 mx-auto text-slate-600" />
+                  <p className="text-xs font-semibold text-slate-300">هنوز عکسی برای بنر انتخاب نشده است</p>
+                  <p className="text-[10px] text-slate-500">جهت آپلود مستقیم عکس بنر از دستگاه کلیک کنید</p>
+                </div>
+              )}
+            </div>
+
+            {/* Controls & URL Input */}
+            <div className="lg:col-span-2 space-y-3 flex flex-col justify-between">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 mb-1.5">
+                  <LinkIcon className="w-3.5 h-3.5 text-violet-400" />
+                  آدرس اینترنتی یا مسیر فایل بنر (Image URL / Path):
+                </label>
+                <input
+                  type="text"
+                  value={promo.imageUrl || ''}
+                  onChange={(e) => updatePromoField('imageUrl', e.target.value)}
+                  placeholder="https://example.com/banner.jpg یا /uploads/banner_...jpg"
+                  className="w-full bg-slate-900 border border-slate-800 focus:border-violet-500 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none font-mono text-left"
+                  dir="ltr"
+                />
+              </div>
+
+              <div className="flex items-center gap-2.5 flex-wrap pt-1">
+                <input
+                  type="file"
+                  ref={bannerDirectInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  disabled={isUploadingBanner}
+                  onClick={() => bannerDirectInputRef.current?.click()}
+                  className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{isUploadingBanner ? 'در حال آپلود...' : 'انتخاب و تغییر عکس بنر از حافظه'}</span>
+                </button>
+
+                {promo.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updatePromoField('imageUrl', '');
+                      setBannerFeedback('عکس بنر با موفقیت حذف شد ✓');
+                      setTimeout(() => setBannerFeedback(null), 3000);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-rose-950/60 hover:bg-rose-900 border border-rose-800/50 text-rose-300 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>حذف بنر</span>
+                  </button>
+                )}
+
+                <span className="text-[11px] text-slate-400">
+                  (ذخیره خودکار در هارد سرور Google AI Studio و پشتیبان JSON)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Delivery Strategy & 2-Minute Guard Panel */}
         <div className="bg-slate-950/70 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4">
@@ -1649,7 +1826,7 @@ export const AnonymousAiInstructionsTab: React.FC<AnonymousAiInstructionsTabProp
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                ارسال متنی محترمانه و خودمانی (مثلاً «خب عزیزم من باید برم کاری پیش اومد 🌸») دقیقاً پس از رسیدن به سقف پیام و پیش از ارسال تصویر/متن تبلیغاتی و خروج
+                ارسال متنی محترمانه و خودمانی (مثلاً «خب من باید برم کاری پیش اومد مراقب خودت باش») دقیقاً پس از رسیدن به سقف پیام و پیش از ارسال تصویر/متن تبلیغاتی و خروج
               </p>
             </div>
           </div>

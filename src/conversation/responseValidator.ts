@@ -49,12 +49,29 @@ export function repairIncompleteSentences(text: string): string {
   }
 
   // Remove dangling conjunctions or prepositions left at the very end
-  fixed = fixed.replace(/\s+(که|چون|اگر|برای|تا|به|با|از|رو|در|اما|ولی|یا|و)\s*$/i, '').trim();
+  fixed = fixed.replace(/\s+(که|چون|اگر|اگه|برای|واسه|تا|به|با|از|رو|در|اما|ولی|یا|و)\s*$/i, '').trim();
+
+  // Remove leading dangling conjunctions on split bubbles (e.g. "و تست رایگان داریم" -> "تست رایگان داریم")
+  fixed = fixed.replace(/^(?:و|یا)\s+/i, '').trim();
 
   // Remove dangling commas or trailing colons
   fixed = fixed.replace(/[,،:;\-–—]+$/, '').trim();
 
   return fixed;
+}
+
+/**
+ * Aggressively removes overly affectionate, over-familiar, and cringe vocatives
+ * (عزیزم, جانم, جان, گلم, گل من, فدات, فدات شم, قربونت, عشقم, جیگرم)
+ * when chatting with unfamiliar strangers on Telegram.
+ */
+export function stripAffectionateTerms(text: string): string {
+  if (!text) return '';
+  // Match affectionate words when isolated or preceded/followed by punctuation/spaces/boundaries
+  const pattern = /(?:^|[\s،,؛;:\-–])(?:عزیزم|عزیز دلم|عزیز دل|عزیز جان|عزیز|جانم|جان|گلم|گل من|فدات شم|فدات بشم|فدات|قربونت برم|قربونت بشم|قربونت|عشقم|عشق من|جیگرم|جیگر)(?=[\s،,؛;:\-–!؟?.]|$)/gi;
+  let res = text.replace(pattern, ' ');
+  res = res.replace(pattern, ' '); // Run twice to catch adjacent phrases like "سلام عزیزم گلم"
+  return res.replace(/\s+/g, ' ').trim();
 }
 
 /**
@@ -66,8 +83,20 @@ export function cleanCodeArtifactsAndPunctuation(rawText: string): string {
   if (!rawText) return '';
   let cleaned = rawText;
 
-  // 1. Strip internal system prompt tags and control tokens in all formats
-  cleaned = cleaned.replace(/\[?(?:SEND_PROMO_CARD|PROMO_TRIGGER|PROMO_CARD|SEND PROMO CARD|SEND_PROMO|SEND PROMO|PROMO|ارسال_تبلیغ|ارسال بنر|کپشن عکس|کپشن:)\]?/gi, '');
+  // 1. Strip internal system prompt tags, banner tags, and control tokens in all formats
+  cleaned = cleaned.replace(/\[?\s*(?:SEND_PROMO_BANNER|PROMO_BANNER|SEND_PROMO_CARD|PROMO_TRIGGER|PROMO_CARD|SEND\s+PROMO\s+CARD|SEND_PROMO|SEND\s+PROMO|BANNER|PROMO|ارسال_تبلیغ|ارسال\s*بنر|کپشن\s*عکس|کپشن:?)\s*\]?/gi, ' ');
+  cleaned = cleaned.replace(/[_—–\-\s]*\b(?:BANNER|SEND_PROMO_BANNER|PROMO_BANNER|PROMO_CARD)\b[_—–\-\s]*/gi, ' ');
+  cleaned = cleaned.replace(/[_—–\-]+BANNER[_—–\-]+/gi, ' ');
+  cleaned = cleaned.replace(/(?:^|\s)[_—–\-]*BANNER[_—–\-]*(?:\s|$)/gi, ' ');
+  cleaned = cleaned.replace(/\[?BANNER\]?/gi, ' ');
+
+  // 1.2 Strip AI reasoning, draft prefixes, and option labels
+  cleaned = cleaned.replace(/(?:^|[\n\r]+)\s*(?:پیش[\s‌-]*نویس|نویس|پاسخ|گزینه|پیام|حباب|پیشنهاد|متن|Draft|Option|Response|Message|Bubble)\s*(?:شماره\s*)?[۰-۹\d]+[\s:：\-–—]*/gi, ' ');
+  cleaned = cleaned.replace(/\b(?:پیش[\s‌-]*نویس|نویس)\s+[۰-۹\d]+\s*/gi, ' ');
+
+  // 1.3 Strip English AI chain-of-thought, meta-reasoning, and thinking leakage
+  cleaned = cleaned.replace(/(?:^|[\n\r]+|\b)(?:wait|thinking|thought|reasoning|internal|user\s+asked|the\s+user\s+asked|direct\s+question|as\s+an\s+ai|as\s+a\s+bot|i\s+should|i\s+need\s+to|let\s+me|note\s+that|my\s+response|here\s+is\s+the\s+reply)\b[^\n\r]*[\n\r]*/gi, ' ');
+  cleaned = cleaned.replace(/\b(?:wait|direct\s+question|user\s+asked|specific\s+question)\b/gi, ' ');
 
   // 2. Remove markdown code blocks and inline code formatting
   cleaned = cleaned.replace(/```[\s\S]*?```/g, '');
@@ -80,8 +109,26 @@ export function cleanCodeArtifactsAndPunctuation(rawText: string): string {
   // Clean isolated formatting underscores without breaking handle names like nova_vpn10
   cleaned = cleaned.replace(/(?<![a-zA-Z0-9])_(?![a-zA-Z0-9])|(?<=\s)_(?=\s)|_{2,}/g, ' ');
 
-  // 4. Remove prohibited bot emojis (flower 🌸, roses, sparkles, etc.)
-  cleaned = cleaned.replace(/[🌸🌹✨💐🌺🌷🌻]/g, ' ');
+  // 3.5 Strip non-allowed English words (strictly keep only valid technical tokens like vpn, v2ray, ios, android, nova_vpn10)
+  const ALLOWED_ENGLISH_WORDS = new Set([
+    'vpn', 'v2ray', 'v2rayng', 'vless', 'vmess', 'shadowsocks', 'trojan', 'ssh', 'ping',
+    'ios', 'android', 'windows', 'mac', 'streisand', 'nekoray', 'hiddify', 'singbox', 'sing-box',
+    'outline', 'warp', 'wireguard', 'app', 'bot', 'ip', 'gb', 'mb', 'wifi', 'dns', 'tg', 't.me',
+    'nova_vpn10', 'fastvpnsupport', 'config', 'support', 'online', 'id', 'asl', 'gbps', 'mbps', 'udp', 'tcp'
+  ]);
+
+  // Strip English words that are not in allowed list
+  cleaned = cleaned.replace(/\b[a-zA-Z]{2,}\b/g, (match) => {
+    const lower = match.toLowerCase();
+    if (ALLOWED_ENGLISH_WORDS.has(lower) || lower.startsWith('nova_vpn')) {
+      return match;
+    }
+    return '';
+  });
+
+  // 4. Remove all emojis (sparkles, flowers, faces, etc.)
+  cleaned = cleaned.replace(/[\u{1F300}-\u{1FAFF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, ' ');
+  cleaned = cleaned.replace(/[🌸🌹✨💐🌺🌷🌻❤️🤍💙]/g, ' ');
 
   // 5. Remove @ from telegram handles and normalize nova_vpn10 (strictly no @ and with underscore _)
   cleaned = cleaned.replace(/@([a-zA-Z0-9_]+)/g, '$1');
@@ -117,11 +164,12 @@ export function cleanCodeArtifactsAndPunctuation(rawText: string): string {
     .replace(/بیست\s+ساله/g, '۲۶ ساله')
     .replace(/بیست\s+سالمه/g, '۲۶ سالمه');
 
-  // 10. Remove over-familiar / overly affectionate words (عزیزم, گلم, فدات شم, etc.)
-  cleaned = cleaned
-    .replace(/(?:^|\s)(?:عزیزم|عزیز دلم|گلم|فدات شم|قربونت برم|قربونت بشم)(?:[،,!\s]|$)/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  // 10. Aggressively strip over-familiar / affectionate words (عزیزم, جانم, جان, گلم, فدات, قربونت, etc.)
+  cleaned = stripAffectionateTerms(cleaned);
+
+  // 10.5. Strip robotic textbook clichés like "شما چطور؟", "شما چی؟", "تو چطور؟"
+  // When appended at the end of sentences (e.g. "مرسی خوبم خوشبختم مجردم شما چطور؟" -> "مرسی خوبم خوشبختم مجردم")
+  cleaned = cleaned.replace(/(?:[\n،,؛;\s]+|^)(?:شما\s*چطور\s*[؟?]?|شما\s*چی\s*[؟?]?|تو\s*چطور\s*[؟?]?|شما\s*چطوری\s*[؟?]?|خودت\s*چطور\s*[؟?]?)$/gi, '').trim();
 
   // 11. Clean multi-spaces and redundant whitespace
   cleaned = cleaned.replace(/[ \t]+/g, ' ').trim();
@@ -136,73 +184,241 @@ export function cleanCodeArtifactsAndPunctuation(rawText: string): string {
 }
 
 /**
- * Splits text into natural Telegram chat bubbles.
- * Rule: Human-like chat bursts (micro-bubbles of 3 to 5 words max).
- * Splits on explicit newlines, dash separators, punctuation marks, or conversational conjunctions.
+ * Splits text into natural Telegram chat bubbles respecting Persian syntactic & semantic boundaries.
+ * Guarantees that sentences are NEVER sliced mid-phrase or left with dangling prepositions/particles.
  */
 export function splitIntoNaturalBubbles(
   text: string,
-  maxChunks: number = 4,
-  maxWordsPerBubble: number = 5
+  maxChunks: number = 2,
+  maxWordsPerBubble: number = 8
 ): string[] {
   if (!text) return [];
   const clean = cleanCodeArtifactsAndPunctuation(text).trim();
   if (!clean) return [];
 
-  // 1. Initial split on explicit line breaks, triple dashes, or distinct question/exclamation delimiters
-  const rawSegments = clean
+  // 1. Initial split on explicit line breaks, dash separators, or distinct question/exclamation delimiters
+  const initialSegments = clean
     .split(/\n+|(?:\s*[-–—]{2,}\s*)|(?<=[!؟?])\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  if (rawSegments.length === 0) {
+  if (initialSegments.length === 0) {
     return [clean];
   }
 
-  const effectiveMaxWords = Math.max(3, Math.min(maxWordsPerBubble || 5, 12));
-  const subBubbles: string[] = [];
+  // Persian syntactic and conversational markers
+  const FORBIDDEN_ENDINGS = new Set([
+    'به', 'با', 'از', 'در', 'برای', 'واسه', 'توی', 'روی', 'درگیر', 'تست',
+    'آیدی', 'درباره', 'مثل', 'سر', 'و', 'یا', 'اگر', 'اگه', 'چون', 'تا',
+    'که', 'هم', 'اما', 'ولی', 'بلکه', 'خیلی', 'بیشتر', 'کمتر', 'هر', 'هیچ',
+    'یه', 'یک', 'این', 'اون', 'گوش', 'پیام', 'وصل', 'چت', 'امتحان', 'تماس',
+    'خرید', 'سرگرم', 'نوا', 'وی', 'پی', 'ان', 'همراه', 'ایرانسل', 'گوگل',
+    'اینکه', 'کارم', 'واسم', 'برام', 'جهت', 'طریق'
+  ]);
 
-  for (const seg of rawSegments) {
-    const words = seg.split(/\s+/).filter(Boolean);
+  const FORBIDDEN_STARTS = new Set([
+    'رو', 'را', 'که', 'تا', 'تر', 'ترین', 'کن', 'بده', 'کرد', 'زد', 'میدم',
+    'می‌دم', 'بفرستم', 'هستم', 'باشم', 'بشم', 'میشه', 'می‌شه', 'بشه', 'میکنه',
+    'می‌کنه', 'میکنم', 'می‌کنم', 'می‌بینم', 'میبینم', 'بگیر', 'راه'
+  ]);
 
-    if (words.length <= effectiveMaxWords) {
-      subBubbles.push(seg);
-      continue;
+  const COMPOUND_VERB_PAIRS: [string, string][] = [
+    ['امتحان', 'کن'],
+    ['پیام', 'بده'],
+    ['وصل', 'میشه'],
+    ['وصل', 'می‌شه'],
+    ['وصل', 'بشه'],
+    ['کانفیگ', 'میزنم'],
+    ['چت', 'کنیم'],
+    ['تست', 'بگیر'],
+    ['برات', 'بفرستم'],
+    ['گوش', 'میدم'],
+    ['گوش', 'می‌دم'],
+    ['فیلم', 'می‌بینم'],
+    ['فیلم', 'میبینم'],
+    ['تست', 'کن'],
+    ['سر', 'در'],
+    ['قطعی', 'داره'],
+    ['قطعی', 'داری'],
+    ['وی', 'پی'],
+    ['پی', 'ان'],
+    ['همراه', 'اول'],
+  ];
+
+  const BONUS_ENDINGS = new Set([
+    'مرسی', 'ممنون', 'قربانت', 'فدات', 'خوبم', 'سلام', 'درود', 'جان',
+    'عالی', 'دمت', 'گرم', 'چطوری', 'هستم', 'نیستم', 'شدم', 'کردم', 'بودم',
+    'دارم', 'ندارم', 'میکنم', 'میکنی', 'میشه', 'گفتم', 'میشینم', 'هستی'
+  ]);
+
+  const BONUS_STARTS = new Set([
+    'راستی', 'ولی', 'اما', 'چون', 'اگه', 'پس', 'خب', 'حالا', 'تازه', 'تو', 'شما', 'من'
+  ]);
+
+  const APPROVED_STANDALONE_SHORT = new Set([
+    'سلام', 'سلامتی', 'درود', 'مرسی', 'ممنون', 'خوبم', 'فدات', 'قربانت', 'خوشبختم',
+    'آره', 'اره', 'نه', 'باشه', 'اوکیه', 'اوکی', 'دقیقا', 'اوهوم', 'نوچ', 'ایول', 'عالی', 'چطور', 'چطوری', 'هستی؟', 'هستی'
+  ]);
+
+  // Clause-based natural splitting of a single segment
+  function splitSegmentByClauses(seg: string): string[] {
+    const trimmed = seg.trim();
+    const words = trimmed.split(/\s+/).filter(Boolean);
+
+    // Rule 1: A single cohesive proposition (< 9-10 words) should NEVER be sliced!
+    if (words.length <= Math.max(8, (maxWordsPerBubble || 8) + 2)) {
+      return [trimmed];
     }
 
-    // Try splitting on natural Persian conversational conjunctions or comma pauses
-    const conjunctionSplit = seg
-      .split(/(?<=[،,])\s+|\s+(?:راستی|ولی|اما|چون|اگه|پس)\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    if (conjunctionSplit.length > 1 && conjunctionSplit.every((part) => part.split(/\s+/).length <= effectiveMaxWords * 1.5)) {
-      for (const part of conjunctionSplit) {
-        subBubbles.push(part);
+    // Rule 2: Try splitting on Greeting / Acknowledgement prefix
+    const greetingMatch = trimmed.match(
+      /^(سلام\s+خوبی|سلام\s+چطوری|سلام\s+درود|سلام|منم\s+خوبم|شکر\s+خوبم|خوبم\s+مرسی|قربانت|فدات|مرسی|سلامتی|اره|نه|باشه|ایول)[\s،,]+(.+)$/i
+    );
+    if (greetingMatch && greetingMatch[2]) {
+      const p1 = greetingMatch[1].trim();
+      const p2 = greetingMatch[2].trim();
+      if (p1 && p2 && p2.split(/\s+/).length >= 2) {
+        return [p1, ...splitSegmentByClauses(p2)];
       }
-      continue;
     }
 
-    // Fallback: chunk by words keeping maxWordsPerBubble limit
-    for (let i = 0; i < words.length; i += effectiveMaxWords) {
-      const chunk = words.slice(i, i + effectiveMaxWords).join(' ').trim();
-      if (chunk) {
-        subBubbles.push(chunk);
+    // Rule 3: Try splitting on Conversational Pivots (راستی، ولی، اما، چون، اگه)
+    const pivotMatch = trimmed.match(/^(.+?)[\s،,]+(راستی|ولی|اما|چون|اگه|پس)[\s،,]+(.+)$/i);
+    if (pivotMatch && pivotMatch[1] && pivotMatch[2] && pivotMatch[3]) {
+      const left = pivotMatch[1].trim();
+      const pivot = pivotMatch[2].trim();
+      const right = pivotMatch[3].trim();
+      if (left.split(/\s+/).length >= 2 && right.split(/\s+/).length >= 2) {
+        return [left, `${pivot} ${right}`.trim()];
       }
     }
+
+    // Rule 4: Try splitting on Question Suffix (e.g. توام قطعی داری؟ / تو کجایی؟)
+    const questionSuffixMatch = trimmed.match(
+      /^(.+?)[\s،,]+(توام\s+قطعی\s+داری\s*[؟?]?|واسه\s+توام\s+کنده\s*[؟?]?|تو\s+کجایی\s*[؟?]?|تو\s+چطور\s*[؟?]?|خطت\s+چیه\s*[؟?]?|گوشیت\s+چیه\s*[؟?]?)$/i
+    );
+    if (questionSuffixMatch && questionSuffixMatch[1] && questionSuffixMatch[2]) {
+      const left = questionSuffixMatch[1].trim();
+      const right = questionSuffixMatch[2].trim();
+      if (left.split(/\s+/).length >= 3) {
+        return [left, right];
+      }
+    }
+
+    // Rule 5: Comma pause splitting if both sides have substantial words
+    const commaParts = trimmed.split(/(?<=[،,])\s+/).map((s) => s.trim()).filter(Boolean);
+    if (commaParts.length > 1 && commaParts.every((p) => p.split(/\s+/).length >= 3)) {
+      return commaParts;
+    }
+
+    // Rule 6: Syntactic fallback scoring (only if sentence is genuinely long >= 10 words)
+    let bestK = -1;
+    let bestScore = -9999;
+    const targetMax = Math.max(5, Math.min(maxWordsPerBubble || 8, 9));
+
+    for (let k = Math.min(targetMax, words.length - 2); k >= 3; k--) {
+      let score = 0;
+      const lastWord = words[k - 1];
+      const nextWord = words[k];
+
+      // Absolute grammatical penalties
+      if (FORBIDDEN_ENDINGS.has(lastWord)) score -= 500;
+      if (FORBIDDEN_STARTS.has(nextWord)) score -= 500;
+
+      for (const [w1, w2] of COMPOUND_VERB_PAIRS) {
+        if (lastWord === w1 && nextWord === w2) score -= 500;
+      }
+
+      const remainingLen = words.length - k;
+      if (remainingLen <= 2) score -= 300;
+      else if (remainingLen <= 7) score += 40;
+
+      if (BONUS_ENDINGS.has(lastWord)) score += 80;
+      if (BONUS_STARTS.has(nextWord)) score += 70;
+
+      if (
+        lastWord.endsWith('م') ||
+        lastWord.endsWith('ی') ||
+        lastWord.endsWith('یم') ||
+        lastWord.endsWith('ید') ||
+        lastWord.endsWith('ند')
+      ) {
+        score += 35;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestK = k;
+      }
+    }
+
+    if (bestK > 0 && bestScore > 0) {
+      const c1 = words.slice(0, bestK).join(' ').trim();
+      const c2 = words.slice(bestK).join(' ').trim();
+      if (c1 && c2) return [c1, c2];
+    }
+
+    return [trimmed];
   }
 
+  const rawSubBubbles: string[] = [];
+  for (const part of initialSegments) {
+    const chunks = splitSegmentByClauses(part);
+    rawSubBubbles.push(...chunks);
+  }
+
+  // Post-processing & Invariant Safety:
   const processedBubbles: string[] = [];
-  for (const part of subBubbles) {
-    let cleanedB = repairIncompleteSentences(part);
-    cleanedB = cleanedB.replace(/[\.\:،,!;؛\-–—]+$/g, '').trim();
-    if (cleanedB.length >= 1) {
-      processedBubbles.push(cleanedB);
+  for (let i = 0; i < rawSubBubbles.length; i++) {
+    let part = repairIncompleteSentences(rawSubBubbles[i]);
+    part = part.replace(/[\.\:،,!;؛\-–—]+$/g, '').trim();
+    if (!part) continue;
+
+    // Drop robotic cliché bubbles
+    if (/^(?:شما\s*چطور\s*[؟?]?|شما\s*چی\s*[؟?]?|تو\s*چطور\s*[؟?]?|شما\s*چطوری\s*[؟?]?|خودت\s*چطور\s*[؟?]?)$/i.test(part)) {
+      continue;
     }
+
+    // Drop bubble if it contains only English/Latin words with no Persian letters and is not an allowed handle/token
+    const hasPersian = /[\u0600-\u06FF]/.test(part);
+    const hasAllowedHandleOrToken = /(?:nova_vpn|vpn|v2ray|vless|vmess|ios|android)/i.test(part);
+    if (!hasPersian && !hasAllowedHandleOrToken) {
+      continue;
+    }
+
+    const bWords = part.split(/\s+/).filter(Boolean);
+    const firstWord = bWords[0];
+    const isCurStandalone = APPROVED_STANDALONE_SHORT.has(part) || /[؟?]$/.test(part);
+
+    if (processedBubbles.length > 0) {
+      const prev = processedBubbles[processedBubbles.length - 1];
+      const prevWords = prev.split(/\s+/).filter(Boolean);
+      const prevLastWord = prevWords[prevWords.length - 1];
+
+      const isPrevEndingForbidden = FORBIDDEN_ENDINGS.has(prevLastWord);
+      const isCurStartForbidden = FORBIDDEN_STARTS.has(firstWord);
+      const isCompoundVerbSevered = COMPOUND_VERB_PAIRS.some(
+        ([w1, w2]) => prevLastWord === w1 && firstWord === w2
+      );
+      const isCurOrphan = bWords.length <= 2 && !isCurStandalone;
+
+      if (isPrevEndingForbidden || isCurStartForbidden || isCompoundVerbSevered || isCurOrphan) {
+        processedBubbles[processedBubbles.length - 1] = `${prev} ${part}`.trim();
+        continue;
+      }
+    }
+
+    processedBubbles.push(part);
   }
 
-  const effectiveMaxChunks = Math.max(1, Math.min(maxChunks, 4));
-  return processedBubbles.length > 0 ? processedBubbles.slice(0, effectiveMaxChunks) : [clean];
+  const effectiveMaxChunks = Math.max(1, Math.min(maxChunks || 2, 3));
+  if (processedBubbles.length > effectiveMaxChunks) {
+    const head = processedBubbles.slice(0, effectiveMaxChunks - 1);
+    const tail = processedBubbles.slice(effectiveMaxChunks - 1).join(' ');
+    return [...head, tail];
+  }
+
+  return processedBubbles.length > 0 ? processedBubbles : [clean];
 }
 
 /**
@@ -315,7 +531,7 @@ export function validateAndSanitizeResponse(
   const supportIdRegex = new RegExp(`(@?${effectiveSupportHandle}|@FastVpnSupport|@nova_vpn10|آیدی\\s*پشتیبانی|به\\s*آیدی|پیام\\s*بده\\s*به)`, 'i');
 
   const isSupportIdExposed = supportIdRegex.test(text);
-  const isSupportAllowed = context.supportIdAvailable || context.elapsedSeconds >= 120;
+  const isSupportAllowed = Boolean(context.supportIdAvailable || context.coinRewarded || context.mediaUnlocked || (context.elapsedSeconds || 0) >= 120);
 
   if (isSupportIdExposed && !isSupportAllowed) {
     ruleResults.push({
@@ -389,6 +605,25 @@ export function validateAndSanitizeResponse(
     }
   }
 
+  // 10. Passive Listening Turn Enforcement: Strip questions and ensure minimal natural response
+  if (context.isPassiveListeningTurn) {
+    // Remove questions and interrogatives to cede initiative to the user
+    const questionStripped = text
+      .replace(/[؟?].*$/s, '')
+      .replace(/(?:^|[\s،,؛;])(?:تو چی|شما چی|چیکار میکنی|چیکارا میکنی|روزت چطور بود|دانشجویی|کجایی|اسمت چیه|اهل کجایی|چند سالته).*/gi, '')
+      .trim();
+
+    if (questionStripped.length >= 2) {
+      text = questionStripped;
+    } else {
+      const minimalReactions = ['اوهوم', 'آره والا', 'دقیقا', 'آره واقعا', 'نوچ', 'خوبه', 'درکت می‌کنم'];
+      text = minimalReactions[Math.floor(Math.random() * minimalReactions.length)];
+    }
+  }
+
+  // Ensure affectionate terms are cleanly stripped one more time
+  text = stripAffectionateTerms(text);
+
   return {
     isValid: violations.length === 0,
     sanitizedText: text,
@@ -422,7 +657,7 @@ export function getSafeFallbackText(
   }
 
   if (intent === Intent.SMALL_TALK || intent === Intent.QUESTION || state === ConversationState.EARLY_CONVERSATION) {
-    return 'ملودی ۲۶ تهران شما چی؟';
+    return 'سارا ۲۶ تهران';
   }
 
   if (intent === Intent.VPN_REQUEST || state === ConversationState.PRODUCT_INTEREST) {
@@ -448,7 +683,11 @@ export function getSafeFallbackText(
     return 'وای آره واقعاً اوضاع نت این روزا خیلی اذیت می‌کنه';
   }
 
-  return 'منم خوبم مرسی بیشتر فیلم می‌بینم و آهنگ گوش می‌دم';
+  if (state === ConversationState.QUALIFYING) {
+    return 'شکر خوبم، راستی نتم امروز خیلی کنده توام قطعی داری؟';
+  }
+
+  return 'سلامت باشی، این روزا تلگرامت خوب کار میکنه یا با تاخیر میاد؟';
 }
 
 /**
@@ -468,18 +707,18 @@ export function getAlternativeVariedFallback(
       'درود روز خوبی داشته باشی',
     ],
     [Intent.SMALL_TALK]: [
-      'سرگرم کارامم پای لپ‌تاپم',
-      'بیشتر فیلم می‌بینم آهنگ گوش می‌دم',
-      'مشغول وبگردی و کارهای آنلاینم',
-      'خداروشکر همه چی خوبه و آرومه',
+      'شکر خوبم، راستی نتم امروز کنده توام قطعی داری؟',
+      'سرگرم کارامم، فقط این روزا فیلترینگ کلافم کرده',
+      'مشغول وبگردی‌ام، تلگرامت راحت بالا میاد یا دیر وصل میشه؟',
+      'خداروشکر، راستی فیلترشکن خوب داری استفاده کنی؟',
     ],
     [Intent.GOODBYE]: [
-      'فعلاً مراقب خودت باش',
-      'خوشحال شدم روز خوبی داشته باشی',
-      'خداحافظ به امید دیدار',
+      'باشه حله مراقب خودت باش فعلاً',
+      'خوشحال شدم روزت بخیر',
+      'فعلا به امید دیدار',
     ],
     [Intent.REJECTION]: [
-      'باشه حله مراقب خودت باش فعلا',
+      'باشه حله روزت بخیر',
       'اوکی موفق باشی فعلا',
     ],
     [Intent.PRICE_REQUEST]: [
@@ -489,9 +728,9 @@ export function getAlternativeVariedFallback(
   };
 
   const pool = candidatesByIntent[intent] || [
-    'منم خوبم مرسی بیشتر فیلم می‌بینم و آهنگ گوش می‌دم',
-    'سرگرم کارامم پای لپ‌تاپم',
-    'مشغول کارهای روزمره‌ام هستم',
+    'شکر خوبم، راستی نتم امروز خیلی کنده توام قطعی داری؟',
+    'درکت می‌کنم، این روزا کار با اینترنت واقعاً اعصاب‌خردکن شده',
+    'مشغول کارهای روزمره‌ام، تلگرامت بدون قطعی وصل میشه؟',
   ];
 
   for (const candidate of pool) {

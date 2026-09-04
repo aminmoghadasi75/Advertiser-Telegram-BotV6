@@ -156,7 +156,28 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
           const compressed = canvas.toDataURL('image/jpeg', 0.85);
-          setImageUrl(compressed);
+
+          // Upload to server
+          fetch('/api/upload-banner', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image: compressed,
+              target: 'campaign',
+              campaignId: currentId || activeCampaign?.id,
+            }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success && data.url) {
+                setImageUrl(data.url);
+              } else {
+                setImageUrl(compressed);
+              }
+            })
+            .catch(() => {
+              setImageUrl(compressed);
+            });
         }
       };
       img.onerror = () => {

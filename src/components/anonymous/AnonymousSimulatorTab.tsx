@@ -197,7 +197,7 @@ export const AnonymousSimulatorTab: React.FC<AnonymousSimulatorTabProps> = ({
     rawPromo?.contactHandleOrLink ||
     'nova_vpn10'
   ).replace(/^@/, '');
-  const activeStrategy = (instructions as any).strategy || (instructions as any).conversationStrategy || 'direct_pitch';
+  const activeStrategy = (instructions as any).strategy || (instructions as any).conversationStrategy || 'social_rapport';
   const activePersonaName = (instructions as any).persona?.name || (instructions as any).personaName || (activeStrategy === 'direct_pitch' ? 'پشتیبان فروش و تست' : 'ملودی');
   const activePersonaTone = (instructions as any).persona?.tone || (instructions as any).personaTone || 'بسیار صمیمی، روان، محاوره‌ای و حرفه‌ای';
 
@@ -314,18 +314,18 @@ export const AnonymousSimulatorTab: React.FC<AnonymousSimulatorTabProps> = ({
       return insultResponses[Math.floor(Math.random() * insultResponses.length)];
     }
     if (/(تهران|تهرانی|کجایی|کجا زندگی|اهل کجایی|بچه کجایی|کدوم شهری)/i.test(clean)) {
-      return 'آره عزیزم ساکن تهرانم، شما اهل کجایی؟';
+      return 'آره ساکن تهرانم شما کجایی';
     }
     if (/(اسم|اسمت|نامت|چند سالته|سنت|کی هستی|معرفی)/i.test(clean)) {
-      return `${activePersonaName} هستم ۲۶ سالمه از تهران، شما اسمت چیه؟`;
+      return `${activePersonaName} ۲۶ تهران`;
     }
     if (/(فیلترشکن|وی\s*پی\s*ان|vpn|سرور|تست|خرید|سرعت)/i.test(clean)) {
-      return 'کانفیگ اختصاصی Nova VPN رو استفاده می‌کنم بدون قطعیه، می‌خوای برات تست بفرستم؟';
+      return 'کانفیگ اختصاصی تست رایگان داره';
     }
     if (/(سلام|درود|hi|slm|هلو)/i.test(clean)) {
-      return 'سلام به روی ماهت، خوبی روبراهی؟ چه خبر؟';
+      return 'سلام خوبی روزت چطور بوده؟';
     }
-    return 'آره متوجه شدم، روزت چطور بوده تا الان؟';
+    return 'اوهوم، روزت چطور بوده؟';
   };
 
   // Send accumulated messages to the backend

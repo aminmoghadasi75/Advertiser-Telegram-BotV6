@@ -18,8 +18,10 @@ export function normalizePersianText(input: string): string {
 
   let text = input.trim().toLowerCase();
 
-  // 1. Remove non-printable and invisible control characters
+  // 1. Remove non-printable and invisible control characters, tatweel / kashida (ـ)
   text = text.replace(/[\u200B\u200C\u200D\u200E\u200F\uFEFF\u00A0]/g, ' ');
+  text = text.replace(/[\u0640ـ]/g, ''); // strip tatweel / kashida completely
+  text = text.replace(/[《》【】«»]/g, ' ');
 
   // 2. Standardize Arabic characters to Persian
   text = text

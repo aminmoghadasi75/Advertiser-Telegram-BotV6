@@ -203,23 +203,82 @@ export const AnonymousCampaignsManager: React.FC<AnonymousCampaignsManagerProps>
     showFeedback('کمپین با موفقیت حذف گردید.');
   };
 
-  // Handle local image file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle local image file upload with compression and server-side persistence
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('حجم عکس نباید بیشتر از ۵ مگابایت باشد.');
+    if (file.size > 15 * 1024 * 1024) {
+      alert('حجم عکس نباید بیشتر از ۱۵ مگابایت باشد.');
       return;
     }
 
+    showFeedback('در حال فشرده‌سازی و بارگذاری تصویر روی سرور...');
+
     const reader = new FileReader();
     reader.onload = () => {
-      const result = reader.result as string;
-      handleUpdateCurrentProduct('bannerImageUrl', result);
-      showFeedback('عکس محصول با موفقیت از دستگاه بارگذاری شد.');
+      const img = new Image();
+      img.onload = async () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const MAX_DIM = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.85);
+
+            // Upload directly to server endpoint
+            const res = await fetch('/api/upload-banner', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                image: compressed,
+                target: 'anonymous',
+                productId: editingProduct?.productId,
+              }),
+            });
+
+            const data = await res.json();
+            if (data.success && data.url) {
+              handleUpdateCurrentProduct('bannerImageUrl', data.url);
+              showFeedback('عکس بنر با موفقیت روی سرور Google AI Studio و در فایل پشتیبان JSON ذخیره شد ✓');
+            } else {
+              // Fallback to compressed base64 if server upload fails
+              handleUpdateCurrentProduct('bannerImageUrl', compressed);
+              showFeedback('عکس بنر در تنظیمات قرار گرفت و در حال ذخیره‌سازی است...');
+            }
+
+            if (onSave) {
+              await onSave();
+            }
+          }
+        } catch (err) {
+          console.error('Error uploading banner to server:', err);
+          handleUpdateCurrentProduct('bannerImageUrl', reader.result as string);
+          showFeedback('عکس بنر بارگذاری شد.');
+        }
+      };
+      img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // Plan management
@@ -545,19 +604,30 @@ export const AnonymousCampaignsManager: React.FC<AnonymousCampaignsManagerProps>
                       />
                       <button
                         type="button"
-                        onClick={() => handleUpdateCurrentProduct('bannerImageUrl', '')}
+                        onClick={() => {
+                          handleUpdateCurrentProduct('bannerImageUrl', '');
+                          showFeedback('عکس بنر با موفقیت حذف و تنظیمات ذخیره شد ✓');
+                        }}
                         className="absolute top-1 left-1 p-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/50 shadow transition-all"
                         title="حذف عکس"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
-                      <span className="text-[10px] text-emerald-400 mt-2 font-medium">✓ عکس تنظیم شد</span>
+                      <div className="flex items-center gap-1.5 mt-2 flex-wrap justify-center">
+                        <span className="text-[10px] text-emerald-400 font-medium">✓ عکس تنظیم شد</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                          {editingProduct.bannerImageUrl.startsWith('/uploads/') ? '💾 ذخیره در سرور دیسک' : '🌐 لینک اینترنتی'}
+                        </span>
+                      </div>
                     </div>
                   ) : (
-                    <div className="text-center p-4 space-y-2 text-slate-500">
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-center p-4 space-y-2 text-slate-500 cursor-pointer hover:text-violet-400 transition-colors"
+                    >
                       <ImageIcon className="w-10 h-10 mx-auto text-slate-600" />
-                      <p className="text-xs">عکسی انتخاب نشده است</p>
-                      <p className="text-[10px] text-slate-600">لینک بنر را وارد کرده یا فایل آپلود کنید</p>
+                      <p className="text-xs font-semibold text-slate-300">عکسی انتخاب نشده است</p>
+                      <p className="text-[10px] text-slate-500">برای انتخاب و آپلود مستقیم کلیک کنید</p>
                     </div>
                   )}
                 </div>

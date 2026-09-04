@@ -2,6 +2,7 @@ import {
   ConversationState,
   Intent,
   PromotionLevel,
+  ObjectionCategory,
   ConversationContext,
   AnonymousProductPromotion,
   ConversationStrategy,
@@ -30,7 +31,7 @@ export function evaluatePromotionPolicy(
   context: ConversationContext,
   currentIntent: Intent,
   promotionConfig?: AnonymousProductPromotion,
-  strategy: ConversationStrategy = 'direct_pitch'
+  strategy: ConversationStrategy = 'social_rapport'
 ): PromotionDecision {
   const reasonCodes: string[] = [];
 
@@ -178,6 +179,21 @@ export function evaluatePromotionPolicy(
 
   // 6. Objection Handling (Empathetic Value Proposition / Test Offer)
   if (currentIntent === Intent.OBJECTION || context.state === ConversationState.OBJECTION_HANDLING) {
+    if (context.lastObjectionCategory === ObjectionCategory.IT_PROFESSIONAL) {
+      reasonCodes.push('IT_PROFESSIONAL_DETECTED', 'PROMOTION_LOCK_ACTIVATED');
+      return {
+        allowedLevel: PromotionLevel.NO_PROMOTION,
+        canSendDirectOffer: false,
+        canSendSoftMention: false,
+        canSendBannerPhoto: false,
+        isPromotionLocked: true,
+        isExplicitOverride: false,
+        isSuppressed: true,
+        reasonCodes,
+        reason: 'User is an IT professional or operates their own VPN server. Promotion strictly locked.',
+      };
+    }
+
     reasonCodes.push('OBJECTION_RESOLUTION_MODE', 'SOFT_MENTION_PERMITTED');
     return {
       allowedLevel: PromotionLevel.SOFT_MENTION,

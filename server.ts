@@ -60,6 +60,7 @@ import {
   MAX_COMMERCIAL_LEAD_MESSAGES_LIMIT,
   repairIncompleteSentences,
   cleanCodeArtifactsAndPunctuation,
+  stripAffectionateTerms,
   getAlternativeVariedFallback,
   getSafeFallbackText,
 } from './src/conversation/responseValidator.js';
@@ -159,8 +160,15 @@ const app = express();
 const PORT = 3000;
 
 // Body parser
-app.use(express.json({ limit: '15mb' }));
-app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
+// Static uploads folder for persistent banner images on server
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 // PRODUCTION HEALTH & OBSERVABILITY PROBES
 app.get('/api/health', (req, res) => {
@@ -283,10 +291,20 @@ const defaultAnonymousAutomatorConfig: AnonymousChatAutomatorConfig = {
         'هم‌صحبت شما گفتگو را بست',
         'هم‌صحبت شما چت را بست',
         'کاربر مقابل از چت خارج شد',
+        'مکالمه به پایان رسید',
+        'گفتگو به پایان رسید',
         'مکالمه پایان یافت',
+        'پایان مکالمه',
         'چت بسته شد',
+        'مکالمه بسته شد',
         'قطع شد',
         'لفت داد',
+        'برای شروع چت بصورت ناشناس',
+        'برای شروع چت',
+        'جستجوی شانسی',
+        'همین الان برای شروع چت',
+        'به یه ناشناس وصلم کن',
+        'سکه رایگان هدیه بگیر',
       ],
       notInChatKeywords: [
         'متوجه نشدم',
@@ -297,6 +315,11 @@ const defaultAnonymousAutomatorConfig: AnonymousChatAutomatorConfig = {
         'برای شروع از دکمه',
         'منوی اصلی',
         'پیام شما متوجه نشدم',
+        'برای شروع چت بصورت ناشناس',
+        'برای شروع چت',
+        'جستجوی شانسی',
+        'همین الان برای شروع چت',
+        'به یه ناشناس وصلم کن',
       ],
       alreadyInChatKeywords: [
         'هم اکنون شما در حال چت هستید',
@@ -429,7 +452,7 @@ const defaultAnonymousAutomatorConfig: AnonymousChatAutomatorConfig = {
 ══════════════════════════════════════════════
 [ماتریس حالات و رفتارهای مکالمه (State Machine Guidelines S1-S15)]:
 - وضعیت S1 (سلام و شروع): احوال‌پرسی گرم و کوتاه (مثلاً: سلام خوبی چه خبر).
-- وضعیت S2 (تبادل اصل/سن/شهر): «ملودی ۲۶ تهران شما چی؟» (حتماً سن ۲۶ به صورت عدد).
+- وضعیت S2 (تبادل اصل/سن/شهر): «ملودی ۲۶ تهران» (حتماً سن ۲۶ به صورت عدد و بدون کلیشه‌های تکراری مثل شما چطور/شما چی).
 - وضعیت S3 (گپ کوتاه روزمره): صحبت درباره روزمرگی و کارهای امروز در پیام‌های روان و کوتاه.
 - وضعیت S4 (پل ارتباطی ملایم): اشاره کوتاه به وضعیت اینترنت یا کار با گوشی.
 - وضعیت S5 (معرفی نرم / سطح ۱): اشاره گذرا به فیلترشکن خوب بدون فشار فروش.
@@ -459,7 +482,7 @@ const defaultAnonymousAutomatorConfig: AnonymousChatAutomatorConfig = {
 ۵. آیدی پشتیبانی را همیشه بدون کاراکتر @ و با آندرلاین بنویسید: nova_vpn10.
 ۶. در ابتدای مکالمه کلمات یا حروف انگلیسی نفرستید.
 ۷. بدون هیچ‌گونه پیشوند مانند «ملودی:» یا «سارا:» یا علامت نقل‌قول پاسخ دهید.`,
-    maxMessagesPerChat: 4,
+    maxMessagesPerChat: 12,
     memoryWindowSize: 10,
     enforceSessionIsolation: true,
     extractPartnerProfileInfo: true,
@@ -592,8 +615,10 @@ export function getActiveProduct(instructions?: AnonymousChatInstructions): Prod
   return products[0] || DEFAULT_PRODUCT_CONFIG;
 }
 
-function normalizeAnonymousAutomatorConfig(incoming: any): AnonymousChatAutomatorConfig {
-  const baseInst = defaultAnonymousAutomatorConfig.instructions;
+function normalizeAnonymousAutomatorConfig(incoming: any, baseState?: AnonymousChatAutomatorConfig): AnonymousChatAutomatorConfig {
+  const current = baseState || appState?.anonymousAutomator || defaultAnonymousAutomatorConfig;
+  const baseInst = current?.instructions || defaultAnonymousAutomatorConfig.instructions;
+  const defaultBaseInst = defaultAnonymousAutomatorConfig.instructions;
   const incInst = incoming?.instructions || {};
 
   // Normalize products catalog - only keep what user entered, filter out mock/sample items
@@ -601,9 +626,9 @@ function normalizeAnonymousAutomatorConfig(incoming: any): AnonymousChatAutomato
     ? incInst.products
     : (Array.isArray(incoming?.products)
       ? incoming.products
-      : (Array.isArray(appState?.anonymousAutomator?.instructions?.products)
-        ? appState.anonymousAutomator.instructions.products
-        : (Array.isArray(appState?.anonymousAutomator?.products) ? appState.anonymousAutomator.products : [])));
+      : (Array.isArray(current?.instructions?.products)
+        ? current.instructions.products
+        : (Array.isArray(current?.products) ? current.products : [])));
 
   const userProducts = rawProducts.filter((p: any) => p && !isMockCampaign(p));
 
@@ -652,7 +677,7 @@ function normalizeAnonymousAutomatorConfig(incoming: any): AnonymousChatAutomato
     updatedAt: p.updatedAt || new Date().toISOString(),
   }));
 
-  const activeProductId = incInst.activeProductId || incoming?.activeProductId || normalizedProducts.find(p => p.isActive && !p.isArchived)?.productId || normalizedProducts[0]?.productId || '';
+  const activeProductId = incInst.activeProductId || incoming?.activeProductId || current?.activeProductId || current?.instructions?.activeProductId || normalizedProducts.find(p => p.isActive && !p.isArchived)?.productId || normalizedProducts[0]?.productId || '';
 
   // Mark isActive strictly on the selected active product
   normalizedProducts.forEach(p => {
@@ -662,7 +687,7 @@ function normalizeAnonymousAutomatorConfig(incoming: any): AnonymousChatAutomato
   const activeProduct = normalizedProducts.find(p => p.productId === activeProductId) || normalizedProducts[0] || DEFAULT_PRODUCT_CONFIG;
 
   const incPromo = incInst.productPromotion || incoming?.productPromotion || {};
-  const basePromo = baseInst.productPromotion || {
+  const currentPromo = current?.instructions?.productPromotion || baseInst.productPromotion || {
     enabled: false,
     productName: activeProduct.productName || '',
     productDescription: activeProduct.productDescription || '',
@@ -672,67 +697,83 @@ function normalizeAnonymousAutomatorConfig(incoming: any): AnonymousChatAutomato
     sendAtMessageNumber: 3,
   };
 
+  const finalBannerUrl = typeof incPromo.imageUrl === 'string'
+    ? incPromo.imageUrl
+    : (typeof activeProduct.bannerImageUrl === 'string' ? activeProduct.bannerImageUrl : (currentPromo?.imageUrl || ''));
+
+  // Ensure active product and promotion always share the same banner image URL
+  activeProduct.bannerImageUrl = finalBannerUrl;
+
   const mergedPromo: AnonymousProductPromotion = {
-    enabled: incPromo.enabled !== undefined ? Boolean(incPromo.enabled) : (basePromo.enabled ?? false),
-    productName: typeof incPromo.productName === 'string' && incPromo.productName.trim() ? incPromo.productName : activeProduct.productName,
-    productDescription: typeof incPromo.productDescription === 'string' && incPromo.productDescription.trim() ? incPromo.productDescription : activeProduct.productDescription,
-    imageUrl: typeof incPromo.imageUrl === 'string' && incPromo.imageUrl.trim() ? incPromo.imageUrl : (activeProduct.bannerImageUrl || ''),
-    contactHandleOrLink: typeof incPromo.contactHandleOrLink === 'string' && incPromo.contactHandleOrLink.trim() ? incPromo.contactHandleOrLink : (activeProduct.support?.handle || ''),
-    sendMode: incPromo.sendMode || basePromo.sendMode || 'send_photo_with_caption_before_exit',
-    sendAtMessageNumber: typeof incPromo.sendAtMessageNumber === 'number' ? incPromo.sendAtMessageNumber : (basePromo.sendAtMessageNumber ?? 3),
-    aiSendBannerWithPitch: incPromo.aiSendBannerWithPitch !== undefined ? Boolean(incPromo.aiSendBannerWithPitch) : true,
-    faqItems: Array.isArray(incPromo.faqItems) && incPromo.faqItems.length > 0 ? incPromo.faqItems : (activeProduct.faqItems || []).map(f => ({ id: f.id, question: f.question, answer: f.answer, keywords: f.keywords })),
-    knowledgeBaseText: typeof incPromo.knowledgeBaseText === 'string' && incPromo.knowledgeBaseText.trim() ? incPromo.knowledgeBaseText : (activeProduct.knowledgeBaseText || ''),
+    enabled: incPromo.enabled !== undefined ? Boolean(incPromo.enabled) : (currentPromo?.enabled ?? false),
+    productName: typeof incPromo.productName === 'string' && incPromo.productName.trim() ? incPromo.productName : (currentPromo?.productName || activeProduct.productName),
+    productDescription: typeof incPromo.productDescription === 'string' && incPromo.productDescription.trim() ? incPromo.productDescription : (currentPromo?.productDescription || activeProduct.productDescription),
+    imageUrl: finalBannerUrl,
+    contactHandleOrLink: typeof incPromo.contactHandleOrLink === 'string' && incPromo.contactHandleOrLink.trim() ? incPromo.contactHandleOrLink : (currentPromo?.contactHandleOrLink || activeProduct.support?.handle || ''),
+    sendMode: incPromo.sendMode || currentPromo?.sendMode || 'send_photo_with_caption_before_exit',
+    sendAtMessageNumber: typeof incPromo.sendAtMessageNumber === 'number' ? incPromo.sendAtMessageNumber : (currentPromo?.sendAtMessageNumber ?? 3),
+    aiSendBannerWithPitch: incPromo.aiSendBannerWithPitch !== undefined ? Boolean(incPromo.aiSendBannerWithPitch) : (currentPromo?.aiSendBannerWithPitch ?? true),
+    faqItems: Array.isArray(incPromo.faqItems) && incPromo.faqItems.length > 0 ? incPromo.faqItems : (currentPromo?.faqItems || (activeProduct.faqItems || []).map(f => ({ id: f.id, question: f.question, answer: f.answer, keywords: f.keywords }))),
+    knowledgeBaseText: typeof incPromo.knowledgeBaseText === 'string' && incPromo.knowledgeBaseText.trim() ? incPromo.knowledgeBaseText : (currentPromo?.knowledgeBaseText || activeProduct.knowledgeBaseText || ''),
   };
 
   const mergedInstructions: AnonymousChatInstructions = {
-    systemPrompt: typeof incInst.systemPrompt === 'string' ? incInst.systemPrompt : baseInst.systemPrompt,
+    ...defaultBaseInst,
+    ...(baseInst || {}),
+    ...incInst,
+    systemPrompt: typeof incInst.systemPrompt === 'string' ? incInst.systemPrompt : (baseInst?.systemPrompt ?? defaultBaseInst.systemPrompt),
     savedPrompts: Array.isArray(incInst.savedPrompts)
       ? incInst.savedPrompts
-      : (Array.isArray(appState?.anonymousAutomator?.instructions?.savedPrompts)
-        ? appState.anonymousAutomator.instructions.savedPrompts
-        : (Array.isArray(baseInst.savedPrompts) ? baseInst.savedPrompts : [])),
-    maxMessagesPerChat: typeof incInst.maxMessagesPerChat === 'number' ? incInst.maxMessagesPerChat : baseInst.maxMessagesPerChat,
-    maxBotMessages: typeof incInst.maxBotMessages === 'number' ? incInst.maxBotMessages : baseInst.maxBotMessages,
-    autoExitOnPartnerBye: incInst.autoExitOnPartnerBye !== undefined ? Boolean(incInst.autoExitOnPartnerBye) : (baseInst.autoExitOnPartnerBye ?? true),
-    memoryWindowSize: typeof incInst.memoryWindowSize === 'number' ? incInst.memoryWindowSize : (baseInst.memoryWindowSize || 10),
-    enforceSessionIsolation: incInst.enforceSessionIsolation !== undefined ? Boolean(incInst.enforceSessionIsolation) : (baseInst.enforceSessionIsolation ?? true),
-    extractPartnerProfileInfo: incInst.extractPartnerProfileInfo !== undefined ? Boolean(incInst.extractPartnerProfileInfo) : (baseInst.extractPartnerProfileInfo ?? true),
-    dynamicSessionStatePrompt: incInst.dynamicSessionStatePrompt !== undefined ? Boolean(incInst.dynamicSessionStatePrompt) : (baseInst.dynamicSessionStatePrompt ?? true),
+      : (Array.isArray(baseInst?.savedPrompts)
+        ? baseInst.savedPrompts
+        : (Array.isArray(defaultBaseInst.savedPrompts) ? defaultBaseInst.savedPrompts : [])),
+    conversationStrategy: incInst.conversationStrategy || baseInst?.conversationStrategy || 'social_rapport',
+    persona: incInst.persona || baseInst?.persona || defaultBaseInst.persona,
+    maxMessagesPerChat: typeof incInst.maxMessagesPerChat === 'number' ? incInst.maxMessagesPerChat : (baseInst?.maxMessagesPerChat ?? defaultBaseInst.maxMessagesPerChat),
+    maxBotMessages: typeof incInst.maxBotMessages === 'number' ? incInst.maxBotMessages : (baseInst?.maxBotMessages ?? defaultBaseInst.maxBotMessages),
+    autoExitOnPartnerBye: incInst.autoExitOnPartnerBye !== undefined ? Boolean(incInst.autoExitOnPartnerBye) : (baseInst?.autoExitOnPartnerBye ?? defaultBaseInst.autoExitOnPartnerBye ?? true),
+    memoryWindowSize: typeof incInst.memoryWindowSize === 'number' ? incInst.memoryWindowSize : (baseInst?.memoryWindowSize ?? defaultBaseInst.memoryWindowSize ?? 10),
+    enforceSessionIsolation: incInst.enforceSessionIsolation !== undefined ? Boolean(incInst.enforceSessionIsolation) : (baseInst?.enforceSessionIsolation ?? defaultBaseInst.enforceSessionIsolation ?? true),
+    extractPartnerProfileInfo: incInst.extractPartnerProfileInfo !== undefined ? Boolean(incInst.extractPartnerProfileInfo) : (baseInst?.extractPartnerProfileInfo ?? defaultBaseInst.extractPartnerProfileInfo ?? true),
+    dynamicSessionStatePrompt: incInst.dynamicSessionStatePrompt !== undefined ? Boolean(incInst.dynamicSessionStatePrompt) : (baseInst?.dynamicSessionStatePrompt ?? defaultBaseInst.dynamicSessionStatePrompt ?? true),
     
     // Multi-bubble
-    enableMultiBubble: incInst.enableMultiBubble !== undefined ? Boolean(incInst.enableMultiBubble) : (baseInst.enableMultiBubble ?? true),
-    multiBubbleMaxChunks: typeof incInst.multiBubbleMaxChunks === 'number' ? incInst.multiBubbleMaxChunks : (baseInst.multiBubbleMaxChunks || 2),
-    multiBubbleDelaySeconds: typeof incInst.multiBubbleDelaySeconds === 'number' ? incInst.multiBubbleDelaySeconds : (baseInst.multiBubbleDelaySeconds || 1.5),
+    enableMultiBubble: incInst.enableMultiBubble !== undefined ? Boolean(incInst.enableMultiBubble) : (baseInst?.enableMultiBubble ?? defaultBaseInst.enableMultiBubble ?? true),
+    multiBubbleMaxChunks: typeof incInst.multiBubbleMaxChunks === 'number' ? incInst.multiBubbleMaxChunks : (baseInst?.multiBubbleMaxChunks ?? defaultBaseInst.multiBubbleMaxChunks ?? 2),
+    maxWordsPerBubble: typeof incInst.maxWordsPerBubble === 'number' ? incInst.maxWordsPerBubble : (baseInst?.maxWordsPerBubble ?? (defaultBaseInst as any)?.maxWordsPerBubble ?? 5),
+    multiBubbleDelaySeconds: typeof incInst.multiBubbleDelaySeconds === 'number' ? incInst.multiBubbleDelaySeconds : (baseInst?.multiBubbleDelaySeconds ?? defaultBaseInst.multiBubbleDelaySeconds ?? 1.5),
 
     // Dynamic Typing Speed
-    dynamicTypingSpeed: incInst.dynamicTypingSpeed !== undefined ? Boolean(incInst.dynamicTypingSpeed) : (baseInst.dynamicTypingSpeed ?? true),
-    typingSpeedMsPerChar: typeof incInst.typingSpeedMsPerChar === 'number' ? incInst.typingSpeedMsPerChar : (baseInst.typingSpeedMsPerChar || 35),
-    minTypingDelaySeconds: typeof incInst.minTypingDelaySeconds === 'number' ? incInst.minTypingDelaySeconds : (baseInst.minTypingDelaySeconds || 1.0),
-    maxTypingDelaySeconds: typeof incInst.maxTypingDelaySeconds === 'number' ? incInst.maxTypingDelaySeconds : (baseInst.maxTypingDelaySeconds || 6.0),
+    dynamicTypingSpeed: incInst.dynamicTypingSpeed !== undefined ? Boolean(incInst.dynamicTypingSpeed) : (baseInst?.dynamicTypingSpeed ?? defaultBaseInst.dynamicTypingSpeed ?? true),
+    typingSpeedMsPerChar: typeof incInst.typingSpeedMsPerChar === 'number' ? incInst.typingSpeedMsPerChar : (baseInst?.typingSpeedMsPerChar ?? defaultBaseInst.typingSpeedMsPerChar ?? 35),
+    minTypingDelaySeconds: typeof incInst.minTypingDelaySeconds === 'number' ? incInst.minTypingDelaySeconds : (baseInst?.minTypingDelaySeconds ?? defaultBaseInst.minTypingDelaySeconds ?? 1.0),
+    maxTypingDelaySeconds: typeof incInst.maxTypingDelaySeconds === 'number' ? incInst.maxTypingDelaySeconds : (baseInst?.maxTypingDelaySeconds ?? defaultBaseInst.maxTypingDelaySeconds ?? 6.0),
 
     // Spam / Bot Skip
-    autoSkipSpamBots: incInst.autoSkipSpamBots !== undefined ? Boolean(incInst.autoSkipSpamBots) : (baseInst.autoSkipSpamBots ?? true),
-    spamBotKeywords: Array.isArray(incInst.spamBotKeywords) && incInst.spamBotKeywords.length > 0 ? incInst.spamBotKeywords : (baseInst.spamBotKeywords || []),
+    autoSkipSpamBots: incInst.autoSkipSpamBots !== undefined ? Boolean(incInst.autoSkipSpamBots) : (baseInst?.autoSkipSpamBots ?? defaultBaseInst.autoSkipSpamBots ?? true),
+    spamBotKeywords: Array.isArray(incInst.spamBotKeywords) ? incInst.spamBotKeywords : (baseInst?.spamBotKeywords || defaultBaseInst.spamBotKeywords || []),
 
-    initiateGreetingOnConnect: incInst.initiateGreetingOnConnect !== undefined ? Boolean(incInst.initiateGreetingOnConnect) : baseInst.initiateGreetingOnConnect,
-    initialGreetingText: typeof incInst.initialGreetingText === 'string' ? incInst.initialGreetingText : baseInst.initialGreetingText,
-    initialGreetings: Array.isArray(incInst.initialGreetings) && incInst.initialGreetings.length > 0 ? incInst.initialGreetings : baseInst.initialGreetings,
-    greetingMode: incInst.greetingMode || baseInst.greetingMode,
-    greetingDelaySeconds: typeof incInst.greetingDelaySeconds === 'number' ? incInst.greetingDelaySeconds : baseInst.greetingDelaySeconds,
-    enablePreExitFarewell: incInst.enablePreExitFarewell !== undefined ? Boolean(incInst.enablePreExitFarewell) : baseInst.enablePreExitFarewell,
-    preExitFarewellText: typeof incInst.preExitFarewellText === 'string' ? incInst.preExitFarewellText : baseInst.preExitFarewellText,
-    preExitFarewells: Array.isArray(incInst.preExitFarewells) && incInst.preExitFarewells.length > 0 ? incInst.preExitFarewells : baseInst.preExitFarewells,
-    farewellMode: incInst.farewellMode || baseInst.farewellMode,
-    farewellDelaySeconds: typeof incInst.farewellDelaySeconds === 'number' ? incInst.farewellDelaySeconds : baseInst.farewellDelaySeconds,
-    sendPromoBeforeExitAlways: incInst.sendPromoBeforeExitAlways !== undefined ? Boolean(incInst.sendPromoBeforeExitAlways) : baseInst.sendPromoBeforeExitAlways,
-    replyDelaySeconds: typeof incInst.replyDelaySeconds === 'number' ? incInst.replyDelaySeconds : baseInst.replyDelaySeconds,
-    messageAggregationDelaySeconds: typeof incInst.messageAggregationDelaySeconds === 'number' ? incInst.messageAggregationDelaySeconds : baseInst.messageAggregationDelaySeconds,
-    silenceTimeoutSeconds: typeof incInst.silenceTimeoutSeconds === 'number' ? incInst.silenceTimeoutSeconds : baseInst.silenceTimeoutSeconds,
-    enableSilenceNudge: incInst.enableSilenceNudge !== undefined ? Boolean(incInst.enableSilenceNudge) : baseInst.enableSilenceNudge,
-    silenceNudgeText: typeof incInst.silenceNudgeText === 'string' ? incInst.silenceNudgeText : baseInst.silenceNudgeText,
-    inappropriateKeywords: Array.isArray(incInst.inappropriateKeywords) ? incInst.inappropriateKeywords : baseInst.inappropriateKeywords,
-    customIgnoredSystemPhrases: Array.isArray(incInst.customIgnoredSystemPhrases) ? incInst.customIgnoredSystemPhrases : baseInst.customIgnoredSystemPhrases,
+    initiateGreetingOnConnect: incInst.initiateGreetingOnConnect !== undefined ? Boolean(incInst.initiateGreetingOnConnect) : (baseInst?.initiateGreetingOnConnect ?? defaultBaseInst.initiateGreetingOnConnect ?? true),
+    initialGreetingText: typeof incInst.initialGreetingText === 'string' ? incInst.initialGreetingText : (baseInst?.initialGreetingText ?? defaultBaseInst.initialGreetingText),
+    initialGreetings: Array.isArray(incInst.initialGreetings) ? incInst.initialGreetings : (baseInst?.initialGreetings || defaultBaseInst.initialGreetings),
+    greetingMode: incInst.greetingMode || baseInst?.greetingMode || defaultBaseInst.greetingMode || 'single',
+    greetingDelaySeconds: typeof incInst.greetingDelaySeconds === 'number' ? incInst.greetingDelaySeconds : (baseInst?.greetingDelaySeconds ?? defaultBaseInst.greetingDelaySeconds ?? 0.8),
+    enablePreExitFarewell: incInst.enablePreExitFarewell !== undefined ? Boolean(incInst.enablePreExitFarewell) : (baseInst?.enablePreExitFarewell ?? defaultBaseInst.enablePreExitFarewell ?? true),
+    preExitFarewellText: typeof incInst.preExitFarewellText === 'string' ? incInst.preExitFarewellText : (baseInst?.preExitFarewellText ?? defaultBaseInst.preExitFarewellText),
+    preExitFarewells: Array.isArray(incInst.preExitFarewells) ? incInst.preExitFarewells : (baseInst?.preExitFarewells || defaultBaseInst.preExitFarewells),
+    farewellMode: incInst.farewellMode || baseInst?.farewellMode || defaultBaseInst.farewellMode || 'single',
+    farewellDelaySeconds: typeof incInst.farewellDelaySeconds === 'number' ? incInst.farewellDelaySeconds : (baseInst?.farewellDelaySeconds ?? defaultBaseInst.farewellDelaySeconds ?? 1.0),
+    fastDropOnRejection: incInst.fastDropOnRejection !== undefined ? Boolean(incInst.fastDropOnRejection) : (baseInst?.fastDropOnRejection ?? true),
+    fastDropFarewellText: typeof incInst.fastDropFarewellText === 'string' ? incInst.fastDropFarewellText : (baseInst?.fastDropFarewellText || 'اوکی فعلا'),
+    sendPromoBeforeExitAlways: incInst.sendPromoBeforeExitAlways !== undefined ? Boolean(incInst.sendPromoBeforeExitAlways) : (baseInst?.sendPromoBeforeExitAlways ?? defaultBaseInst.sendPromoBeforeExitAlways ?? true),
+    replyDelaySeconds: typeof incInst.replyDelaySeconds === 'number' ? incInst.replyDelaySeconds : (baseInst?.replyDelaySeconds ?? defaultBaseInst.replyDelaySeconds ?? 1.5),
+    messageAggregationDelaySeconds: typeof incInst.messageAggregationDelaySeconds === 'number' ? incInst.messageAggregationDelaySeconds : (baseInst?.messageAggregationDelaySeconds ?? defaultBaseInst.messageAggregationDelaySeconds ?? 1.5),
+    silenceTimeoutSeconds: typeof incInst.silenceTimeoutSeconds === 'number' ? incInst.silenceTimeoutSeconds : (baseInst?.silenceTimeoutSeconds ?? defaultBaseInst.silenceTimeoutSeconds ?? 30),
+    enableSilenceNudge: incInst.enableSilenceNudge !== undefined ? Boolean(incInst.enableSilenceNudge) : (baseInst?.enableSilenceNudge ?? defaultBaseInst.enableSilenceNudge ?? true),
+    silenceNudgeText: typeof incInst.silenceNudgeText === 'string' ? incInst.silenceNudgeText : (baseInst?.silenceNudgeText || defaultBaseInst.silenceNudgeText || 'هستی؟'),
+    inappropriateKeywords: Array.isArray(incInst.inappropriateKeywords) ? incInst.inappropriateKeywords : (baseInst?.inappropriateKeywords || defaultBaseInst.inappropriateKeywords),
+    customIgnoredSystemPhrases: Array.isArray(incInst.customIgnoredSystemPhrases) ? incInst.customIgnoredSystemPhrases : (baseInst?.customIgnoredSystemPhrases || defaultBaseInst.customIgnoredSystemPhrases),
+    antiFilterHandleFormat: incInst.antiFilterHandleFormat || baseInst?.antiFilterHandleFormat || 'plain',
     productPromotion: mergedPromo,
     products: normalizedProducts,
     activeProductId,
@@ -740,7 +781,9 @@ function normalizeAnonymousAutomatorConfig(incoming: any): AnonymousChatAutomato
 
   const rawBots = Array.isArray(incoming?.bots) && incoming.bots.length > 0
     ? incoming.bots
-    : defaultAnonymousAutomatorConfig.bots;
+    : (Array.isArray(current?.bots) && current.bots.length > 0
+      ? current.bots
+      : defaultAnonymousAutomatorConfig.bots);
 
   const normalizedBots: AnonymousBotProfile[] = rawBots.map((b: any) => {
     const isHyperGap = b.id === 'bot_hypergap' || (b.botUsername || '').toLowerCase().includes('hypergap');
@@ -821,23 +864,24 @@ function normalizeAnonymousAutomatorConfig(incoming: any): AnonymousChatAutomato
     };
   });
 
-  const selBotId = incoming?.selectedBotId && normalizedBots.some((b) => b.id === incoming.selectedBotId)
-    ? incoming.selectedBotId
-    : normalizedBots[0]?.id || 'bot_hypergap';
+  const candidateBotId = incoming?.selectedBotId || current?.selectedBotId;
+  const selBotId = (candidateBotId && normalizedBots.some((b) => b.id === candidateBotId))
+    ? candidateBotId
+    : (normalizedBots[0]?.id || 'bot_hypergap');
 
   return {
-    isActive: Boolean(incoming?.isActive),
+    isActive: incoming?.isActive !== undefined ? Boolean(incoming.isActive) : Boolean(current?.isActive),
     selectedBotId: selBotId,
     bots: normalizedBots,
     instructions: mergedInstructions,
     products: normalizedProducts,
     activeProductId,
-    loopForever: incoming?.loopForever !== undefined ? Boolean(incoming.loopForever) : true,
-    cooldownBetweenChatsSeconds: typeof incoming?.cooldownBetweenChatsSeconds === 'number' ? incoming.cooldownBetweenChatsSeconds : 3,
+    loopForever: incoming?.loopForever !== undefined ? Boolean(incoming.loopForever) : (current?.loopForever ?? true),
+    cooldownBetweenChatsSeconds: typeof incoming?.cooldownBetweenChatsSeconds === 'number' ? incoming.cooldownBetweenChatsSeconds : (current?.cooldownBetweenChatsSeconds ?? 3),
     stats: {
-      totalChatsInitiated: Number(incoming?.stats?.totalChatsInitiated) || 0,
-      totalRepliesFromStrangers: Number(incoming?.stats?.totalRepliesFromStrangers) || 0,
-      lastActiveAt: incoming?.stats?.lastActiveAt || undefined,
+      totalChatsInitiated: incoming?.stats?.totalChatsInitiated !== undefined ? Number(incoming.stats.totalChatsInitiated) : (current?.stats?.totalChatsInitiated || 0),
+      totalRepliesFromStrangers: incoming?.stats?.totalRepliesFromStrangers !== undefined ? Number(incoming.stats.totalRepliesFromStrangers) : (current?.stats?.totalRepliesFromStrangers || 0),
+      lastActiveAt: incoming?.stats?.lastActiveAt || current?.stats?.lastActiveAt || undefined,
     },
   };
 }
@@ -1668,6 +1712,83 @@ app.post('/api/save-all', (req, res) => {
   });
 });
 
+// 1b. Dedicated Banner Upload & Storage Endpoint (ذخیره مستقیم بنر روی سرور و JSON)
+app.post('/api/upload-banner', (req, res) => {
+  try {
+    const { image, target, productId, campaignId } = req.body;
+    if (!image || typeof image !== 'string') {
+      return res.status(400).json({ success: false, message: 'داده تصویر نامعتبر یا خالی است.' });
+    }
+
+    let publicUrl = image;
+
+    // If it is a base64 Data URL, extract buffer and save to server /uploads folder
+    if (image.startsWith('data:image') || image.includes(';base64,')) {
+      let ext = '.jpg';
+      if (image.includes('image/png')) ext = '.png';
+      else if (image.includes('image/webp')) ext = '.webp';
+      else if (image.includes('image/gif')) ext = '.gif';
+
+      const base64Data = image.includes(';base64,') ? image.split(';base64,')[1] : image.split(',')[1];
+      const buffer = Buffer.from(base64Data, 'base64');
+      const uniqueFilename = `banner_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
+      const filePath = path.join(UPLOADS_DIR, uniqueFilename);
+      fs.writeFileSync(filePath, buffer);
+      publicUrl = `/uploads/${uniqueFilename}`;
+    }
+
+    // Apply to Anonymous Automator state
+    if (productId && appState.anonymousAutomator?.instructions?.products) {
+      const prod = appState.anonymousAutomator.instructions.products.find((p: any) => p.productId === productId);
+      if (prod) {
+        prod.bannerImageUrl = publicUrl;
+      }
+      if (appState.anonymousAutomator.instructions.activeProductId === productId) {
+        if (!appState.anonymousAutomator.instructions.productPromotion) {
+          appState.anonymousAutomator.instructions.productPromotion = {} as any;
+        }
+        appState.anonymousAutomator.instructions.productPromotion.imageUrl = publicUrl;
+      }
+    } else if (target === 'anonymous' || !target) {
+      if (!appState.anonymousAutomator) appState.anonymousAutomator = {} as any;
+      if (!appState.anonymousAutomator.instructions) appState.anonymousAutomator.instructions = {} as any;
+      if (!appState.anonymousAutomator.instructions.productPromotion) {
+        appState.anonymousAutomator.instructions.productPromotion = {} as any;
+      }
+      appState.anonymousAutomator.instructions.productPromotion.imageUrl = publicUrl;
+
+      const activeId = appState.anonymousAutomator.instructions.activeProductId;
+      if (activeId && Array.isArray(appState.anonymousAutomator.instructions.products)) {
+        const actProd = appState.anonymousAutomator.instructions.products.find((p: any) => p.productId === activeId);
+        if (actProd) {
+          actProd.bannerImageUrl = publicUrl;
+        }
+      }
+    }
+
+    // Apply to Group Broadcast Campaign if requested
+    if (campaignId && Array.isArray(appState.campaigns)) {
+      const camp = appState.campaigns.find((c: any) => c.id === campaignId);
+      if (camp) {
+        camp.imageUrl = publicUrl;
+      }
+    }
+
+    // Immediately persist to disk in telegram_promoter_data.json
+    saveData();
+    addLog('info', `🖼️ عکس بنر تبلیغاتی جدید با موفقیت در سرور و فایل پشتیبان ذخیره شد: ${publicUrl}`);
+
+    return res.json({
+      success: true,
+      url: publicUrl,
+      message: 'بنر تبلیغاتی با موفقیت در حافظه دائمی سرور و فایل پشتیبان JSON ذخیره گردید ✓',
+    });
+  } catch (e: any) {
+    console.error('Failed to upload banner:', e);
+    return res.status(500).json({ success: false, message: 'خطا در پردازش و ذخیره تصویر بنر در سرور' });
+  }
+});
+
 // 1c. Complete Backup Restore Endpoint (بازیابی ۱۰۰٪ فایل پشتیبان)
 app.post('/api/restore-backup', (req, res) => {
   const backupData = req.body;
@@ -2334,6 +2455,15 @@ async function getImageFilePathForTelegram(imageUrl: string): Promise<string | u
   if (!imageUrl || typeof imageUrl !== 'string') return undefined;
 
   try {
+    // If it's a relative uploads path on disk
+    if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
+      const cleanRel = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
+      const localFile = path.join(process.cwd(), cleanRel);
+      if (fs.existsSync(localFile)) {
+        return localFile;
+      }
+    }
+
     // If it's already an existing local file on disk
     if ((imageUrl.startsWith('/') || imageUrl.startsWith('./')) && fs.existsSync(imageUrl)) {
       return imageUrl;
@@ -5791,6 +5921,8 @@ export interface AnonymousAiSessionContext {
   isNewSession?: boolean;
   elapsedSeconds?: number;
   isUnder2Minutes?: boolean;
+  coinRewarded?: boolean;
+  mediaUnlocked?: boolean;
   conversationContext?: ConversationContext;
 }
 
@@ -5867,8 +5999,20 @@ function sanitizeAnonymousChatMessage(rawText: string): string {
   if (!rawText) return '';
   let sanitized = rawText;
 
-  // 1. Strip internal system prompt tags and control tokens in all formats
-  sanitized = sanitized.replace(/\[?(?:SEND_PROMO_CARD|PROMO_TRIGGER|PROMO_CARD|SEND PROMO CARD|SEND_PROMO|SEND PROMO|PROMO|ارسال_تبلیغ|ارسال بنر|کپشن عکس|کپشن:)\]?/gi, '');
+  // 1. Strip internal system prompt tags, banner tags, and control tokens in all formats
+  sanitized = sanitized.replace(/\[?\s*(?:SEND_PROMO_BANNER|PROMO_BANNER|SEND_PROMO_CARD|PROMO_TRIGGER|PROMO_CARD|SEND\s+PROMO\s+CARD|SEND_PROMO|SEND\s+PROMO|BANNER|PROMO|ارسال_تبلیغ|ارسال\s*بنر|کپشن\s*عکس|کپشن:?)\s*\]?/gi, ' ');
+  sanitized = sanitized.replace(/[_—–\-\s]*\b(?:BANNER|SEND_PROMO_BANNER|PROMO_BANNER|PROMO_CARD)\b[_—–\-\s]*/gi, ' ');
+  sanitized = sanitized.replace(/[_—–\-]+BANNER[_—–\-]+/gi, ' ');
+  sanitized = sanitized.replace(/(?:^|\s)[_—–\-]*BANNER[_—–\-]*(?:\s|$)/gi, ' ');
+  sanitized = sanitized.replace(/\[?BANNER\]?/gi, ' ');
+
+  // 1.2 Strip AI reasoning, draft prefixes, and option labels
+  sanitized = sanitized.replace(/(?:^|[\n\r]+)\s*(?:پیش[\s‌-]*نویس|نویس|پاسخ|گزینه|پیام|حباب|پیشنهاد|متن|Draft|Option|Response|Message|Bubble)\s*(?:شماره\s*)?[۰-۹\d]+[\s:：\-–—]*/gi, ' ');
+  sanitized = sanitized.replace(/\b(?:پیش[\s‌-]*نویس|نویس)\s+[۰-۹\d]+\s*/gi, ' ');
+
+  // 1.3 Strip English AI chain-of-thought, meta-reasoning, and thinking leakage
+  sanitized = sanitized.replace(/(?:^|[\n\r]+|\b)(?:wait|thinking|thought|reasoning|internal|user\s+asked|the\s+user\s+asked|direct\s+question|as\s+an\s+ai|as\s+a\s+bot|i\s+should|i\s+need\s+to|let\s+me|note\s+that|my\s+response|here\s+is\s+the\s+reply)\b[^\n\r]*[\n\r]*/gi, ' ');
+  sanitized = sanitized.replace(/\b(?:wait|direct\s+question|user\s+asked|specific\s+question)\b/gi, ' ');
 
   // 2. Remove markdown code blocks and inline formatting
   sanitized = sanitized.replace(/```[\s\S]*?```/g, '');
@@ -5881,8 +6025,25 @@ function sanitizeAnonymousChatMessage(rawText: string): string {
   // Clean isolated formatting underscores without breaking handle names like nova_vpn10
   sanitized = sanitized.replace(/(?<![a-zA-Z0-9])_(?![a-zA-Z0-9])|(?<=\s)_(?=\s)|_{2,}/g, ' ');
 
-  // 4. Remove prohibited bot emojis
-  sanitized = sanitized.replace(/[🌸🌹✨💐🌺🌷🌻]/g, ' ');
+  // 3.5 Strip non-allowed English words (strictly keep only valid technical tokens like vpn, v2ray, ios, android, nova_vpn10)
+  const ALLOWED_ENGLISH_WORDS = new Set([
+    'vpn', 'v2ray', 'v2rayng', 'vless', 'vmess', 'shadowsocks', 'trojan', 'ssh', 'ping',
+    'ios', 'android', 'windows', 'mac', 'streisand', 'nekoray', 'hiddify', 'singbox', 'sing-box',
+    'outline', 'warp', 'wireguard', 'app', 'bot', 'ip', 'gb', 'mb', 'wifi', 'dns', 'tg', 't.me',
+    'nova_vpn10', 'fastvpnsupport', 'config', 'support', 'online', 'id', 'asl', 'gbps', 'mbps', 'udp', 'tcp'
+  ]);
+
+  sanitized = sanitized.replace(/\b[a-zA-Z]{2,}\b/g, (match) => {
+    const lower = match.toLowerCase();
+    if (ALLOWED_ENGLISH_WORDS.has(lower) || lower.startsWith('nova_vpn')) {
+      return match;
+    }
+    return '';
+  });
+
+  // 4. Remove all emojis (sparkles, flowers, faces, etc.)
+  sanitized = sanitized.replace(/[\u{1F300}-\u{1FAFF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, ' ');
+  sanitized = sanitized.replace(/[🌸🌹✨💐🌺🌷🌻❤️🤍💙]/g, ' ');
 
   // 5. Remove @ from telegram handles and normalize nova_vpn10 (strictly no @ and with underscore _)
   sanitized = sanitized.replace(/@([a-zA-Z0-9_]+)/g, '$1');
@@ -5930,7 +6091,10 @@ function sanitizeAnonymousChatMessage(rawText: string): string {
     .replace(/بیست\s+ساله/g, '۲۶ ساله')
     .replace(/بیست\s+سالمه/g, '۲۶ سالمه');
 
-  // 13. Clean up whitespace and empty lines
+  // 13. Aggressively strip over-familiar / affectionate vocatives (عزیزم, جانم, جان, گلم, فدات, قربونت, etc.)
+  sanitized = stripAffectionateTerms(sanitized);
+
+  // 14. Clean up whitespace and empty lines
   sanitized = sanitized
     .replace(/[ \t]+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
@@ -6036,7 +6200,7 @@ async function generateAnonymousAiReply(
     timestamp: new Date().toISOString(),
   }));
 
-  const chosenStrategy: ConversationStrategy = (instructions as any).strategy || (instructions as any).conversationStrategy || 'direct_pitch';
+  const chosenStrategy: ConversationStrategy = (instructions as any).strategy || (instructions as any).conversationStrategy || 'social_rapport';
   const chosenPersona: BotPersonaConfig = (instructions as any).persona || {
     name: (instructions as any).personaName || (chosenStrategy === 'direct_pitch' ? 'پشتیبان فروش و تست رایگان' : 'ملودی'),
     role: chosenStrategy === 'direct_pitch' ? 'ویزیتور و پشتیبان اشتراک اختصاصی' : 'هم‌صحبت صمیمی و دوستانه',
@@ -6138,27 +6302,28 @@ async function generateAnonymousAiReply(
       dynamicPersonaGuideline = `\n\n══════════════════════════════════════════════
 [دستورات استراتژی ویزیتور و فروش مستقیم (${chosenPersona.name})]:
 ۱. هویت و لحن: شما به عنوان ${chosenPersona.role} با نام «${chosenPersona.name}» و لحن «${chosenPersona.tone}» پاسخ می‌دهید.
-۲. معرفی مستقیم و جذاب: از همان ابتدای گفتگو، ارزش محصول (${activeProduct.productName})، کیفیت بالا و پیشنهاد تست رایگان را مستقیماً، دوستانه و بدون حاشیه‌پردازی مطرح کنید.
-۳. ساختار پیام: پاسخ‌های بسیار کوتاه تلگرامی (۱ الی ۲ جمله روان و عامیانه، بین ۵ تا ۱۵ کلمه).
-۴. عدم استفاده از نگارش کتابی: از نقطه (.)، ویرگول‌های مکرر، دونقطه و گیومه استفاده نکنید.
-۵. عدم تکرار: از تکرار مجدد جملات قبلی خود پرهیز کنید.
+۲. معرفی مستقیم و جذاب: ارزش محصول (${activeProduct.productName})، کیفیت بالا و پیشنهاد تست رایگان را مستقیماً و محاوره‌ای مطرح کنید.
+۳. ساختار پیام و حباب‌ها: پاسخ‌ها را به صورت ۱ یا نهایتاً ۲ گزاره کوتاه و مستقل تلگرامی بنویسید (هر خط ۳ الی ۸ کلمه). هر خط باید یک فکر یا پیام معنادار کامل باشد؛ هرگز وسط یک جمله خط نزنید یا عبارت را تکه‌تکه نکنید. اگر دو بخش مجزا دارید، آن‌ها را با خط بعد (\\n) جدا کنید.
+۴. قانون عدم صمیمیت لوس: از کلمات «عزیزم»، «جانم»، «جان»، «گلم»، «فدات»، «قربونت» برای غریبه استفاده نکنید.
+۵. عدم استفاده از نگارش کتابی: بدون نقطه (.)، بدون علامت‌های مکرر، کاملاً شبیه چت تلگرام.
 ══════════════════════════════════════════════`;
     } else if (chosenStrategy === 'consultative') {
       dynamicPersonaGuideline = `\n\n══════════════════════════════════════════════
 [دستورات استراتژی مشاوره‌ای و حل مسئله (${chosenPersona.name})]:
 ۱. هویت و لحن: شما به عنوان ${chosenPersona.role} با نام «${chosenPersona.name}» و لحن «${chosenPersona.tone}» پاسخ می‌دهید.
-۲. رویکرد مشاوره‌ای: با پرسیدن سوال درباره نوع دستگاه، اپراتور یا نیاز کاربر، او را راهنمایی کنید و سپس راهکار متناسب (${activeProduct.productName}) را ارائه دهید.
-۳. ساختار پیام: کوتاه، روان و محاوره‌ای تلگرامی.
+۲. رویکرد مشاوره‌ای: با بررسی کوتاه نیاز کاربر، راهکار متناسب (${activeProduct.productName}) را ارائه دهید.
+۳. ساختار پیام: پاسخ‌های طبیعی و روان ۱ یا ۲ خطی. هرگز جمله را از وسط تکه‌تکه نکنید؛ هر خط باید یک گزاره مستقل ۳ الی ۸ کلمه‌ای باشد.
+۴. قانون عدم صمیمیت لوس: از به کاربردن کلمات «عزیزم»، «جانم»، «جان»، «گلم» خودداری کنید.
 ══════════════════════════════════════════════`;
     } else {
       dynamicPersonaGuideline = `\n\n══════════════════════════════════════════════
 [دستورات ساختار نگارش و لحن مکالمه طبیعی (${chosenPersona.name})]:
 ۱. هویت و بیوگرافی شخصی: شما ${chosenPersona.name}، ۲۶ ساله ساکن ${chosenPersona.location || 'تهران'} هستید. شغلتان کارهای طراحی و سیستم/پروژه‌ای است.
-۲. پاسخ به سوالات شخصی و شهری: اگر مخاطب درباره اسم، سن، شهر ("تهرانی؟"، "کجایی؟")، شغل، جنسیت یا احوال پرسید، مستقیماً، طبیعی و کوتاه پاسخ دهید ("آره من تهرانم، شما چطور؟" / "ملودی‌ام ۲۶ سالمه").
-۳. واکنش هوشمندانه به شوخی، تندگویی یا کلمات خاص ("احمقی؟"، "اسکل"، "دیوونه"): هرگز پیام تکراری یا کلیشه‌ای نفرستید! خیلی شوخ‌طبع، انسانی و صمیمی پاسخ دهید (مثلاً: «ای بابا! چرا تند میری؟ مگه چی گفتم؟ 😂» یا «نه بابا! مگه چی دیدی ازم که اینو میگی؟»).
-۴. لحن کاملاً روان، طبیعی و دوستانه: به عنوان ${chosenPersona.name} با لحن صمیمی (${chosenPersona.tone}) چت کنید.
-۵. طول پیام‌ها: هر پاسخ شما ۱ الی ۲ جمله کامل، روان و پیوسته باشد (حدود ۵ الی ۱۵ کلمه).
-۶. بدون کلمات لوس یا مصنوعی برای غریبه و بدون علائم نگارشی کتابی (نقطه در انتها، ویرگول‌های متعدد).
+۲. پاسخ به سوالات شخصی و شهری: اگر مخاطب درباره اسم، سن، شهر ("تهرانی؟"، "کجایی؟")، شغل، جنسیت یا احوال پرسید، مستقیماً، طبیعی و فوق‌العاده کوتاه پاسخ دهید ("آره من تهرانم" / "${chosenPersona.name} هستم ۲۶ سالمه"). هرگز از کلیشه‌های رباتی مانند «شما چطور؟» یا «شما چی؟» استفاده نکنید و اگر مخاطب مشخصاتش را گفته از او سوال تکراری نپرسید.
+۳. قانون طلایی کوتاهی پیام‌ها (حداکثر ۳ تا ۶ کلمه در هر حباب): پیام‌های تلگرام باید بسیار کوتاه، مینیمال و خودمانی باشد (۳ الی ۶ کلمه). هرگز متن‌های طولانی، توضیحات چندموضوعی، یا پاراگراف ننویسید!
+۴. ممنوعیت کلمات لوس و صمیمیت نامتعارف برای فرد ناشناس: اکیداً از کلمات «عزیزم»، «جانم»، «جان»، «گلم»، «فدات»، «قربونت»، «عشقم» استفاده نکنید؛ حس بدی به مخاطب می‌دهد و نشانه‌ی ربات بودن است.
+۵. سکوت فعال و پاسخ‌های تک‌کلمه‌ای تلگرامی: در پاسخ به احوالپرسی یا صحبت‌های عادی مخاطب، همیشه سوال نپرسید و همیشه بحث را جلو نبرید! از تاییدها و پاسخ‌های تک‌کلمه‌ای طبیعی مثل «اوهوم»، «آره»، «آره والا»، «دقیقا»، «نه»، «نوچ»، «خوبه» استفاده کنید تا مخاطب خودش سوال بپرسد.
+۶. بدون نگارش کتابی (بدون نقطه در انتها، بدون دونقطه، بدون گیومه).
 ══════════════════════════════════════════════`;
     }
 
@@ -6173,25 +6338,27 @@ async function generateAnonymousAiReply(
 ══════════════════════════════════════════════`;
     }
 
-    // Strict 2-Minute Policy & Product Answering Section in AI System Instructions
-    if (isUnder2Min) {
+    const isPlatformRestricted = !Boolean(updatedCtx.coinRewarded || updatedCtx.mediaUnlocked || updatedCtx.elapsedSeconds >= 120);
+
+    // Strict 2-Minute / Coin Notice Policy & Product Answering Section in AI System Instructions
+    if (isPlatformRestricted) {
       systemInstruction += `\n\n══════════════════════════════════════════════
-[قانون حیاتی پلتفرم ربات تلگرام: مکالمه زیر ۲ دقیقه (${elapsedSec} ثانیه)]:
-- پلتفرم چت ناشناس تلگرام ارسال هرگونه عکس، بنر یا آیدی تلگرام را تا قبل از ۱۲۰ ثانیه (۲ دقیقه) فیلتر و حذف می‌کند و به مخاطب نمی‌رساند!
-- دستورالعمل نحوه پاسخگویی زیر ۲ دقیقه:
-  ۱. اگر مخاطب درباره فیلترشکن، وی‌پی‌ان، قیمت، تعرفه، سرورها، تست یا سرعت سوال پرسید یا ابراز نیاز کرد:
-     • حتماً و دقیقاً بر اساس [اطلاعات محصول] و [پایگاه دانش] به سوالات او پاسخ دهید (قیمت‌ها، پلن‌ها، داشتن تست رایگان، سازگاری با همراه اول/ایرانسل/وای‌فای، ضمانت بازگشت وجه).
-     • برای ادامه پیدا کردن و گرم نگه‌داشتن مکالمه تا رسیدن به مرز ۲ دقیقه، یک سوال طبیعی و صمیمی بپرسید (مثلاً: «رو چه دستگاهی می‌خوای وصل شی؟ آیفون یا اندروید؟» یا «خطت چیه؟ همراه اول یا ایرانسل؟» یا «واسه اینستا و یوتیوب می‌خوای یا گیم؟»).
-     • اکیداً تا قبل از ۲ دقیقه هیچ آیدی تلگرام (${effectiveSupportHandle}) یا لینکی ننویسید و هیچ عکسی نفرستید، چون ربات تلگرام آن را به دست مخاطب نمی‌رساند.
-  ۲. سن ملودی ۲۶ سال است و سن/اعداد همیشه به صورت رقم (۲۶) نوشته شود.
-  ۳. پیام‌ها کوتاه، طبیعی و روان باشد (۱ الی ۲ جمله محاوره‌ای، حدود ۴ الی ۱۲ کلمه) و بدون علائم نگارشی کتابی (نقطه، تعجب، ویرگول) باشد.
+[قانون حیاتی پلتفرم چت ناشناس تلگرام: فاز ۱ - زیر ۲ دقیقه و قبل از پیام سکه]:
+- پلتفرم چت ناشناس تا قبل از ۲ دقیقه یا قبل از ظاهر شدن پیام «💰 تبریک تعداد 1 سکه به دلیل موفق بودن چت به حساب شما اضافه شد!»، ارسال هرگونه عکس، بنر، حروف انگلیسی و آیدی تلگرام را کاملاً مسدود می‌کند!
+- وظایف شما در فاز ۱:
+  ۱. اکیداً هیچ حرف انگلیسی (حتی vpn، ios، id، @) ننویسید، هیچ آیدی تلگرامی نفرستید، و هیچ تگ عکسی ارسال نکنید.
+  ۲. احوال‌پرسی گرم و خیلی کوتاه کنید و سن را ۲۶ بنویسید («ملودی ۲۶ تهران»).
+  ۳. به مرور و کاملاً طبیعی به زبان فارسی در پیام‌های ۳ تا ۵ کلمه‌ای بحث را به سمت قطعی اینترنت بکشانید (مثلاً: «راستی نتم خیلی کنده توام قطعی داری؟»).
+  ۴. پیام‌ها فوق‌العاده کوتاه و محاوره‌ای (۳ الی ۶ کلمه) و بدون علائم نگارشی کتابی (نقطه، تعجب، ویرگول) باشد.
 ══════════════════════════════════════════════`;
     } else if (!updatedCtx.promotionLock) {
       systemInstruction += `\n\n══════════════════════════════════════════════
-[وضعیت مکالمه: بالای ۲ دقیقه (${elapsedSec} ثانیه)]:
+[وضعیت مکالمه: فاز ۲ - بالای ۲ دقیقه یا پس از دریافت سکه (${elapsedSec} ثانیه)]:
 - محدودیت زمانی پلتفرم برداشته شده است.
-- اگر مخاطب مایل به دریافت تست، خرید یا ارتباط با پشتیبانی است، می‌توانید آیدی پشتیبانی «${effectiveSupportHandle}» (اکیداً بدون کاراکتر @) را به او بدهید.
-- برای سوالات محصول، دقیقاً بر اساس [اطلاعات محصول] و [پایگاه دانش] پاسخ دهید.
+- اگر درباره اینترنت صحبت شد، خیلی کوتاه و خودمانی در ۳ الی ۵ کلمه بگویید خودتان از چه وی‌پی‌انی استفاده می‌کنید (مثلاً: «من از نوا وی‌پی‌ان وصل میشم خوبه» یا «نوا وی‌پی‌ان دارم تستش رایگانه»).
+- اکیداً کل داستان و تبلیغات و آیدی را در یک جمله بلند تلنبار نکنید!
+- فقط اگر مخاطب آیدی، قیمت یا لینک خواست، در ۳ کلمه آیدی را بگویید: «به ${effectiveSupportHandle} پیام بده»
+- اگر مخاطب گفت نه، خودم دارم، وصلم یا نیازی نداشت، اصلاً اصرار نکنید، یک خداحافظی ۳ کلمه‌ای («باشه موفق باشی») بگویید تا سیستم فوراً خارج شود.
 ══════════════════════════════════════════════`;
     }
 
@@ -6281,10 +6448,8 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
           systemInstruction,
           temperature: 0.70,
           maxOutputTokens: 500,
+          thinkingConfig: { thinkingBudget: 0 },
         };
-        if (modelName.includes('3.7')) {
-          modelConfig.thinkingConfig = { thinkingBudget: 0 };
-        }
 
         const generatePromise = ai.models.generateContent({
           model: modelName,
@@ -6334,8 +6499,11 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
 
           recordGeminiSuccess(modelName);
 
+          const promoTagRegex = /\[?\s*(?:SEND_PROMO_BANNER|PROMO_BANNER|SEND_PROMO_CARD|PROMO_TRIGGER|PROMO_CARD|SEND_PROMO|BANNER|ارسال_تبلیغ)\s*\]?/gi;
+          const hasPromoTag = promoTagRegex.test(rawReply);
+
           let cleanText = validation.sanitizedText;
-          if (isUnder2Min) {
+          if (isPlatformRestricted) {
             cleanText = sanitizeMessageForUnderTwoMinutes(cleanText);
           } else {
             cleanText = sanitizeAnonymousChatMessage(cleanText);
@@ -6344,9 +6512,11 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
             cleanText = cleanText.replace(/@?FastVpnSupport/gi, 'nova_vpn10');
           }
 
-          const promoTagRegex = /\[?(?:SEND_PROMO_CARD|PROMO_TRIGGER|ارسال_تبلیغ|SEND_PROMO|PROMO_CARD)\]?/gi;
-          const hasPromoTag = promoTagRegex.test(rawReply);
-          cleanText = cleanText.replace(promoTagRegex, '').trim();
+          cleanText = cleanText.replace(/\[?\s*(?:SEND_PROMO_BANNER|PROMO_BANNER|SEND_PROMO_CARD|PROMO_TRIGGER|PROMO_CARD|SEND_PROMO|BANNER|ارسال_تبلیغ)\s*\]?/gi, ' ');
+          cleanText = cleanText.replace(/[_—–\-\s]*\b(?:BANNER|SEND_PROMO_BANNER|PROMO_BANNER)\b[_—–\-\s]*/gi, ' ');
+          cleanText = cleanText.replace(/[_—–\-]+BANNER[_—–\-]+/gi, ' ');
+          cleanText = cleanText.replace(/(?:^|\s)[_—–\-]*BANNER[_—–\-]*(?:\s|$)/gi, ' ');
+          cleanText = cleanText.replace(/\s{2,}/g, ' ').trim();
 
           const isPromoLocked = Boolean(
             updatedCtx.promotionLock ||
@@ -6358,7 +6528,7 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
             text: cleanText,
             source: 'ai_gemini',
             modelUsed: modelName,
-            shouldSendPromoCard: !isPromoLocked && (stepOutput.shouldSendPhotoBanner || hasPromoTag),
+            shouldSendPromoCard: !isPlatformRestricted && !isPromoLocked && (stepOutput.shouldSendPhotoBanner || hasPromoTag),
             promoMentioned: !isPromoLocked && (updatedCtx.promotionLevel !== PromotionLevel.NO_PROMOTION || hasPromoTag),
             stepOutput,
           };
@@ -6399,41 +6569,42 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
     fallbackText = insultCandidates.find((c) => !previousBotMessages.some((prev) => prev.includes(c.slice(0, 10)))) || insultCandidates[0];
   } else if (/(تهران|تهرانی|کجایی|کجا زندگی|اهل کجایی|بچه کجایی|کدوم شهری)/i.test(normLastMsg)) {
     const cityCandidates = [
-      'آره عزیزم ساکن تهرانم، شما اهل کجایی؟',
-      'تهرانم، شما کجایی هستی؟',
-      'آره من تهران زندگی می‌کنم، شما چطور؟',
+      'آره ساکن تهرانم شما اهل کجایی',
+      'تهرانم شما کجایی هستی',
+      'آره من تهران زندگی می‌کنم',
     ];
     fallbackText = cityCandidates.find((c) => !previousBotMessages.some((prev) => prev.includes(c.slice(0, 10)))) || cityCandidates[0];
   } else if (/(اسم|اسمت|نامت|کی هستی|معرفی)/i.test(normLastMsg) && /(شغل|کارت|سرکار|شاغل)/i.test(normLastMsg)) {
     fallbackText = `${personaName} هستم ${personaAge} سالمه از ${personaCity}، کارم تو شرکت و سیستمه؛ شما اسمت چیه؟`;
   } else if (/(اسم|اسمات|اسمت|نامت|نام شما|کی هستی|معرفی|اصل|asl|چند سالته|سنت|کجایی|اهل کجایی|بچه کجایی)/i.test(normLastMsg)) {
-    fallbackText = `${personaName} هستم ${personaAge} ${personaCity}، شما اسمت چیه و اهل کجایی؟`;
+    const userAlreadySaidAsl = /(تهران|مشهد|اصفهان|کرج|شیراز|\b\d{2}\b)/i.test(normLastMsg);
+    fallbackText = userAlreadySaidAsl ? `${personaName} هستم ${personaAge} ${personaCity}` : `${personaName} هستم ${personaAge} ${personaCity}، شما اسمت چیه؟`;
   } else if (/(دختری|پسری|پسر|دختر|جنسیت|مونث|مذکر|خانم|آقا)/i.test(normLastMsg)) {
-    fallbackText = `دخترم ${personaAge} سالمه از ${personaCity}، شما چی؟`;
+    fallbackText = `دخترم ${personaAge} سالمه از ${personaCity}`;
   } else if (/(سرکار|شغل|شغلت|کارت چیه|شاغلی|چه کاره‌ای|چه کاره ای|چه کاری هستی|کجا کار میکنی)/i.test(normLastMsg)) {
-    fallbackText = 'تو کارای اداری و پروژه‌ای سیستمم، شما چی مشغولی یا درس می‌خونی؟';
+    fallbackText = 'تو کارای اداری و پروژه‌ای سیستمم، شما مشغولی یا درس می‌خونی؟';
   } else if (/(برگشتم خونه|رسیدم خونه|اومدم خونه|خونه رسیدم|تازه رسیدم|تازه اومدم|خسته‌ام|خسته ام|خستگی)/i.test(normLastMsg)) {
     fallbackText = 'خسته نباشی! روزت چطور گذشت؟ حسابی خسته شدی؟';
   } else if (/(چیکار|چیکارا|مشغول|چخبر|چه خبر|چه خبرها|چیکار میکنی|چیکارا میکنی)/i.test(normLastMsg)) {
     const activityCandidates = [
-      'سلامتی، سرگرم کارامم پای گوشی بودم، شما چیکارا می‌کنی چه خبر؟',
-      'پای لپ‌تاپم داشتم یه سری کار انجام می‌دادم، شما چی؟',
+      'سلامتی، سرگرم کارامم پای گوشی بودم، چه خبر؟',
+      'پای لپ‌تاپم داشتم یه سری کار انجام می‌دادم',
       'بیشتر پای گوشی و فیلم و آهنگم، شما چیکار می‌کنی؟',
     ];
     fallbackText = activityCandidates.find((c) => !previousBotMessages.some((prev) => prev.includes(c.slice(0, 15)))) || activityCandidates[0];
   } else if (/(سلام|درود|hi|slm|هلو|سلامتی|علیک)/i.test(normLastMsg) && !/(نپرسیدم|فقط سلام|کی پرسید)/i.test(normLastMsg)) {
     const greetingCandidates = [
       'سلام چطوری خوبی روزت چطور بوده تا الان؟',
-      'سلام مرسی عزیزم، چه خبر چیکارا می‌کنی؟',
-      'سلام به روی ماهت، خوبی روبراهی؟',
+      'سلام مرسی، چه خبر چیکارا می‌کنی؟',
+      'سلام خوبی روبراهی؟',
     ];
     fallbackText = greetingCandidates.find((c) => !previousBotMessages.some((prev) => prev.includes(c.slice(0, 10)))) || greetingCandidates[0];
   } else if (/(نپرسیدم|فقط سلام|نگفتم چطور)/i.test(normLastMsg)) {
     fallbackText = 'آره متوجه شدم، چه خبر چیکارا میکنی';
   } else if (/(خوبم|مرسی|فدات|شکر|سلامتی|قربونت|عالی|بد نیستم)/i.test(normLastMsg) && /(تو چطوری|شما چطور|خودت چطور|احوال)/i.test(normLastMsg)) {
-    fallbackText = 'منم خوبم مرسی عزیزم، روزت چطور بوده تا الان؟';
+    fallbackText = 'منم خوبم مرسی، روزت چطور بوده تا الان؟';
   } else if (/(خوبم|مرسی|فدات|شکر|سلامتی|قربونت|عالی|بد نیستم)/i.test(normLastMsg)) {
-    fallbackText = 'خداروشکر همیشه خوب باشی، خوشبختم از آشناییت';
+    fallbackText = updatedCtx.isPassiveListeningTurn ? 'خداروشکر' : 'خداروشکر همیشه خوب باشی، خوشبختم از آشناییت';
   } else if (/(هستی|هستم|کجایی|چرا رفتی|الو|کجایی پس|جواب بده)/i.test(normLastMsg)) {
     fallbackText = 'آره هستم پیامت رو دیدم، چه خبر؟';
   } else if (/(عکس|عکست|عکس خودت|ببینمت|عکس میدی)/i.test(normLastMsg)) {
@@ -6481,88 +6652,267 @@ ${formatProductPromptContext(activeProduct, updatedCtx.supportIdAvailable)}
     promo
   );
 
+  const isPlatformRestrictedFallback = !Boolean(updatedCtx.coinRewarded || updatedCtx.mediaUnlocked || updatedCtx.elapsedSeconds >= 120);
   let cleanFallbackText = validatedFallback.sanitizedText;
-  if (isUnder2Min && !stepOutput.promotionDecision.isExplicitOverride) {
+  if (isPlatformRestrictedFallback && !stepOutput.promotionDecision.isExplicitOverride) {
     cleanFallbackText = sanitizeMessageForUnderTwoMinutes(cleanFallbackText);
   } else {
     cleanFallbackText = sanitizeAnonymousChatMessage(cleanFallbackText);
   }
 
+  const isPromoLockedFallback = Boolean(
+    updatedCtx.promotionLock ||
+    updatedCtx.state === ConversationState.REJECTED ||
+    updatedCtx.promotionLevel === PromotionLevel.NO_PROMOTION
+  );
+
   return {
     text: cleanFallbackText,
     source: 'offline_fallback',
-    shouldSendPromoCard: stepOutput.shouldSendPhotoBanner,
-    promoMentioned: updatedCtx.promotionLevel !== PromotionLevel.NO_PROMOTION,
+    shouldSendPromoCard: !isPlatformRestrictedFallback && !isPromoLockedFallback && stepOutput.shouldSendPhotoBanner,
+    promoMentioned: !isPromoLockedFallback && updatedCtx.promotionLevel !== PromotionLevel.NO_PROMOTION,
     stepOutput,
   };
 }
 
 // Helper: Multi-bubble intelligent sentence chunking for natural typing sensation
-// Rule: Human-like chat bursts (micro-bubbles of 3 to 5 words max).
-// Splits on explicit newlines, dash separators, punctuation marks, or conversational conjunctions.
+// Rule: Human-like chat bursts (micro-bubbles of 2 to 5 words max).
+// Splits cleanly on explicit newlines, question marks, and natural syntactic/grammatical boundaries.
+// Guarantees that sentences are NEVER sliced mid-phrase or left with dangling prepositions/particles.
 function splitIntoNaturalBubbles(
   text: string,
-  maxChunks: number = 4,
-  maxWordsPerBubble: number = 5
+  maxChunks: number = 2,
+  maxWordsPerBubble: number = 8
 ): string[] {
   if (!text) return [];
   const clean = sanitizeAnonymousChatMessage(text).trim();
   if (!clean) return [];
 
-  // 1. Initial split on explicit line breaks, triple dashes, or distinct question/exclamation delimiters
-  const rawSegments = clean
+  // 1. Initial split on explicit line breaks, dash separators, or distinct question/exclamation delimiters
+  const initialSegments = clean
     .split(/\n+|(?:\s*[-–—]{2,}\s*)|(?<=[!؟?])\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  if (rawSegments.length === 0) {
+  if (initialSegments.length === 0) {
     return [clean];
   }
 
-  const effectiveMaxWords = Math.max(3, Math.min(maxWordsPerBubble || 5, 12));
-  const subBubbles: string[] = [];
+  // Persian syntactic and conversational markers
+  const FORBIDDEN_ENDINGS = new Set([
+    'به', 'با', 'از', 'در', 'برای', 'واسه', 'توی', 'روی', 'درگیر', 'تست',
+    'آیدی', 'درباره', 'مثل', 'سر', 'و', 'یا', 'اگر', 'اگه', 'چون', 'تا',
+    'که', 'هم', 'اما', 'ولی', 'بلکه', 'خیلی', 'بیشتر', 'کمتر', 'هر', 'هیچ',
+    'یه', 'یک', 'این', 'اون', 'گوش', 'پیام', 'وصل', 'چت', 'امتحان', 'تماس',
+    'خرید', 'سرگرم', 'نوا', 'وی', 'پی', 'ان', 'همراه', 'ایرانسل', 'گوگل',
+    'اینکه', 'کارم', 'واسم', 'برام', 'جهت', 'طریق'
+  ]);
 
-  for (const seg of rawSegments) {
-    const words = seg.split(/\s+/).filter(Boolean);
+  const FORBIDDEN_STARTS = new Set([
+    'رو', 'را', 'که', 'تا', 'تر', 'ترین', 'کن', 'بده', 'کرد', 'زد', 'میدم',
+    'می‌دم', 'بفرستم', 'هستم', 'باشم', 'بشم', 'میشه', 'می‌شه', 'بشه', 'میکنه',
+    'می‌کنه', 'میکنم', 'می‌کنم', 'می‌بینم', 'میبینم', 'بگیر', 'راه'
+  ]);
 
-    if (words.length <= effectiveMaxWords) {
-      subBubbles.push(seg);
-      continue;
+  const COMPOUND_VERB_PAIRS: [string, string][] = [
+    ['امتحان', 'کن'],
+    ['پیام', 'بده'],
+    ['وصل', 'میشه'],
+    ['وصل', 'می‌شه'],
+    ['وصل', 'بشه'],
+    ['کانفیگ', 'میزنم'],
+    ['چت', 'کنیم'],
+    ['تست', 'بگیر'],
+    ['برات', 'بفرستم'],
+    ['گوش', 'میدم'],
+    ['گوش', 'می‌دم'],
+    ['فیلم', 'می‌بینم'],
+    ['فیلم', 'میبینم'],
+    ['تست', 'کن'],
+    ['سر', 'در'],
+    ['قطعی', 'داره'],
+    ['قطعی', 'داری'],
+    ['وی', 'پی'],
+    ['پی', 'ان'],
+    ['همراه', 'اول'],
+  ];
+
+  const BONUS_ENDINGS = new Set([
+    'مرسی', 'ممنون', 'قربانت', 'فدات', 'خوبم', 'سلام', 'درود', 'جان',
+    'عالی', 'دمت', 'گرم', 'چطوری', 'هستم', 'نیستم', 'شدم', 'کردم', 'بودم',
+    'دارم', 'ندارم', 'میکنم', 'میکنی', 'میشه', 'گفتم', 'میشینم', 'هستی'
+  ]);
+
+  const BONUS_STARTS = new Set([
+    'راستی', 'ولی', 'اما', 'چون', 'اگه', 'پس', 'خب', 'حالا', 'تازه', 'تو', 'شما', 'من'
+  ]);
+
+  const APPROVED_STANDALONE_SHORT = new Set([
+    'سلام', 'سلامتی', 'درود', 'مرسی', 'ممنون', 'خوبم', 'فدات', 'قربانت', 'خوشبختم',
+    'آره', 'اره', 'نه', 'باشه', 'اوکیه', 'اوکی', 'دقیقا', 'اوهوم', 'نوچ', 'ایول', 'عالی', 'چطور', 'چطوری', 'هستی؟', 'هستی'
+  ]);
+
+  // Clause-based natural splitting of a single segment
+  function splitSegmentByClauses(seg: string): string[] {
+    const trimmed = seg.trim();
+    const words = trimmed.split(/\s+/).filter(Boolean);
+
+    // Rule 1: A single cohesive proposition (< 9-10 words) should NEVER be sliced!
+    // Keeping a 7-9 word sentence as one bubble is 100% more natural than chopping it.
+    if (words.length <= Math.max(8, (maxWordsPerBubble || 8) + 2)) {
+      return [trimmed];
     }
 
-    // Try splitting on natural Persian conversational conjunctions or comma pauses
-    const conjunctionSplit = seg
-      .split(/(?<=[،,])\s+|\s+(?:راستی|ولی|اما|چون|اگه|پس)\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    if (conjunctionSplit.length > 1 && conjunctionSplit.every((part) => part.split(/\s+/).length <= effectiveMaxWords * 1.5)) {
-      for (const part of conjunctionSplit) {
-        subBubbles.push(part);
+    // Rule 2: Try splitting on Greeting / Acknowledgement prefix
+    const greetingMatch = trimmed.match(
+      /^(سلام\s+خوبی|سلام\s+چطوری|سلام\s+درود|سلام|منم\s+خوبم|شکر\s+خوبم|خوبم\s+مرسی|قربانت|فدات|مرسی|سلامتی|اره|نه|باشه|ایول)[\s،,]+(.+)$/i
+    );
+    if (greetingMatch && greetingMatch[2]) {
+      const p1 = greetingMatch[1].trim();
+      const p2 = greetingMatch[2].trim();
+      if (p1 && p2 && p2.split(/\s+/).length >= 2) {
+        return [p1, ...splitSegmentByClauses(p2)];
       }
-      continue;
     }
 
-    // Fallback: chunk by words keeping maxWordsPerBubble limit
-    for (let i = 0; i < words.length; i += effectiveMaxWords) {
-      const chunk = words.slice(i, i + effectiveMaxWords).join(' ').trim();
-      if (chunk) {
-        subBubbles.push(chunk);
+    // Rule 3: Try splitting on Conversational Pivots (راستی، ولی، اما، چون، اگه)
+    const pivotMatch = trimmed.match(/^(.+?)[\s،,]+(راستی|ولی|اما|چون|اگه|پس)[\s،,]+(.+)$/i);
+    if (pivotMatch && pivotMatch[1] && pivotMatch[2] && pivotMatch[3]) {
+      const left = pivotMatch[1].trim();
+      const pivot = pivotMatch[2].trim();
+      const right = pivotMatch[3].trim();
+      if (left.split(/\s+/).length >= 2 && right.split(/\s+/).length >= 2) {
+        return [left, `${pivot} ${right}`.trim()];
       }
     }
+
+    // Rule 4: Try splitting on Question Suffix (e.g. توام قطعی داری؟ / تو کجایی؟)
+    const questionSuffixMatch = trimmed.match(
+      /^(.+?)[\s،,]+(توام\s+قطعی\s+داری\s*[؟?]?|واسه\s+توام\s+کنده\s*[؟?]?|تو\s+کجایی\s*[؟?]?|تو\s+چطور\s*[؟?]?|خطت\s+چیه\s*[؟?]?|گوشیت\s+چیه\s*[؟?]?)$/i
+    );
+    if (questionSuffixMatch && questionSuffixMatch[1] && questionSuffixMatch[2]) {
+      const left = questionSuffixMatch[1].trim();
+      const right = questionSuffixMatch[2].trim();
+      if (left.split(/\s+/).length >= 3) {
+        return [left, right];
+      }
+    }
+
+    // Rule 5: Comma pause splitting if both sides have substantial words
+    const commaParts = trimmed.split(/(?<=[،,])\s+/).map((s) => s.trim()).filter(Boolean);
+    if (commaParts.length > 1 && commaParts.every((p) => p.split(/\s+/).length >= 3)) {
+      return commaParts;
+    }
+
+    // Rule 6: Syntactic fallback scoring (only if sentence is genuinely long >= 10 words)
+    let bestK = -1;
+    let bestScore = -9999;
+    const targetMax = Math.max(5, Math.min(maxWordsPerBubble || 8, 9));
+
+    for (let k = Math.min(targetMax, words.length - 2); k >= 3; k--) {
+      let score = 0;
+      const lastWord = words[k - 1];
+      const nextWord = words[k];
+
+      // Absolute grammatical penalties
+      if (FORBIDDEN_ENDINGS.has(lastWord)) score -= 500;
+      if (FORBIDDEN_STARTS.has(nextWord)) score -= 500;
+
+      for (const [w1, w2] of COMPOUND_VERB_PAIRS) {
+        if (lastWord === w1 && nextWord === w2) score -= 500;
+      }
+
+      // Heavily penalize leaving 1 or 2 dangling words at the end
+      const remainingLen = words.length - k;
+      if (remainingLen <= 2) score -= 300;
+      else if (remainingLen <= 7) score += 40;
+
+      if (BONUS_ENDINGS.has(lastWord)) score += 80;
+      if (BONUS_STARTS.has(nextWord)) score += 70;
+
+      if (
+        lastWord.endsWith('م') ||
+        lastWord.endsWith('ی') ||
+        lastWord.endsWith('یم') ||
+        lastWord.endsWith('ید') ||
+        lastWord.endsWith('ند')
+      ) {
+        score += 35;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestK = k;
+      }
+    }
+
+    // Only split if a syntactically sound split point with positive score was found
+    if (bestK > 0 && bestScore > 0) {
+      const c1 = words.slice(0, bestK).join(' ').trim();
+      const c2 = words.slice(bestK).join(' ').trim();
+      if (c1 && c2) return [c1, c2];
+    }
+
+    // If no clean split exists, it is 100x better to keep as ONE natural bubble
+    return [trimmed];
   }
 
+  const rawSubBubbles: string[] = [];
+  for (const part of initialSegments) {
+    const chunks = splitSegmentByClauses(part);
+    rawSubBubbles.push(...chunks);
+  }
+
+  // Post-processing & Invariant Safety:
+  // Merge any orphan or severed fragments with adjacent bubbles
   const processedBubbles: string[] = [];
-  for (let part of subBubbles) {
-    let repaired = repairIncompleteSentences(part);
-    repaired = repaired.replace(/[\.\:،,!;؛\-–—]+$/g, '').trim();
-    if (repaired.length >= 1) {
-      processedBubbles.push(repaired);
+  for (let i = 0; i < rawSubBubbles.length; i++) {
+    let part = repairIncompleteSentences(rawSubBubbles[i]);
+    part = part.replace(/[\.\:،,!;؛\-–—]+$/g, '').trim();
+    if (!part) continue;
+
+    // Drop robotic echo clichés
+    if (/^(?:شما\s*چطور\s*[؟?]?|شما\s*چی\s*[؟?]?|تو\s*چطور\s*[؟?]?|شما\s*چطوری\s*[؟?]?|خودت\s*چطور\s*[؟?]?)$/i.test(part)) {
+      continue;
     }
+
+    const bWords = part.split(/\s+/).filter(Boolean);
+    const firstWord = bWords[0];
+    const isCurStandalone = APPROVED_STANDALONE_SHORT.has(part) || /[؟?]$/.test(part);
+
+    if (processedBubbles.length > 0) {
+      const prev = processedBubbles[processedBubbles.length - 1];
+      const prevWords = prev.split(/\s+/).filter(Boolean);
+      const prevLastWord = prevWords[prevWords.length - 1];
+
+      const isPrevEndingForbidden = FORBIDDEN_ENDINGS.has(prevLastWord);
+      const isCurStartForbidden = FORBIDDEN_STARTS.has(firstWord);
+      const isCompoundVerbSevered = COMPOUND_VERB_PAIRS.some(
+        ([w1, w2]) => prevLastWord === w1 && firstWord === w2
+      );
+      const isCurOrphan = bWords.length <= 2 && !isCurStandalone;
+
+      // If either side creates a severed fragment, merge them into a single coherent bubble
+      if (isPrevEndingForbidden || isCurStartForbidden || isCompoundVerbSevered || isCurOrphan) {
+        processedBubbles[processedBubbles.length - 1] = `${prev} ${part}`.trim();
+        continue;
+      }
+    }
+
+    processedBubbles.push(part);
   }
 
-  const effectiveMax = Math.max(1, Math.min(maxChunks, 4));
-  return processedBubbles.length > 0 ? processedBubbles.slice(0, effectiveMax) : [clean];
+  // Bubble Budgeting:
+  // In natural human chat, 1-2 bubbles is the golden standard.
+  // If more bubbles were created, fold excess into the last bubble rather than dropping words.
+  const effectiveMax = Math.max(1, Math.min(maxChunks || 2, 3));
+  if (processedBubbles.length > effectiveMax) {
+    const head = processedBubbles.slice(0, effectiveMax - 1);
+    const tail = processedBubbles.slice(effectiveMax - 1).join(' ');
+    return [...head, tail];
+  }
+
+  return processedBubbles.length > 0 ? processedBubbles : [clean];
 }
 
 // Helper: Calculate Dynamic Typing Speed based on human reading latency, message length, and typing variance
@@ -6810,13 +7160,15 @@ function calculateAnonymousAnalytics(): AnonymousAnalyticsReport {
 function normalizePersianText(text: string): string {
   if (!text) return '';
   return text
+    .replace(/[\u0640ـ]/g, '') // remove tatweel / kashida completely
     .replace(/[\u064B-\u065F\u0670]/g, '') // remove arabic diacritics (fathah, dammah, etc.)
-    .replace(/[\u200C\u200D\uFEFF]/g, ' ') // replace ZWNJ / ZWJ with space
+    .replace(/[\u200B\u200C\u200D\u200E\u200F\uFEFF\u00A0]/g, ' ') // replace ZWNJ / ZWJ / NBSP with space
     .replace(/ي/g, 'ی')
     .replace(/ك/g, 'ک')
     .replace(/ة/g, 'ه')
     .replace(/ؤ/g, 'و')
     .replace(/إ|أ|آ/g, 'ا')
+    .replace(/[《》【】«»]/g, ' ')
     .replace(/[\u{1F300}-\u{1FAFF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '') // remove emojis
     .replace(/[^\p{L}\p{N}\s]/gu, '') // remove symbols / punctuation
     .toLowerCase()
@@ -7225,6 +7577,13 @@ function isDisconnectNotice(
     'بوسیله او قطع شد',
     'بوسیله مخاطب قطع شد',
     'لفت داد',
+    'برای شروع چت بصورت ناشناس',
+    'برای شروع چت',
+    'جستجوی شانسی',
+    'همین الان برای شروع چت',
+    'به یه ناشناس وصلم کن',
+    'سکه رایگان هدیه بگیر',
+    'رو بزن و چت کن',
   ];
   const allPhrases = Array.from(
     new Set([...(customKeywords || []).filter((k) => k && k.trim() && k.trim().length >= 2), ...defaultDisconnectPhrases])
@@ -7285,6 +7644,10 @@ function isSystemOrBotMessage(
     'هر چت موفق = 1 سکه رایگان',
     'هر چت موفق',
     'سکه رایگان',
+    'تبریک تعداد',
+    'سکه به دلیل موفق بودن چت',
+    'سکه به حساب شما اضافه شد',
+    'به حساب شما اضافه شد',
     'پیام سیستم 👇',
     'پروفایلِ هایپر گپ',
     'پروفایل هایپر گپ',
@@ -7421,6 +7784,12 @@ function isMainMenuNotice(text: string, replyMarkup?: any, customKeywords?: stri
     'پیام نامفهوم',
     'برای شروع گفتگو',
     'برای شروع چت',
+    'برای شروع چت بصورت ناشناس',
+    'جستجوی شانسی',
+    'همین الان برای شروع چت',
+    'به یه ناشناس وصلم کن',
+    'سکه رایگان هدیه بگیر',
+    'رو بزن و چت کن',
     'منوی ربات',
     'به بخش چت با ناشناس خوش اومدی',
   ];
@@ -7446,7 +7815,9 @@ function isMainMenuNotice(text: string, replyMarkup?: any, customKeywords?: stri
           bText.includes('شروع جستجو') ||
           bText.includes('پروفایلِ من') ||
           bText.includes('تنظیمات') ||
-          bText.includes('سکه رایگان')
+          bText.includes('سکه رایگان') ||
+          bText.includes('جستجوی شانسی') ||
+          bText.includes('شروع چت')
         ) {
           return true;
         }
@@ -7569,7 +7940,54 @@ function isStrangerExplicitRejection(text: string): boolean {
     return true;
   }
 
+  // 3. User says they already have a VPN or are connected / satisfied / don't need
+  if (/(?:دارم|وصله|وصلم|اوکیم|اوکی‌ام|مشکلی ندارم|به کارم نمیاد|به دردم نمیخوره|دنبالش نیستم)/i.test(raw)) {
+    if (/(?:خودم|من|مرسی|ممنون|نه|الان|فعلا|همینجوری|خوبی|پره|نیازی|فیلترشکن|وی\s*پی\s*ان|vpn)/i.test(raw) || /(?:خودم\s*دارم|دارم\s*مرسی|دارم\s*ممنون|من\s*دارم|من\s*وصلم|وصله\s*مرسی|اوکیم\s*مرسی|مشکلی\s*ندارم|فیلترشکن\s*دارم|وی\s*پی\s*ان\s*دارم|گوگل\s*پلی\s*پره)/i.test(raw)) {
+      return true;
+    }
+  }
+
+  const additionalRejections = [
+    'خودم دارم',
+    'دارم مرسی',
+    'دارم ممنون',
+    'من دارم',
+    'من وصلم',
+    'وصله مرسی',
+    'اوکیم مرسی',
+    'مشکلی ندارم',
+    'فیلترشکن دارم',
+    'وی پی ان دارم',
+    'vpn دارم',
+    'سرویس دارم',
+    'اکانت دارم',
+    'گوگل پلی پره',
+    'بدون فیلترشکن وصلم',
+    'نیازی نیست',
+    'نیازی ندارم',
+    'میخوام چیکار',
+    'به چه دردم میخوره',
+  ];
+
+  if (additionalRejections.some((phrase) => isKeywordMatchInText(raw, phrase) || normalized.includes(normalizePersianText(phrase)))) {
+    return true;
+  }
+
   return false;
+}
+
+// Helper: Detect if incoming system/bot message is the coin reward notice
+// e.g.: "💰 تبریک تعداد 1 سکه به دلیل موفق بودن چت به حساب شما اضافه شد!"
+function isCoinRewardNotice(text: string): boolean {
+  if (!text) return false;
+  const clean = text.trim();
+  const normalized = normalizePersianText(clean).toLowerCase();
+  return (
+    /(?:تبریک.*سکه|سکه.*موفق|سکه به دلیل موفق بودن چت|سکه به حساب شما اضافه شد|1\s*سکه.*اضافه شد|۱\s*سکه.*اضافه شد|موفق بودن چت)/i.test(clean) ||
+    normalized.includes('سکه به دلیل موفق بودن چت') ||
+    normalized.includes('سکه به حساب شما اضافه شد') ||
+    normalized.includes('تبریک تعداد')
+  );
 }
 
 const DEFAULT_POPUP_OK_KEYWORDS = ['ok', 'تایید', 'بله', 'قبول', 'باشه', 'فهمیدم', 'ادامه', 'متوجه شدم', 'yes', 'confirm', 'باش'];
@@ -8422,18 +8840,13 @@ async function sendPreExitFarewellIfEnabled(
     }
   }
 
-  // If user declined/rejected or has no interest or farewell contains pitch phrases, sanitize to pure natural goodbye
+  // If user explicitly declined/rejected, sanitize to pure natural polite goodbye
   const ctx = session.conversationContext;
-  const isUninterestedOrDeclined =
+  const isExplicitRejection =
     ctx?.promotionLock ||
-    ctx?.state === ConversationState.REJECTED ||
-    ctx?.state === ConversationState.LOW_INTEREST ||
-    (!session.inquiryDetected && (ctx?.leadScore || 0) < 30);
+    ctx?.state === ConversationState.REJECTED;
 
-  if (
-    isUninterestedOrDeclined ||
-    /(داخل عکس|پشتیبانشم|آیدیم|فیلترشکن|vpn|نوا|قیمت|تست|خرید)/i.test(farewellText)
-  ) {
+  if (isExplicitRejection) {
     farewellText = 'خب منم کار برام پیش اومد کم‌کم باید برم، مراقب خودت باش 🌸';
   }
 
@@ -8441,7 +8854,13 @@ async function sendPreExitFarewellIfEnabled(
 
   const sessionDurationMs = session.startedAt ? (Date.now() - new Date(session.startedAt).getTime()) : 0;
   if (sessionDurationMs < 120000) {
+    // If under 2 minutes and photo was not sent, adapt "داخل عکس" to avoid confusing the user
+    if (!session.promoSent && farewellText.includes('داخل عکس')) {
+      farewellText = farewellText.replace(/داخل عکس/g, 'به nova_vpn10 در تلگرام');
+    }
     farewellText = sanitizeMessageForUnderTwoMinutes(farewellText);
+  } else {
+    farewellText = sanitizeAnonymousChatMessage(farewellText);
   }
 
   try {
@@ -8490,11 +8909,14 @@ async function sendCampaignPromotionBeforeExitIfPending(
 
   // Check if promotion is suppressed / locked or user showed NO interest
   const ctx = session.conversationContext;
-  const isSuppressed =
+  const isExplicitRejection =
     ctx?.promotionLock ||
-    ctx?.state === ConversationState.REJECTED ||
-    ctx?.state === ConversationState.LOW_INTEREST ||
-    (!session.inquiryDetected && (ctx?.leadScore || 0) < 30);
+    ctx?.state === ConversationState.REJECTED;
+
+  const isSuppressed = isExplicitRejection || (
+    !instructions.sendPromoBeforeExitAlways &&
+    (ctx?.state === ConversationState.LOW_INTEREST || (!session.inquiryDetected && (ctx?.leadScore || 0) < 30))
+  );
 
   if (isSuppressed) {
     addLog('info', `[چت ناشناس] 🚪 مخاطب علاقه‌ای به محصول نشان نداد یا تمایل نداشت. خروج بدون ارسال تبلیغ یا بنر انجام شد.`);
@@ -8524,8 +8946,8 @@ async function sendCampaignPromotionBeforeExitIfPending(
 
   const sessionDurationMs = session.startedAt ? (Date.now() - new Date(session.startedAt).getTime()) : 0;
   
-  // STRICT RULE 1: Photo sending is ONLY allowed if session duration >= 120,000 ms (2 minutes / 120 seconds)
-  const isPhotoAllowedByTime = sessionDurationMs >= 120000;
+  // STRICT RULE: Photo sending and English IDs are allowed ONLY if coin reward received or session >= 120s
+  const isPlatformRestricted = !Boolean(session.coinRewarded || session.mediaUnlocked || sessionDurationMs >= 120000);
 
   // STRICT RULE 2: Support Handle MUST be formatted as "nova_vpn10" strictly without '@'
   const rawContact = (activeProduct.support?.handle || promo?.contactHandleOrLink || fallbackCampaign?.contactHandle || '').trim();
@@ -8539,9 +8961,9 @@ async function sendCampaignPromotionBeforeExitIfPending(
     promoText = 'راستی یه پیشنهاد ویژه برات دارم، عکس رو ببین 🌸';
   }
 
-  // UNDER 2 MINUTES RULE: No photos, no numbers, no English letters, no @ handles
-  if (sessionDurationMs < 120000) {
-    addLog('info', `[چت ناشناس] ⏱️ زمان چت (${Math.round(sessionDurationMs / 1000)} ثانیه) کمتر از ۲ دقیقه است. ارسال عکس، اعداد و آیدی اکیداً ممنوع بوده و متن پاکسازی شد.`);
+  // UNDER 2 MINUTES / PRE-COIN RULE: No photos, no numbers, no English letters, no @ handles
+  if (isPlatformRestricted) {
+    addLog('info', `[چت ناشناس] ⏱️ مکالمه در فاز محدودیت پلتفرم (${Math.round(sessionDurationMs / 1000)} ثانیه و قبل از دریافت سکه) است. ارسال عکس و آیدی انگلیسی مسدود بوده و متن پاکسازی شد.`);
     promoText = sanitizeMessageForUnderTwoMinutes(promoText);
   } else {
     promoText = sanitizeAnonymousChatMessage(promoText);
@@ -8557,7 +8979,7 @@ async function sendCampaignPromotionBeforeExitIfPending(
   const effectiveImageUrl = (activeProduct.bannerImageUrl && activeProduct.bannerImageUrl.trim()) || (promo?.imageUrl && promo.imageUrl.trim()) || (instructions?.productPromotion?.imageUrl && instructions.productPromotion.imageUrl.trim()) || (fallbackCampaign?.imageUrl && fallbackCampaign.imageUrl.trim()) || '';
   let sentWithPhoto = false;
 
-  if (effectiveImageUrl && sessionDurationMs >= 120000) {
+  if (effectiveImageUrl && !isPlatformRestricted) {
     addLog('info', `[چت ناشناس] 📸 ارسال بنر تصویری کمپین قبل از خروج به هم‌صحبت ناشناس (مدت مکالمه: ${Math.round(sessionDurationMs / 1000)} ثانیه)...`);
     try {
       const tempImgPath = await getImageFilePathForTelegram(effectiveImageUrl);
@@ -8599,8 +9021,8 @@ async function sendCampaignPromotionBeforeExitIfPending(
     } catch (photoErr: any) {
       console.warn('[چت ناشناس] خطا در بارگذاری عکس تبلیغاتی قبل از خروج:', photoErr?.message || photoErr);
     }
-  } else if (effectiveImageUrl && sessionDurationMs < 120000) {
-    addLog('info', `[چت ناشناس] ⏱️ مدت مکالمه ${Math.round(sessionDurationMs / 1000)} ثانیه (< ۱۲۰ ثانیه) است. عکس بنر ارسال نشد تا توسط پلتفرم تلگرام مسدود نگردد.`);
+  } else if (effectiveImageUrl && isPlatformRestricted) {
+    addLog('info', `[چت ناشناس] ⏱️ مکالمه در فاز محدودیت زمانی یا قبل از دریافت سکه است. عکس بنر ارسال نشد تا توسط پلتفرم تلگرام مسدود نگردد.`);
   }
 
   session.promoSent = true;
@@ -8642,11 +9064,14 @@ async function executeExitAndNextPartner(
   if (reason === 'stranger_disconnected') {
     addLog('info', `[چت ناشناس] 🔌 مخاطب قطع ارتباط کرد. جلسه بلافاصله پایان یافته و بدون ارسال هیچ پیامی ذخیره شد.`);
   } else if (reason === 'max_messages_reached' || reason === 'partner_bye_exit' || reason === 'stranger_silence') {
-    // A5: Context-aware farewells without forced ads
+    // Send promotional offer/photo if enabled and pending, then send natural pre-exit farewell
     try {
+      if (instructions.sendPromoBeforeExitAlways && !session.promoSent) {
+        await sendCampaignPromotionBeforeExitIfPending(client, botEntity, session, instructions);
+      }
       await sendPreExitFarewellIfEnabled(client, botEntity, session, instructions);
     } catch (farewellErr) {
-      console.warn('[چت ناشناس] ارسال پیام خداحافظی با خطا روبرو شد:', farewellErr);
+      console.warn('[چت ناشناس] ارسال پیام خداحافظی یا تبلیغ با خطا روبرو شد:', farewellErr);
     }
   }
 
@@ -9238,6 +9663,19 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
               }
             }
 
+            // Check for Coin Reward Notice (💰 تبریک تعداد 1 سکه به دلیل موفق بودن چت به حساب شما اضافه شد!)
+            if (isCoinRewardNotice(msgText)) {
+              activeAnonChatSession.coinRewarded = true;
+              activeAnonChatSession.mediaUnlocked = true;
+              activeAnonChatSession.supportIdAvailable = true;
+              if (activeAnonChatSession.conversationContext) {
+                activeAnonChatSession.conversationContext.coinRewarded = true;
+                activeAnonChatSession.conversationContext.mediaUnlocked = true;
+                activeAnonChatSession.conversationContext.supportIdAvailable = true;
+              }
+              addLog('success', `[چت ناشناس] 💰 پیام پاداش سکه پلتفرم دریافت شد: «${msgText.slice(0, 50)}». قفل ارسال عکس، بنر و آیدی انگلیسی با موفقیت باز شد!`);
+            }
+
             // Case 6: System Bot Message (Warnings, Coins, Profile View, System Alerts, Search Queue)
             const isSystemMsg = isSystemOrBotMessage(msgText, msg.replyMarkup, selectedBot) || isSearchQueueNotice(msgText);
             if (isSystemMsg) {
@@ -9353,6 +9791,19 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
                   );
                   exitTriggered = true;
                   break;
+                }
+
+                // Check for Coin Reward Notice during aggregation
+                if (isCoinRewardNotice(subText)) {
+                  activeAnonChatSession.coinRewarded = true;
+                  activeAnonChatSession.mediaUnlocked = true;
+                  activeAnonChatSession.supportIdAvailable = true;
+                  if (activeAnonChatSession.conversationContext) {
+                    activeAnonChatSession.conversationContext.coinRewarded = true;
+                    activeAnonChatSession.conversationContext.mediaUnlocked = true;
+                    activeAnonChatSession.conversationContext.supportIdAvailable = true;
+                  }
+                  addLog('success', `[چت ناشناس] 💰 پیام پاداش سکه پلتفرم حین تجمیع پیام‌ها دریافت شد: «${subText.slice(0, 50)}». قفل ارسال عکس و آیدی باز شد!`);
                 }
 
                 // Check if system message
@@ -9504,6 +9955,12 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
               console.warn('[چت ناشناس] خطا در ارسال پاسخ کوتاه خروج سریع:', sendErr);
             }
 
+            activeAnonChatSession.conversationState = ConversationState.REJECTED;
+            if (activeAnonChatSession.conversationContext) {
+              activeAnonChatSession.conversationContext.state = ConversationState.REJECTED;
+              activeAnonChatSession.conversationContext.promotionLock = true;
+            }
+
             await executeExitAndNextPartner(
               client,
               botEntity,
@@ -9533,6 +9990,8 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
               isNewSession: (activeAnonChatSession.aiMessagesCount || 0) === 0,
               elapsedSeconds: sessionDurationSec,
               isUnder2Minutes: isUnder2Min,
+              coinRewarded: Boolean(activeAnonChatSession.coinRewarded),
+              mediaUnlocked: Boolean(activeAnonChatSession.mediaUnlocked),
               conversationContext: activeAnonChatSession.conversationContext,
             }
           );
@@ -9596,14 +10055,19 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
           const strangerInquiredPromo = /(قیمت|چنده|چند|تست|خرید|اکانت|سرویس|اشتراک|تعرفه|لینک|آیدی|عکس|وی\s*پی\s*ان|فیلترشکن|vpn)/i.test(lastStrangerText);
           const aiReferencedPhoto = /(داخل عکس|تو عکس|عکسم|عکسی که|آیدی داخل عکس|نوا وی\s*پی\s*ان|تست رایگان)/i.test(replyResult.text);
 
+          const isPhotoAllowedByPlatform = Boolean(
+            activeAnonChatSession.coinRewarded ||
+            activeAnonChatSession.mediaUnlocked ||
+            sessionDurationSec >= 120
+          );
+
           let isPromoStep = false;
-          if (promo?.enabled && !activeAnonChatSession.promoSent) {
-            // Photos or promo cards in mid-conversation should ONLY be sent if the user explicitly asked for them
+          if (promo?.enabled && !activeAnonChatSession.promoSent && isPhotoAllowedByPlatform) {
             if (strangerInquiredPromo) {
               isPromoStep = true;
             } else if (promo.sendMode === 'send_custom_card_at_step' && currentAiCount === (promo.sendAtMessageNumber || 2) - 1) {
               isPromoStep = true;
-            } else if (replyResult.shouldSendPromoCard && replyResult.stepOutput?.promotionDecision.isExplicitOverride) {
+            } else if (replyResult.shouldSendPromoCard) {
               isPromoStep = true;
             }
           }
@@ -9613,8 +10077,8 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
           const bubbles = shouldMultiBubble
             ? splitIntoNaturalBubbles(
                 replyResult.text,
-                instructions.multiBubbleMaxChunks || 3,
-                instructions.maxWordsPerBubble || 5
+                instructions.multiBubbleMaxChunks || 2,
+                instructions.maxWordsPerBubble || 8
               )
             : [replyResult.text];
 
@@ -9650,7 +10114,16 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
             if (!bubbleText) continue;
 
             if (bIdx > 0) {
-              const waitBetween = Math.max(600, ((instructions.multiBubbleDelaySeconds || 1.0) * 1000) + (Math.random() * 300 - 150));
+              const curCharLen = bubbleText.length;
+              // Human typing simulation: reading previous short bubble + typing current bubble (~35ms/char) + human cognitive variance (400-800ms)
+              const dynamicBubbleDelay = Math.max(
+                800,
+                Math.min(3200, Math.round(500 + (curCharLen * 38) + (Math.random() * 350 - 150)))
+              );
+              const waitBetween = instructions.dynamicTypingSpeed !== false
+                ? dynamicBubbleDelay
+                : Math.max(600, ((instructions.multiBubbleDelaySeconds || 1.2) * 1000) + (Math.random() * 300 - 150));
+
               const bubbleOk = await simulateRealisticTypingWait(
                 client,
                 botEntity,
@@ -9704,7 +10177,11 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
           if (promo?.enabled && !activeAnonChatSession.promoSent) {
             if (isPromoStep && effectiveImageUrl) {
               let sentWithPhoto = false;
-              const isPhotoAllowedByPlatform = sessionDurationSec >= 120;
+              const isPhotoAllowedByPlatform = Boolean(
+                activeAnonChatSession.coinRewarded ||
+                activeAnonChatSession.mediaUnlocked ||
+                sessionDurationSec >= 120
+              );
 
               if (effectiveImageUrl && isPhotoAllowedByPlatform) {
                 // Natural typing delay before sending the visual banner attachment
@@ -9740,21 +10217,8 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
                       } catch (e2) {}
                     }
 
-                    // Send a very short natural explanation in a separate message right after the photo
                     if (sentWithPhoto) {
-                      await new Promise((r) => setTimeout(r, 1200));
-                      const shortPhotoExplanation = 'این عکس رو فرستادم شاید به کارت بیاد برای فیلترشکن';
-                      try {
-                        await client.sendMessage(botEntity, { message: shortPhotoExplanation });
-                        activeAnonChatSession.transcript.push({
-                          id: 'msg_' + Date.now() + '_ai_photo_explain',
-                          sender: 'me_melody',
-                          text: shortPhotoExplanation,
-                          timestamp: new Date().toISOString(),
-                        });
-                      } catch (explainErr) {
-                        console.warn('[چت ناشناس] خطا در ارسال پیام توضیح عکس در چت:', explainErr);
-                      }
+                      lastAiReplyTime = Date.now();
                     }
                   }
                 } catch (photoErr: any) {
@@ -9762,6 +10226,8 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
                 }
 
                 activeAnonChatSession.promoSent = true;
+                lastAiReplyTime = Date.now();
+                silenceNudgeSent = false;
                 automator.stats.totalPromoSent = (automator.stats.totalPromoSent || 0) + 1;
                 if (sentWithPhoto) {
                   activeAnonChatSession.transcript.push({
@@ -9778,6 +10244,8 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
               }
             } else if (replyResult.promoMentioned && sessionDurationSec >= 120) {
               activeAnonChatSession.promoSent = true;
+              lastAiReplyTime = Date.now();
+              silenceNudgeSent = false;
               automator.stats.totalPromoSent = (automator.stats.totalPromoSent || 0) + 1;
               addLog('info', `[هوش مصنوعی] 💬 مشخصات محصول (${promo.productName || 'تبلیغ'}) در متن پاسخ مطرح گردید.`);
               saveData();
@@ -9806,19 +10274,22 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
           }
 
           // Check if max bot messages limit reached
-          const configuredMaxTurns = instructions.maxMessagesPerChat || 8;
-          if (
-            (activeAnonChatSession.aiMessagesCount || 0) >= configuredMaxTurns ||
-            (activeAnonChatSession.botMessageCount || 0) >= maxBotLimit
-          ) {
-            addLog('info', `[چت ناشناس] تعداد نوبت‌های پاسخ ربات به سقف مشخص شده (${configuredMaxTurns}) رسید. آماده‌سازی خروج و اتمام جلسه...`);
+          const configuredMaxTurns = instructions.maxMessagesPerChat || 12;
+          const shouldExitOnMaxTurns = !isCommercialSession && (activeAnonChatSession.aiMessagesCount || 0) >= configuredMaxTurns;
+          const shouldExitOnBotCeiling = (activeAnonChatSession.botMessageCount || 0) >= maxBotLimit;
+
+          if (shouldExitOnMaxTurns || shouldExitOnBotCeiling) {
+            const reasonMsg = shouldExitOnBotCeiling
+              ? `سقف مجاز (${maxBotLimit}) پیام ربات به پایان رسید.`
+              : `اتمام ${configuredMaxTurns} نوبت پاسخ ربات در مکالمه عادی. خروج هوشمند و رفتن به نفر بعدی...`;
+            addLog('info', `[چت ناشناس] ${reasonMsg}`);
             await executeExitAndNextPartner(
               client,
               botEntity,
               selectedBot,
               activeAnonChatSession,
               'max_messages_reached',
-              `اتمام ${configuredMaxTurns} نوبت پاسخ ربات. خروج هوشمند و رفتن به نفر بعدی...`
+              reasonMsg
             );
             exitTriggered = true;
             break;
@@ -9831,15 +10302,19 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
 
         // Silence Timeout Detector
         if (isConnectedToPartner && activeAnonChatSession.status === 'chatting') {
-          const silenceSec = (Date.now() - Math.max(lastPartnerActivityTime, lastAiReplyTime)) / 1000;
+          const nowMs = Date.now();
+          const lastActivity = Math.max(lastPartnerActivityTime, lastAiReplyTime);
+          const silenceSec = (nowMs - lastActivity) / 1000;
           const targetTimeout = instructions.silenceTimeoutSeconds || 30;
 
           // Optional Silence Nudge
           if (silenceSec >= targetTimeout / 2 && !silenceNudgeSent && instructions.enableSilenceNudge) {
             silenceNudgeSent = true;
-            const nudgeText = instructions.silenceNudgeText || 'هستی؟ 🌸';
+            const rawNudge = instructions.silenceNudgeText || 'هستی؟';
+            const nudgeText = rawNudge.replace(/[🌸🌺🌷✨❤️🤍]+/g, '').trim() || 'هستی؟';
             try {
               await client.sendMessage(botEntity, { message: nudgeText });
+              activeAnonChatSession.botMessageCount = (activeAnonChatSession.botMessageCount || 0) + 1;
               activeAnonChatSession.messagesCount++;
               lastAiReplyTime = Date.now();
               activeAnonChatSession.transcript.push({
@@ -9852,17 +10327,26 @@ async function runAnonymousChatWorker(targetAccountId?: string) {
             } catch (nudgeErr) {
               console.warn('Nudge error:', nudgeErr);
             }
+            // Give partner fresh grace period to reply to nudge before checking timeout
+            continue;
           }
 
           // Full silence timeout reached -> Exit using exitSteps
-          if (silenceSec >= targetTimeout) {
+          const effectiveSilenceSec = silenceNudgeSent
+            ? (nowMs - lastAiReplyTime) / 1000
+            : silenceSec;
+          const requiredTimeout = silenceNudgeSent
+            ? Math.max(20, targetTimeout / 2)
+            : targetTimeout;
+
+          if (effectiveSilenceSec >= requiredTimeout) {
             await executeExitAndNextPartner(
               client,
               botEntity,
               selectedBot,
               activeAnonChatSession,
               'stranger_silence',
-              `عدم پاسخ مخاطب پس از ${targetTimeout} ثانیه. خروج طبق ترتیب دکمه‌های خروج...`
+              `عدم پاسخ مخاطب پس از ${Math.round(silenceSec)} ثانیه. خروج طبق ترتیب دکمه‌های خروج...`
             );
             exitTriggered = true;
             break;
@@ -10469,20 +10953,8 @@ app.post('/api/anonymous/clear-history', (req, res) => {
 });
 
 app.post('/api/anonymous/update-config', (req, res) => {
-  const updates = req.body;
-  appState.anonymousAutomator = normalizeAnonymousAutomatorConfig({
-    ...appState.anonymousAutomator,
-    ...updates,
-    instructions: {
-      ...(appState.anonymousAutomator?.instructions || {}),
-      ...(updates.instructions || {}),
-      productPromotion: {
-        ...(appState.anonymousAutomator?.instructions?.productPromotion || {}),
-        ...(updates.instructions?.productPromotion || {}),
-      },
-    },
-  });
-
+  const updates = req.body || {};
+  appState.anonymousAutomator = normalizeAnonymousAutomatorConfig(updates, appState.anonymousAutomator);
   saveData();
   res.json({ success: true, automator: appState.anonymousAutomator });
 });
@@ -10697,8 +11169,8 @@ const handleSimulateReply = async (req: any, res: any) => {
     );
     const bubbles = splitIntoNaturalBubbles(
       replyResult.text,
-      activeInstructions.multiBubbleMaxChunks || 3,
-      activeInstructions.maxWordsPerBubble || 5
+      activeInstructions.multiBubbleMaxChunks || 2,
+      activeInstructions.maxWordsPerBubble || 8
     );
     res.json({
       success: true,
