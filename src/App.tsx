@@ -10,6 +10,7 @@ import { AntiBotSettingsCard } from './components/AntiBotSettingsCard';
 import { MonitoringConsoleCard } from './components/MonitoringConsoleCard';
 import { BroadcastReportCard } from './components/BroadcastReportCard';
 import { AnonymousBotsCard } from './components/AnonymousBotsCard';
+import { GroupPromotionStrategiesCard } from './components/GroupPromotionStrategiesCard';
 import { LiveTelemetryHUD } from './components/LiveTelemetryHUD';
 import { LogsConsole } from './components/LogsConsole';
 import {
@@ -21,6 +22,8 @@ import {
   AntiBotSettings,
   AnonymousBotProfile,
   AnonymousChatAutomatorConfig,
+  GroupPromotionStrategyConfig,
+  GroupPromotionStrategyType,
 } from './types';
 import {
   Send,
@@ -79,7 +82,7 @@ export default function App() {
   const [isSendingNow, setIsSendingNow] = useState(false);
   const [isStoppingBroadcast, setIsStoppingBroadcast] = useState(false);
   const [activeMainTab, setActiveMainTab] = useState<'anonymous_bot' | 'group_broadcast' | 'accounts' | 'logs'>('anonymous_bot');
-  const [groupSubTab, setGroupSubTab] = useState<'overview' | 'campaign' | 'groups' | 'antibot' | 'scheduler' | 'all'>('overview');
+  const [groupSubTab, setGroupSubTab] = useState<'overview' | 'strategies' | 'campaign' | 'groups' | 'antibot' | 'scheduler' | 'all'>('overview');
 
   // Fetch complete state from Express backend and sync with localStorage
   const fetchState = async () => {
@@ -645,6 +648,101 @@ export default function App() {
     await fetchState();
   };
 
+  // Group Promotion Strategies Handlers
+  const handleSwitchGroupStrategy = async (strategy: GroupPromotionStrategyType) => {
+    try {
+      const res = await fetch('/api/strategy/switch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ strategy }),
+      });
+      const data = await res.json();
+      if (data.success && data.strategy) {
+        setAppState(prev => ({
+          ...prev,
+          groupPromotionStrategy: data.strategy,
+        }));
+      }
+      await fetchState();
+    } catch (e) {
+      console.error('Failed to switch strategy:', e);
+    }
+  };
+
+  const handleUpdateGroupStrategyConfig = async (updates: Partial<GroupPromotionStrategyConfig>) => {
+    try {
+      const res = await fetch('/api/strategy/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (data.success && data.strategy) {
+        setAppState(prev => ({
+          ...prev,
+          groupPromotionStrategy: data.strategy,
+        }));
+      }
+    } catch (e) {
+      console.error('Failed to update strategy config:', e);
+    }
+  };
+
+  const handleRunStrategy1Now = async () => {
+    try {
+      setIsSendingNow(true);
+      await fetch('/api/strategy/strategy1/run-now', { method: 'POST' });
+      await fetchState();
+    } catch (e) {
+      console.error('Failed to run strategy 1:', e);
+    } finally {
+      setTimeout(() => setIsSendingNow(false), 2000);
+    }
+  };
+
+  const handleToggleListener = async (active: boolean) => {
+    try {
+      const res = await fetch('/api/strategy/strategy2/toggle-listener', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active }),
+      });
+      const data = await res.json();
+      if (data.success && data.strategy) {
+        setAppState(prev => ({
+          ...prev,
+          groupPromotionStrategy: data.strategy,
+        }));
+      }
+    } catch (e) {
+      console.error('Failed to toggle listener:', e);
+    }
+  };
+
+  const handleTestSimulateLead = async (sampleText: string) => {
+    const res = await fetch('/api/strategy/strategy2/test-simulation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sampleText }),
+    });
+    return await res.json();
+  };
+
+  const handleClearLeads = async () => {
+    try {
+      await fetch('/api/strategy/strategy2/clear-leads', { method: 'POST' });
+      setAppState(prev => prev.groupPromotionStrategy ? ({
+        ...prev,
+        groupPromotionStrategy: {
+          ...prev.groupPromotionStrategy,
+          recentLeads: [],
+        }
+      }) : prev);
+    } catch (e) {
+      console.error('Failed to clear leads:', e);
+    }
+  };
+
   const [isSavingAllState, setIsSavingAllState] = useState(false);
   const [lastSavedTimestamp, setLastSavedTimestamp] = useState<string | null>(null);
 
@@ -870,6 +968,25 @@ export default function App() {
                 >
                   <LayoutGrid className="w-4 h-4" />
                   <span>داشبورد و وضعیت کلی</span>
+                </button>
+
+                <button
+                  onClick={() => setGroupSubTab('strategies')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    groupSubTab === 'strategies'
+                      ? 'bg-gradient-to-r from-amber-500 to-indigo-600 text-white shadow-md shadow-amber-500/20 ring-1 ring-amber-400/50'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/80 border border-slate-750/50'
+                  }`}
+                >
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  <span>استراتژی‌های تبلیغاتی</span>
+                  <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-500/30">
+                    {appState.groupPromotionStrategy?.activeStrategy === 'periodic_broadcast'
+                      ? 'استراتژی ۱ (دوره‌ای)'
+                      : appState.groupPromotionStrategy?.activeStrategy === 'smart_listener_reply'
+                      ? 'استراتژی ۲ (شنود هوشمند)'
+                      : 'ترکیبی ۱+۲'}
+                  </span>
                 </button>
 
                 <button
@@ -1146,6 +1263,42 @@ export default function App() {
                   </div>
 
                 </div>
+
+                {/* Group Promotion Strategies Hub inside Overview */}
+                <div className="pt-2">
+                  <GroupPromotionStrategiesCard
+                    strategyConfig={appState.groupPromotionStrategy}
+                    campaigns={appState.campaigns}
+                    groups={appState.groups}
+                    accounts={appState.accounts || []}
+                    isConnected={appState.credentials.isConnected}
+                    onSwitchStrategy={handleSwitchGroupStrategy}
+                    onUpdateStrategyConfig={handleUpdateGroupStrategyConfig}
+                    onRunStrategy1Now={handleRunStrategy1Now}
+                    onToggleListener={handleToggleListener}
+                    onTestSimulateLead={handleTestSimulateLead}
+                    onClearLeads={handleClearLeads}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* TAB: STRATEGIES ONLY (Full width) */}
+            {groupSubTab === 'strategies' && (
+              <div className="animate-in fade-in duration-200">
+                <GroupPromotionStrategiesCard
+                  strategyConfig={appState.groupPromotionStrategy}
+                  campaigns={appState.campaigns}
+                  groups={appState.groups}
+                  accounts={appState.accounts || []}
+                  isConnected={appState.credentials.isConnected}
+                  onSwitchStrategy={handleSwitchGroupStrategy}
+                  onUpdateStrategyConfig={handleUpdateGroupStrategyConfig}
+                  onRunStrategy1Now={handleRunStrategy1Now}
+                  onToggleListener={handleToggleListener}
+                  onTestSimulateLead={handleTestSimulateLead}
+                  onClearLeads={handleClearLeads}
+                />
               </div>
             )}
 

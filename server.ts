@@ -35,7 +35,22 @@ import {
   AccountMembershipInfo,
   ConversationStrategy,
   BotPersonaConfig,
+  GroupPromotionStrategyConfig,
+  GroupPromotionStrategyType,
+  GroupLeadEvent,
 } from './src/types.js';
+import {
+  detectLeadInMessage,
+  generateGroupReplyMessage,
+  generateCasualFriendPvMessage,
+  generateGeminiGroupReply,
+  generateGeminiCasualFriendPvMessage,
+} from './src/conversation/groupPromotionListener.js';
+import {
+  generateGeminiDynamicAdCaption,
+  generateLocalDynamicCaption,
+  processVariablesAndSpintax,
+} from './src/conversation/geminiAdWriter.js';
 import {
   processConversationTurn,
   createInitialConversationContext,
@@ -225,6 +240,66 @@ app.get('/api/config/validate', (req, res) => {
 
 // Memory / File Persistence
 const DATA_FILE = path.join(process.cwd(), 'telegram_promoter_data.json');
+
+const defaultGroupPromotionStrategy: GroupPromotionStrategyConfig = {
+  activeStrategy: 'periodic_broadcast',
+  strategy1: {
+    enabled: true,
+    intervalHours: 2,
+    intervalMinutes: 120,
+    onlyFullyReadyGroups: true,
+    includeBanner: true,
+    randomJitterMinutes: 3,
+    totalBroadcastsSent: 0,
+    totalGroupsReached: 0,
+  },
+  strategy2: {
+    enabled: false,
+    isListeningActive: false,
+    keywords: [
+      'vpn',
+      'فیلترشکن',
+      'فیلتر شکن',
+      'وی پی ان',
+      'وی‌پی‌ان',
+      'v2ray',
+      'v2rayng',
+      'کانفیگ',
+      'پروکسی',
+      'proxy',
+      'سرعت اینترنت',
+      'کندی اینترنت',
+      'نت قطعه',
+      'قطعی اینترنت',
+      'هوش مصنوعی',
+      'chatgpt',
+      'چت جی پی تی',
+      'claude',
+      'gemini',
+      'اینستا',
+      'اینستاگرام',
+      'یوتیوب',
+      'youtube',
+      'پینگ',
+      'کاهش پینگ',
+      'لگ دارم',
+    ],
+    replyInGroup: true,
+    sendDirectMessage: true,
+    sendBannerInDirectMessage: true,
+    friendStylePvTone: true,
+    groupReplyDelaySeconds: 4,
+    pvMessageDelaySeconds: 8,
+    userCooldownHours: 24,
+    maxRepliesPerGroupPerHour: 5,
+    useAiReasoning: true,
+    totalMessagesScanned: 0,
+    totalLeadsDetected: 0,
+    totalGroupRepliesSent: 0,
+    totalPvMessagesSent: 0,
+  },
+  recentLeads: [],
+};
 
 const defaultAnonymousAutomatorConfig: AnonymousChatAutomatorConfig = {
   isActive: false,
@@ -956,6 +1031,7 @@ let appState: AppState = {
       message: 'سامانه مدیریت ربات تبلیغات تلگرام آماده به کار است.',
     }
   ],
+  groupPromotionStrategy: defaultGroupPromotionStrategy,
   anonymousAutomator: defaultAnonymousAutomatorConfig,
   anonymousSessionHistory: [],
   currentTestRun: null,
@@ -989,6 +1065,19 @@ if (fs.existsSync(DATA_FILE)) {
         ...appState.scheduler,
         ...(parsed.scheduler || {}),
       },
+      groupPromotionStrategy: parsed.groupPromotionStrategy ? {
+        ...defaultGroupPromotionStrategy,
+        ...parsed.groupPromotionStrategy,
+        strategy1: {
+          ...defaultGroupPromotionStrategy.strategy1,
+          ...(parsed.groupPromotionStrategy?.strategy1 || {}),
+        },
+        strategy2: {
+          ...defaultGroupPromotionStrategy.strategy2,
+          ...(parsed.groupPromotionStrategy?.strategy2 || {}),
+        },
+        recentLeads: Array.isArray(parsed.groupPromotionStrategy?.recentLeads) ? parsed.groupPromotionStrategy.recentLeads : [],
+      } : defaultGroupPromotionStrategy,
       groups: Array.isArray(parsed.groups) ? parsed.groups : (appState.groups || []),
       campaigns: Array.isArray(parsed.campaigns) ? parsed.campaigns : (appState.campaigns || []),
       logs: Array.isArray(parsed.logs) ? parsed.logs : (appState.logs || []),
@@ -1772,6 +1861,11 @@ app.post('/api/upload-banner', (req, res) => {
       if (camp) {
         camp.imageUrl = publicUrl;
       }
+    } else if ((target === 'campaign' || !campaignId) && Array.isArray(appState.campaigns) && appState.campaigns.length > 0) {
+      const camp = appState.campaigns.find((c: any) => c.isActive) || appState.campaigns[0];
+      if (camp) {
+        camp.imageUrl = publicUrl;
+      }
     }
 
     // Immediately persist to disk in telegram_promoter_data.json
@@ -2264,13 +2358,31 @@ app.post('/api/campaigns/save', (req, res) => {
     return;
   }
 
+  let processedImageUrl = imageUrl || '';
+  if (processedImageUrl.startsWith('data:image') || processedImageUrl.includes(';base64,')) {
+    try {
+      let ext = '.jpg';
+      if (processedImageUrl.includes('image/png')) ext = '.png';
+      else if (processedImageUrl.includes('image/webp')) ext = '.webp';
+      const base64Data = processedImageUrl.includes(';base64,') ? processedImageUrl.split(';base64,')[1] : processedImageUrl.split(',')[1];
+      const buffer = Buffer.from(base64Data, 'base64');
+      const filename = `banner_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
+      fs.writeFileSync(path.join(UPLOADS_DIR, filename), buffer);
+      processedImageUrl = `/uploads/${filename}`;
+    } catch (e) {
+      console.error('Failed to convert base64 image in campaigns/save:', e);
+    }
+  }
+
   if (id) {
     const existing = appState.campaigns.find(c => c.id === id);
     if (existing) {
       existing.title = title;
       existing.price = price;
       existing.description = description;
-      existing.imageUrl = imageUrl || existing.imageUrl;
+      if (imageUrl !== undefined) {
+        existing.imageUrl = processedImageUrl;
+      }
       existing.contactHandle = contactHandle;
       existing.hashtags = hashtags || [];
       existing.isActive = isActive !== undefined ? isActive : existing.isActive;
@@ -2286,7 +2398,7 @@ app.post('/api/campaigns/save', (req, res) => {
     title,
     price: price || 'توافقی',
     description,
-    imageUrl: imageUrl || '',
+    imageUrl: processedImageUrl,
     contactHandle: contactHandle || '@Admin',
     hashtags: Array.isArray(hashtags) ? hashtags : (hashtags ? hashtags.split(' ') : []),
     isActive: true,
@@ -2319,6 +2431,37 @@ app.post('/api/campaigns/delete', (req, res) => {
     addLog('info', `محصول "${camp.title}" حذف گردید.`, undefined, undefined, camp.title);
   }
   res.json({ success: true, campaigns: appState.campaigns });
+});
+
+// 9b. AI Dynamic Caption Generator with Gemini (gemini-3.8-flash)
+app.post('/api/campaigns/generate-caption', async (req, res) => {
+  try {
+    const { campaignId, groupTitle, tone, customDescription } = req.body;
+    let campaign = appState.campaigns.find(c => c.id === campaignId) || appState.campaigns.find(c => c.isActive) || appState.campaigns[0];
+
+    if (!campaign) {
+      return res.status(400).json({ success: false, error: 'هیچ کمپینی جهت بازنویسی یافت نشد.' });
+    }
+
+    if (customDescription) {
+      campaign = { ...campaign, description: customDescription };
+    }
+
+    const result = await generateGeminiDynamicAdCaption({
+      campaign,
+      groupTitle: groupTitle || 'گروه بچه‌های ایران',
+      tone: tone || (appState.scheduler.antiBot?.geminiCaptionTone || 'friendly'),
+    });
+
+    res.json({
+      success: true,
+      text: result.text,
+      usedAi: result.usedAi,
+      model: result.model || (result.usedAi ? 'gemini-3.8-flash' : 'local_dynamic_anti_spam'),
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'خطا در تولید متن هوشمند با Gemini' });
+  }
 });
 
 // 10. Scheduler config update
@@ -2699,14 +2842,9 @@ function processMessageWithSpintaxAndVars(
   context: { groupTitle?: string; contactHandle?: string; price?: string; campaignTitle?: string; accountName?: string } = {}
 ): { text: string; spintaxApplied: boolean } {
   const isSpintaxOrVarsPresent = /\{[^{}]+\}/.test(template);
-  // 1. First replace variables in template
-  let current = applyDynamicVariablesBackend(template, context);
-  // 2. Resolve spintax choices
-  current = parseSpintaxBackend(current);
-  // 3. Re-apply variables in case spintax options contained variables
-  current = applyDynamicVariablesBackend(current, context);
+  const resolved = processVariablesAndSpintax(template, context);
   return {
-    text: current,
+    text: resolved,
     spintaxApplied: isSpintaxOrVarsPresent,
   };
 }
@@ -4413,6 +4551,23 @@ async function executeBroadcast(isManualTrigger = false) {
       }
     }
 
+    // 4.1 Apply Strategy 1 constraint: only groups that are 100% ready (joined & sendable)
+    const activeStrategy = appState.groupPromotionStrategy?.activeStrategy || 'periodic_broadcast';
+    const strat1 = appState.groupPromotionStrategy?.strategy1;
+    if ((activeStrategy === 'periodic_broadcast' || activeStrategy === 'hybrid_both') && strat1?.onlyFullyReadyGroups) {
+      const prevCount = targetGroupsToProcess.length;
+      targetGroupsToProcess = targetGroupsToProcess.filter(g => {
+        const isJoined = g.status === 'joined' || g.membershipStatus === 'joined' || (g.joinedAccountIds && g.joinedAccountIds.length > 0);
+        const canSend = g.canSendMessages !== false && g.readinessStatus !== 'no_permission_left';
+        return isJoined && canSend;
+      });
+      addLog('info', `[استراتژی اول] تعداد ${targetGroupsToProcess.length} گروه ۱۰۰٪ آماده (با مجوز ارسال پیام) از مجموع ${prevCount} گروه فعال انتخاب شدند.`);
+      if (targetGroupsToProcess.length === 0) {
+        addLog('warning', '[استراتژی اول] هیچ گروهی با وضعیت ۱۰۰٪ آماده (عضو شده و دارای مجوز ارسال پیام) یافت نشد.');
+        return { success: false, message: 'هیچ گروه ۱۰۰٪ آماده‌ای جهت ارسال یافت نشد.' };
+      }
+    }
+
     // Prepare media image paths for all active campaigns
     const campaignImagePaths = new Map<string, string>();
     for (const camp of activeCampaigns) {
@@ -4706,17 +4861,36 @@ async function executeBroadcast(isManualTrigger = false) {
               workerProgress.lastAction = `در حال شبیه‌سازی رفتار انسانی و انتشار پیام در "${group.title}"...`;
             }
 
-            // Apply Spintax and dynamic variables per group for anti-spam fingerprint randomization
-            const baseTemplate = `📌 **${campaign.title}**\n\n💰 **قیمت:** ${campaign.price}\n\n📝 ${campaign.description}\n\n👤 **سفارش و ارتباط:** ${campaign.contactHandle}\n\n${campaign.hashtags.map(h => (h.startsWith('#') ? h : '#' + h)).join(' ')}`;
-            const spintaxResult = processMessageWithSpintaxAndVars(baseTemplate, {
-              groupTitle: group.title,
-              contactHandle: campaign.contactHandle,
-              price: campaign.price,
-              campaignTitle: campaign.title,
-              accountName: account.userProfile?.firstName || account.phoneNumber,
-            });
-            const groupTextMessage = (appState.scheduler.antiBot?.enableSpintax !== false) ? spintaxResult.text : baseTemplate;
-            const spintaxApplied = spintaxResult.spintaxApplied;
+            // Anti-Spam Dynamic Caption Generation (Gemini AI or Local Dynamic Engine)
+            let groupTextMessage = '';
+            let usedAiCaption = false;
+            const useGemini = appState.scheduler.antiBot?.useGeminiForCaptions !== false;
+
+            if (useGemini) {
+              try {
+                const aiGen = await generateGeminiDynamicAdCaption({
+                  campaign,
+                  groupTitle: group.title,
+                  accountName: account.userProfile?.firstName || account.phoneNumber,
+                  tone: appState.scheduler.antiBot?.geminiCaptionTone || 'friendly',
+                });
+                groupTextMessage = aiGen.text;
+                usedAiCaption = aiGen.usedAi;
+              } catch (aiErr) {
+                console.warn('[Broadcast] Gemini caption error, falling back:', aiErr);
+              }
+            }
+
+            if (!groupTextMessage) {
+              groupTextMessage = generateLocalDynamicCaption(campaign, {
+                groupTitle: group.title,
+                accountName: account.userProfile?.firstName || account.phoneNumber,
+              });
+            }
+
+            if (usedAiCaption) {
+              addLog('info', `[هوش مصنوعی Gemini] متن بنر اختصاصی و متنوع برای گروه "${group.title}" با موفقیت تولید شد.`);
+            }
 
             if (appState.activeBroadcastProgress) {
               appState.activeBroadcastProgress.lastGeneratedSampleMessage = {
@@ -5064,6 +5238,16 @@ async function executeBroadcast(isManualTrigger = false) {
     if (appState.activeBroadcastProgress) {
       appState.activeBroadcastProgress.isRunning = false;
     }
+    if (appState.groupPromotionStrategy) {
+      const strat1 = appState.groupPromotionStrategy.strategy1;
+      if (reportSuccessCount > 0) {
+        strat1.totalBroadcastsSent = (strat1.totalBroadcastsSent || 0) + 1;
+        strat1.totalGroupsReached = (strat1.totalGroupsReached || 0) + reportSuccessCount;
+      }
+      strat1.lastBroadcastAt = new Date().toISOString();
+      const intervalMs = (strat1.intervalHours || 2) * 60 * 60 * 1000;
+      strat1.nextBroadcastAt = new Date(Date.now() + intervalMs).toISOString();
+    }
     saveData();
     isBroadcastRunning = false;
   }
@@ -5363,7 +5547,22 @@ app.post('/api/groups/recheck-and-send', async (req, res) => {
     tempImgPath = await getImageFilePathForTelegram(campaign.imageUrl);
   }
 
-  const textMessage = `📌 **${campaign.title}**\n\n💰 **قیمت:** ${campaign.price}\n\n📝 ${campaign.description}\n\n👤 **سفارش و ارتباط:** ${campaign.contactHandle}\n\n${campaign.hashtags.map(h => (h.startsWith('#') ? h : '#' + h)).join(' ')}`;
+  let textMessage = '';
+  let usedAiCaption = false;
+  if (appState.scheduler.antiBot?.useGeminiForCaptions !== false) {
+    try {
+      const aiGen = await generateGeminiDynamicAdCaption({
+        campaign,
+        groupTitle: groupTitleName,
+        tone: appState.scheduler.antiBot?.geminiCaptionTone || 'friendly',
+      });
+      textMessage = aiGen.text;
+      usedAiCaption = aiGen.usedAi;
+    } catch (e) {}
+  }
+  if (!textMessage) {
+    textMessage = generateLocalDynamicCaption(campaign, { groupTitle: groupTitleName });
+  }
 
   try {
     const peer = await resolveAndJoinGroup(client, targetUsernameOrTitle);
@@ -5522,9 +5721,24 @@ app.post('/api/send-direct-test', async (req, res) => {
 
   const activeCampaigns = appState.campaigns.filter(c => c.isActive);
   const campaign = activeCampaigns[0] || appState.campaigns[0];
-  const textMessage = campaign 
-    ? `📌 **${campaign.title}**\n\n💰 **قیمت:** ${campaign.price}\n\n📝 ${campaign.description}\n\n👤 **سفارش و ارتباط:** ${campaign.contactHandle}` 
-    : 'سلام، این یک پیام تست از سامانه مدیریت تبلیغات تلگرام است.';
+  let textMessage = '';
+  if (campaign) {
+    if (appState.scheduler.antiBot?.useGeminiForCaptions !== false) {
+      try {
+        const aiGen = await generateGeminiDynamicAdCaption({
+          campaign,
+          groupTitle: chatTarget,
+          tone: appState.scheduler.antiBot?.geminiCaptionTone || 'friendly',
+        });
+        textMessage = aiGen.text;
+      } catch (e) {}
+    }
+    if (!textMessage) {
+      textMessage = generateLocalDynamicCaption(campaign, { groupTitle: chatTarget });
+    }
+  } else {
+    textMessage = 'سلام، این یک پیام تست از سامانه مدیریت تبلیغات تلگرام است.';
+  }
 
   // If Bot-Only test is requested (e.g. from Bot API Test button)
   if (isBotOnlyMode) {
@@ -11872,9 +12086,463 @@ app.post('/api/evaluation/export', async (req, res) => {
   }
 });
 
+// =========================================================================
+// GROUP PROMOTION STRATEGIES ENGINE & API ROUTES (STRATEGY 1 & STRATEGY 2)
+// =========================================================================
+
+// Anti-Spam state for Strategy 2
+const processedGroupMsgKeys = new Set<string>();
+const userCooldownMap = new Map<string, number>(); // senderId -> timestamp
+const groupHourlyReplies = new Map<string, { count: number; hourTs: number }>();
+let isGroupListenerRunning = false;
+
+function ensureGroupPromotionStrategyConfig(): GroupPromotionStrategyConfig {
+  if (!appState.groupPromotionStrategy) {
+    appState.groupPromotionStrategy = { ...defaultGroupPromotionStrategy };
+    saveData();
+  }
+  return appState.groupPromotionStrategy;
+}
+
+// 1. GET /api/strategy - Get strategy config and stats
+app.get('/api/strategy', (req, res) => {
+  const config = ensureGroupPromotionStrategyConfig();
+  res.json({
+    success: true,
+    strategy: config,
+  });
+});
+
+// 2. POST /api/strategy/switch - One-click Strategy Switcher
+app.post('/api/strategy/switch', async (req, res) => {
+  const { strategy } = req.body;
+  if (!strategy || !['periodic_broadcast', 'smart_listener_reply', 'hybrid_both'].includes(strategy)) {
+    return res.status(400).json({ success: false, error: 'استراتژی نامعتبر است.' });
+  }
+
+  const config = ensureGroupPromotionStrategyConfig();
+  config.activeStrategy = strategy as GroupPromotionStrategyType;
+
+  if (strategy === 'periodic_broadcast') {
+    config.strategy1.enabled = true;
+    config.strategy2.enabled = false;
+    config.strategy2.isListeningActive = false;
+    addLog(
+      'info',
+      `[تغییر استراتژی با یک کلیک] استراتژی اول (ارسال دوره‌ای بنر در گروه‌های ۱۰۰٪ آماده) فعال گردید. فواصل ارسال: هر ${config.strategy1.intervalHours || 2} ساعت.`
+    );
+  } else if (strategy === 'smart_listener_reply') {
+    config.strategy1.enabled = false;
+    config.strategy2.enabled = true;
+    config.strategy2.isListeningActive = true;
+    addLog(
+      'info',
+      `[تغییر استراتژی با یک کلیک] استراتژی دوم (دیده‌بان و شنود هوشمند در گروه‌ها + ریپلای و پیام پی‌وی) فعال گردید. کلمات کلیدی فعال: ${config.strategy2.keywords.length} مورد.`
+    );
+  } else if (strategy === 'hybrid_both') {
+    config.strategy1.enabled = true;
+    config.strategy2.enabled = true;
+    config.strategy2.isListeningActive = true;
+    addLog(
+      'info',
+      `[تغییر استراتژی با یک کلیک] حالت ترکیبی و چندکاناله (هر دو استراتژی ۱ و ۲ به صورت همزمان) فعال گردید.`
+    );
+  }
+
+  saveData();
+  res.json({
+    success: true,
+    message: 'استراتژی با موفقیت تغییر یافت.',
+    strategy: config,
+  });
+});
+
+// 3. POST /api/strategy/update - Update settings
+app.post('/api/strategy/update', (req, res) => {
+  const config = ensureGroupPromotionStrategyConfig();
+  const { strategy1, strategy2, activeStrategy } = req.body;
+
+  if (activeStrategy) {
+    config.activeStrategy = activeStrategy;
+  }
+  if (strategy1) {
+    config.strategy1 = {
+      ...config.strategy1,
+      ...strategy1,
+    };
+  }
+  if (strategy2) {
+    config.strategy2 = {
+      ...config.strategy2,
+      ...strategy2,
+    };
+  }
+
+  saveData();
+  res.json({
+    success: true,
+    message: 'تنظیمات استراتژی با موفقیت ذخیره شد.',
+    strategy: config,
+  });
+});
+
+// 4. POST /api/strategy/strategy1/run-now - Immediate execution of Strategy 1
+app.post('/api/strategy/strategy1/run-now', async (req, res) => {
+  try {
+    ensureGroupPromotionStrategyConfig();
+    addLog('info', '[استراتژی اول] اجرای آنی و دستی ارسال بنر و متن به گروه‌های ۱۰۰٪ آماده درخواست شد.');
+
+    executeBroadcast(true).catch(err => {
+      console.error('Manual strategy 1 broadcast error:', err);
+    });
+
+    res.json({
+      success: true,
+      message: 'عملیات ارسال استراتژی اول در پیش‌زمینه آغاز گردید.',
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || String(err) });
+  }
+});
+
+// 5. POST /api/strategy/strategy2/toggle-listener - Toggle listener
+app.post('/api/strategy/strategy2/toggle-listener', (req, res) => {
+  const config = ensureGroupPromotionStrategyConfig();
+  const { active } = req.body;
+  config.strategy2.isListeningActive = Boolean(active);
+  saveData();
+
+  addLog(
+    'info',
+    `[استراتژی دوم] وضعیت شنود زنده پیام‌ها در گروه‌ها: ${config.strategy2.isListeningActive ? 'فعال شد' : 'متوقف شد'}.`
+  );
+
+  res.json({
+    success: true,
+    isListeningActive: config.strategy2.isListeningActive,
+    strategy: config,
+  });
+});
+
+// 6. POST /api/strategy/strategy2/test-simulation - Simulate lead detection & replies
+app.post('/api/strategy/strategy2/test-simulation', (req, res) => {
+  const { sampleText } = req.body;
+  if (!sampleText) {
+    return res.status(400).json({ success: false, error: 'متن پیام نمونه الزامی است.' });
+  }
+
+  const config = ensureGroupPromotionStrategyConfig();
+  const leadRes = detectLeadInMessage(sampleText, config.strategy2.keywords);
+
+  const activeCampaign: ProductCampaign = appState.campaigns.find(c => c.isActive) || appState.campaigns[0] || {
+    id: 'default',
+    title: 'فیلترشکن اختصاصی پرسرعت V2ray',
+    price: 'ماهانه ۶۰ هزار تومان',
+    contactHandle: '@VossTheory',
+    description: 'سرور اختصاصی بدون قطعی با آی‌پی ثابت',
+    imageUrl: '',
+    hashtags: ['#VPN', '#V2ray'],
+    isActive: true,
+    createdAt: new Date().toISOString(),
+  };
+
+  const groupReplyText = generateGroupReplyMessage(
+    leadRes.category,
+    leadRes.matchedKeywords,
+    activeCampaign,
+    'کاربر'
+  );
+
+  const pvText = generateCasualFriendPvMessage(
+    leadRes.category,
+    leadRes.matchedKeywords,
+    activeCampaign,
+    'علی'
+  );
+
+  res.json({
+    success: true,
+    detectedCategory: leadRes.category,
+    isMatch: leadRes.isMatch,
+    matchedKeywords: leadRes.matchedKeywords,
+    confidence: leadRes.confidence,
+    groupReplyText,
+    pvText,
+    campaignTitle: activeCampaign.title,
+    contactHandle: activeCampaign.contactHandle,
+  });
+});
+
+// 7. POST /api/strategy/strategy2/clear-leads - Clear recent leads history
+app.post('/api/strategy/strategy2/clear-leads', (req, res) => {
+  const config = ensureGroupPromotionStrategyConfig();
+  config.recentLeads = [];
+  saveData();
+  res.json({ success: true, message: 'تاریخچه لیدها با موفقیت پاکسازی شد.' });
+});
+
+// 8. BACKGROUND WORKER: STRATEGY 2 LISTENER STEP
+async function runGroupPromotionListenerStep() {
+  if (isGroupListenerRunning) return;
+  const config = appState.groupPromotionStrategy;
+  if (!config) return;
+
+  const isStrat2Active = config.activeStrategy === 'smart_listener_reply' || config.activeStrategy === 'hybrid_both';
+  if (!isStrat2Active || !config.strategy2.isListeningActive) return;
+
+  if (!appState.credentials.isConnected || !appState.credentials.sessionString) {
+    return;
+  }
+
+  isGroupListenerRunning = true;
+  try {
+    const client = await getOrInitTgClient();
+    if (!client) return;
+
+    // Get active joined groups
+    const joinedGroups = appState.groups.filter(g => {
+      const isJoined = g.status === 'joined' || g.membershipStatus === 'joined' || (g.joinedAccountIds && g.joinedAccountIds.length > 0);
+      return g.isActive && isJoined;
+    });
+
+    if (joinedGroups.length === 0) return;
+
+    const activeCampaign = appState.campaigns.find(c => c.isActive) || appState.campaigns[0];
+    if (!activeCampaign) return;
+
+    // Scan up to 5 groups each turn to respect rate limits
+    const sampleGroups = joinedGroups.slice(0, 5);
+
+    for (const group of sampleGroups) {
+      try {
+        const peer = await resolveAndJoinGroup(client, group.usernameOrLink);
+        if (!peer) continue;
+
+        let messages: any[] = [];
+        try {
+          messages = await client.getMessages(peer, { limit: 6 });
+        } catch (fetchErr) {
+          continue;
+        }
+
+        for (const msg of messages || []) {
+          if (!msg || !msg.message || msg.out) continue;
+
+          const msgKey = `${group.id || group.title}_${msg.id}`;
+          if (processedGroupMsgKeys.has(msgKey)) continue;
+          processedGroupMsgKeys.add(msgKey);
+
+          // Keep processed set bounded
+          if (processedGroupMsgKeys.size > 2000) {
+            const first = processedGroupMsgKeys.values().next().value;
+            if (first) processedGroupMsgKeys.delete(first);
+          }
+
+          config.strategy2.totalMessagesScanned = (config.strategy2.totalMessagesScanned || 0) + 1;
+
+          // Detect Lead
+          const leadRes = detectLeadInMessage(msg.message, config.strategy2.keywords);
+          if (!leadRes.isMatch) continue;
+
+          config.strategy2.totalLeadsDetected = (config.strategy2.totalLeadsDetected || 0) + 1;
+          config.strategy2.lastLeadDetectedAt = new Date().toISOString();
+
+          // Resolve sender
+          let sender: any = null;
+          let senderId = '';
+          let senderFirstName = 'کاربر';
+          let senderUsername = '';
+
+          try {
+            sender = msg.sender || (msg.getSender ? await msg.getSender() : null);
+            if (sender) {
+              senderId = String(sender.id || '');
+              senderFirstName = sender.firstName || 'کاربر';
+              senderUsername = sender.username || '';
+            }
+          } catch (e) {}
+
+          // Check user cooldown (default 24h)
+          const now = Date.now();
+          const cooldownMs = (config.strategy2.userCooldownHours || 24) * 3600 * 1000;
+          if (senderId && userCooldownMap.has(senderId)) {
+            const lastSent = userCooldownMap.get(senderId) || 0;
+            if (now - lastSent < cooldownMs) {
+              continue;
+            }
+          }
+
+          // Check group hourly reply limit
+          const hourKey = `${group.id || group.title}_${new Date().getHours()}`;
+          const currentHourly = groupHourlyReplies.get(hourKey) || { count: 0, hourTs: now };
+          if (currentHourly.count >= (config.strategy2.maxRepliesPerGroupPerHour || 5)) {
+            continue;
+          }
+
+          let groupReplySent = false;
+          let groupReplyText = '';
+          let groupReplyError = '';
+
+          // 1. Group Reply
+          if (config.strategy2.replyInGroup) {
+            try {
+              const replyDelay = Math.max(1, config.strategy2.groupReplyDelaySeconds || 4) * 1000;
+              await new Promise(r => setTimeout(r, replyDelay));
+
+              const groupReplyAi = await generateGeminiGroupReply(
+                msg.message,
+                leadRes.category,
+                leadRes.matchedKeywords,
+                activeCampaign,
+                senderFirstName
+              );
+              groupReplyText = groupReplyAi.text;
+
+              await client.sendMessage(peer, {
+                message: groupReplyText,
+                replyTo: msg.id,
+              });
+
+              groupReplySent = true;
+              config.strategy2.totalGroupRepliesSent = (config.strategy2.totalGroupRepliesSent || 0) + 1;
+              groupHourlyReplies.set(hourKey, { count: currentHourly.count + 1, hourTs: now });
+
+              addLog(
+                'success',
+                `[استراتژی دوم - ریپلای گروه] پاسخ هوشمند به پیام "${msg.message.slice(0, 30)}..." در گروه "${group.title}" ارسال شد.`
+              );
+            } catch (rErr: any) {
+              groupReplyError = rErr?.message || String(rErr);
+              addLog('warning', `[استراتژی دوم] خطا در ریپلای گروه "${group.title}": ${groupReplyError}`);
+            }
+          }
+
+          // 2. Direct Message (PV) in Casual Friend Tone
+          let pvSent = false;
+          let pvText = '';
+          let pvHasBanner = false;
+          let pvError = '';
+
+          if (config.strategy2.sendDirectMessage && sender) {
+            try {
+              const pvDelay = Math.max(2, config.strategy2.pvMessageDelaySeconds || 8) * 1000;
+              await new Promise(r => setTimeout(r, pvDelay));
+
+              const pvAi = await generateGeminiCasualFriendPvMessage(
+                msg.message,
+                leadRes.category,
+                leadRes.matchedKeywords,
+                activeCampaign,
+                senderFirstName
+              );
+              pvText = pvAi.text;
+
+              let bannerPath: string | undefined = undefined;
+              if (config.strategy2.sendBannerInDirectMessage && activeCampaign.imageUrl) {
+                try {
+                  bannerPath = await getImageFilePathForTelegram(activeCampaign.imageUrl);
+                } catch (bErr) {}
+              }
+
+              if (bannerPath && fs.existsSync(bannerPath)) {
+                await client.sendFile(sender, {
+                  file: bannerPath,
+                  caption: pvText,
+                });
+                pvHasBanner = true;
+              } else {
+                await client.sendMessage(sender, {
+                  message: pvText,
+                });
+              }
+
+              pvSent = true;
+              config.strategy2.totalPvMessagesSent = (config.strategy2.totalPvMessagesSent || 0) + 1;
+              if (senderId) {
+                userCooldownMap.set(senderId, now);
+              }
+
+              addLog(
+                'success',
+                `[استراتژی دوم - پیام پی‌وی] پیام شخصی صمیمی ${pvHasBanner ? '(همراه بنر)' : ''} به پی‌وی ${senderFirstName} (${senderUsername ? '@' + senderUsername : senderId}) ارسال شد.`
+              );
+            } catch (pvErr: any) {
+              pvError = pvErr?.message || String(pvErr);
+              addLog('warning', `[استراتژی دوم] ارسال پی‌وی به کاربر ناموفق بود (ممکن است پی‌وی بسته باشد): ${pvError}`);
+            }
+          }
+
+          // Record Lead Event
+          const leadEvent: GroupLeadEvent = {
+            id: 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            timestamp: new Date().toISOString(),
+            groupId: group.id,
+            groupTitle: group.title,
+            userId: senderId,
+            userFirstName: senderFirstName,
+            userUsername: senderUsername,
+            originalMessageId: msg.id,
+            originalMessageText: msg.message,
+            detectedCategory: leadRes.category,
+            detectedKeywords: leadRes.matchedKeywords,
+            groupReplySent,
+            groupReplyText,
+            groupReplyError,
+            pvSent,
+            pvText,
+            pvHasBanner,
+            pvError,
+            status: pvSent ? 'sent_pv' : groupReplySent ? 'replied_group' : 'detected',
+          };
+
+          if (!config.recentLeads) config.recentLeads = [];
+          config.recentLeads.unshift(leadEvent);
+          if (config.recentLeads.length > 50) {
+            config.recentLeads = config.recentLeads.slice(0, 50);
+          }
+
+          saveData();
+        }
+      } catch (grpErr) {
+        // Continue with other groups
+      }
+    }
+  } catch (err: any) {
+    console.warn('Strategy 2 listener step error:', err?.message || err);
+  } finally {
+    isGroupListenerRunning = false;
+  }
+}
+
+// Background Listener Loop for Strategy 2 (Runs every 15 seconds)
+setInterval(() => {
+  runGroupPromotionListenerStep().catch(err => {
+    console.warn('Strategy 2 listener loop caught error:', err);
+  });
+}, 15000);
 
 // SERVER-SIDE BACKGROUND SCHEDULER LOOP (Checks every 10 seconds)
 setInterval(async () => {
+  // Strategy 1 Periodic Broadcast check
+  const stratConfig = appState.groupPromotionStrategy;
+  if (stratConfig) {
+    const isStrat1Active = stratConfig.activeStrategy === 'periodic_broadcast' || stratConfig.activeStrategy === 'hybrid_both';
+    if (isStrat1Active && stratConfig.strategy1.enabled && !isBroadcastRunning) {
+      const now = Date.now();
+      const nextRun = stratConfig.strategy1.nextBroadcastAt ? new Date(stratConfig.strategy1.nextBroadcastAt).getTime() : 0;
+      if (!stratConfig.strategy1.nextBroadcastAt || now >= nextRun) {
+        // Set next run time before initiating to avoid duplicate triggers
+        const intervalMs = (stratConfig.strategy1.intervalHours || 2) * 60 * 60 * 1000;
+        stratConfig.strategy1.nextBroadcastAt = new Date(now + intervalMs).toISOString();
+        saveData();
+
+        console.log('⏰ Triggering automated Strategy 1 periodic banner broadcast in 100% ready groups...');
+        addLog('info', `[استراتژی اول - زمان‌بندی دوره‌ای] زمان ارسال دوره‌ای فرا رسید. ارسال بنر و متن به گروه‌های ۱۰۰٪ آماده آغاز شد.`);
+        await executeBroadcast(false);
+      }
+    }
+  }
+
   if (!appState.scheduler.isAutoRunActive) return;
 
   // Night Mode Check (01:00 AM to 07:00 AM)

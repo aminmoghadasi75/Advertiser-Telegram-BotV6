@@ -16,7 +16,11 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
   onDeleteCampaign,
   onToggleCampaign,
 }) => {
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => {
+    return campaigns.length > 0 ? (campaigns.find(c => c.isActive)?.id || campaigns[0].id) : null;
+  });
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [activeTab, setActiveTab] = useState<'edit' | 'list' | 'preview'>('edit');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const loadedCampaignIdRef = useRef<string | null>(null);
@@ -38,37 +42,53 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Sync form ONLY when active selected campaign ID changes or on initial load
-  // Do NOT re-sync on every background polling update to avoid erasing user typing or quick-inserted tags!
-  useEffect(() => {
-    const isFirstRun = !hasInitializedRef.current;
-    const isSelectionChanged = loadedCampaignIdRef.current !== selectedCampaignId;
+  // Gemini AI Caption Preview State
+  const [aiPreviewOpen, setAiPreviewOpen] = useState(false);
+  const [aiPreviewLoading, setAiPreviewLoading] = useState(false);
+  const [aiPreviewText, setAiPreviewText] = useState('');
+  const [aiPreviewGroup, setAiPreviewGroup] = useState('گروه دانشجویان و گیمرهای ایران');
 
-    if (isFirstRun || isSelectionChanged) {
-      if (activeCampaign && (isFirstRun || selectedCampaignId !== null)) {
-        setCurrentId(activeCampaign.id || '');
-        setTitle(activeCampaign.title || '');
-        setPrice(activeCampaign.price || '');
-        setDescription(activeCampaign.description || '');
-        setImageUrl(activeCampaign.imageUrl || '');
-        setContactHandle(activeCampaign.contactHandle || '');
-        setHashtagInput(Array.isArray(activeCampaign.hashtags) ? activeCampaign.hashtags.join(' ') : '');
-        loadedCampaignIdRef.current = activeCampaign.id;
-        hasInitializedRef.current = true;
-      } else if (selectedCampaignId === null && !isFirstRun) {
-        setCurrentId('');
-        setTitle('');
-        setPrice('');
-        setDescription('');
-        setImageUrl('');
-        setContactHandle('');
-        setHashtagInput('');
-        loadedCampaignIdRef.current = null;
+  const handleGenerateAiPreview = async () => {
+    setAiPreviewLoading(true);
+    try {
+      const res = await fetch('/api/campaigns/generate-caption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaignId: currentId || activeCampaign?.id,
+          groupTitle: aiPreviewGroup,
+          customDescription: description,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAiPreviewText(data.text);
       }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAiPreviewLoading(false);
     }
-  }, [selectedCampaignId, campaigns.length]);
+  };
+
+  // Sync form on initial mount or when user selects a different campaign
+  useEffect(() => {
+    if (!hasInitializedRef.current && activeCampaign && !isCreatingNew) {
+      setSelectedCampaignId(activeCampaign.id);
+      setCurrentId(activeCampaign.id);
+      setTitle(activeCampaign.title || '');
+      setPrice(activeCampaign.price || '');
+      setDescription(activeCampaign.description || '');
+      setImageUrl(activeCampaign.imageUrl || '');
+      setContactHandle(activeCampaign.contactHandle || '');
+      setHashtagInput(Array.isArray(activeCampaign.hashtags) ? activeCampaign.hashtags.join(' ') : '');
+      loadedCampaignIdRef.current = activeCampaign.id;
+      hasInitializedRef.current = true;
+    }
+  }, [campaigns, activeCampaign, isCreatingNew]);
 
   const handleStartNew = () => {
+    setIsCreatingNew(true);
     setSelectedCampaignId(null);
     loadedCampaignIdRef.current = null;
     setCurrentId('');
@@ -83,14 +103,15 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
   };
 
   const handleSelectCampaignForEdit = (camp: ProductCampaign) => {
+    setIsCreatingNew(false);
     setSelectedCampaignId(camp.id);
     loadedCampaignIdRef.current = camp.id;
     setCurrentId(camp.id);
-    setTitle(camp.title);
-    setPrice(camp.price);
-    setDescription(camp.description);
-    setImageUrl(camp.imageUrl);
-    setContactHandle(camp.contactHandle);
+    setTitle(camp.title || '');
+    setPrice(camp.price || '');
+    setDescription(camp.description || '');
+    setImageUrl(camp.imageUrl || '');
+    setContactHandle(camp.contactHandle || '');
     setHashtagInput(Array.isArray(camp.hashtags) ? camp.hashtags.join(' ') : '');
     setActiveTab('edit');
     setErrorMessage(null);
@@ -129,6 +150,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
     if (!file) return;
 
     setErrorMessage(null);
+    setIsUploadingImage(true);
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
@@ -177,10 +199,16 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
             })
             .catch(() => {
               setImageUrl(compressed);
+            })
+            .finally(() => {
+              setIsUploadingImage(false);
             });
+        } else {
+          setIsUploadingImage(false);
         }
       };
       img.onerror = () => {
+        setIsUploadingImage(false);
         setErrorMessage('خطا در خواندن فایل تصویر. لطفاً تصویر دیگری انتخاب کنید.');
       };
       img.src = event.target?.result as string;
@@ -192,6 +220,11 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
     e.preventDefault();
     if (!title.trim() || !description.trim()) {
       setErrorMessage('عنوان و توضیحات محصول الزامی است.');
+      return;
+    }
+
+    if (isUploadingImage) {
+      setErrorMessage('لطفاً تا اتمام آپلود و بهینه‌سازی تصویر منتظر بمانید.');
       return;
     }
 
@@ -216,6 +249,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
         isActive: true,
       });
 
+      setIsCreatingNew(false);
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err: any) {
@@ -406,6 +440,71 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
                       </button>
                     ))}
                   </div>
+
+                  {/* Gemini AI Preview Toggle Button */}
+                  <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiPreviewOpen(!aiPreviewOpen);
+                        if (!aiPreviewOpen && !aiPreviewText) {
+                          handleGenerateAiPreview();
+                        }
+                      }}
+                      className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 transition-colors py-1 px-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>{aiPreviewOpen ? 'بستن پیش‌نمایش هوش مصنوعی' : 'پیش‌نمایش تولید متن بنر با هوش مصنوعی Gemini'}</span>
+                    </button>
+                    <span className="text-[10px] text-slate-500 font-mono">Gemini 3.8 Flash</span>
+                  </div>
+
+                  {/* Gemini AI Live Preview Box */}
+                  {aiPreviewOpen && (
+                    <div className="p-3 bg-slate-900/90 rounded-xl border border-indigo-500/30 space-y-2 mt-2 animate-in fade-in duration-150">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-300 font-semibold flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5 text-indigo-400" />
+                          متن نهایی تولید شده توسط Gemini برای گروه نمونه:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleGenerateAiPreview}
+                          disabled={aiPreviewLoading}
+                          className="text-[10px] text-indigo-300 hover:text-indigo-100 flex items-center gap-1 bg-indigo-600/30 px-2 py-0.5 rounded-md border border-indigo-500/30 font-bold"
+                        >
+                          <Sparkles className={`w-3 h-3 ${aiPreviewLoading ? 'animate-spin' : ''}`} />
+                          <span>{aiPreviewLoading ? 'در حال بازنویسی...' : 'تولید مجدد با متن جدید'}</span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-slate-400 shrink-0">نام گروه تست:</span>
+                        <input
+                          type="text"
+                          value={aiPreviewGroup}
+                          onChange={(e) => setAiPreviewGroup(e.target.value)}
+                          placeholder="نام گروه فرضی..."
+                          className="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-white flex-1 focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      {aiPreviewLoading ? (
+                        <div className="p-4 text-center text-xs text-indigo-300 flex items-center justify-center gap-2">
+                          <Sparkles className="w-4 h-4 animate-spin text-indigo-400" />
+                          <span>Gemini در حال نگارش متن منحصربه‌فرد و جذاب برای این گروه است...</span>
+                        </div>
+                      ) : aiPreviewText ? (
+                        <div className="p-2.5 bg-slate-950 rounded-lg border border-slate-800/90 text-xs text-slate-200 leading-relaxed font-sans whitespace-pre-line select-text">
+                          {aiPreviewText}
+                        </div>
+                      ) : null}
+
+                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1">
+                        <span className="text-emerald-400 font-medium">✓ متغیرهای خام حذف و متن برای فرار از آنتی‌اسپم تلگرام بهینه‌سازی می‌شود</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -449,7 +548,13 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
 
               {/* Upload Box */}
               <div className="relative aspect-video bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col items-center justify-center group">
-                {imageUrl ? (
+                {isUploadingImage ? (
+                  <div className="flex flex-col items-center justify-center p-6 text-sky-400">
+                    <div className="w-8 h-8 border-2 border-sky-400 border-t-transparent rounded-full animate-spin mb-2" />
+                    <span className="text-xs font-bold text-slate-200">در حال آپلود و بهینه‌سازی تصویر در سرور...</span>
+                    <span className="text-[10px] text-slate-500 mt-1">لطفاً چند لحظه شکیبا باشید</span>
+                  </div>
+                ) : imageUrl ? (
                   <>
                     <img src={imageUrl} alt="کاور محصول" className="w-full h-full object-contain bg-slate-950 p-1" />
                     <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -480,10 +585,18 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
 
               {/* Direct Image URL input */}
               <div>
-                <label className="text-[11px] text-slate-400 mb-1 block">یا لینک تصویر (URL):</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400">یا آدرس مستقیم تصویر (URL):</label>
+                  {imageUrl && (
+                    <span className="text-[10px] text-emerald-400 flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      تصویر ثبت شده است
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="/uploads/... یا https://example.com/image.jpg"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 dir-ltr text-left"
@@ -497,9 +610,11 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || isUploadingImage}
             className={`w-full py-3 rounded-xl font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 ${
-              savedSuccess
+              loading || isUploadingImage
+                ? 'opacity-60 cursor-not-allowed bg-slate-800 text-slate-400'
+                : savedSuccess
                 ? 'bg-emerald-500 text-slate-950 shadow-emerald-500/20'
                 : 'bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white shadow-sky-500/20'
             }`}
@@ -511,7 +626,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
               </>
             ) : (
               <>
-                <span>{loading ? 'در حال ذخیره‌سازی کمپین...' : 'ذخیره کمپین و فعال‌سازی جهت انتشار'}</span>
+                <span>{loading ? 'در حال ذخیره‌سازی کمپین...' : isUploadingImage ? 'در حال آپلود تصویر...' : 'ذخیره کمپین و فعال‌سازی جهت انتشار'}</span>
               </>
             )}
           </button>

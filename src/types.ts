@@ -170,6 +170,8 @@ export interface AntiBotSettings {
   simulateTyping?: boolean; // شبیه‌سازی اکشن تایپینگ واقعی تلگرام قبل از ارسال (SetTyping)
   typingDurationSeconds?: number; // مدت زمان تایپینگ قبل از ارسال پیام (مثلاً ۱ تا ۴ ثانیه)
   enableSpintax?: boolean; // بهینه‌سازی و تنوع‌بخشی خودکار پیام با Spintax و متغیرها
+  useGeminiForCaptions?: boolean; // تولید هوشمند و متفاوت متن زیر بنر برای هر گروه با Gemini
+  geminiCaptionTone?: 'friendly' | 'marketing' | 'concise' | 'recommender'; // لحن نگارش هوش مصنوعی
   cacheMediaInput?: boolean; // کش کردن فایل رسانه در تلگرام جهت ارسال فوق‌سریع و کاهش ۹۹٪ ترافیک
   verifyMessagePersistence?: boolean; // پایش ماندگاری پیام و تشخیص حذف خودکار توسط ربات‌های ادمین
   persistenceCheckDelaySeconds?: number; // زمان شکیبایی جهت پایش ماندگاری پیام (مثلاً ۱۵ تا ۲۰ ثانیه)
@@ -738,6 +740,77 @@ export interface IntentDetectionResult {
   actionabilityScore: number;
 }
 
+export type GroupPromotionStrategyType = 'periodic_broadcast' | 'smart_listener_reply' | 'hybrid_both';
+
+export interface GroupLeadEvent {
+  id: string;
+  timestamp: string;
+  groupId: string;
+  groupTitle: string;
+  userId: string;
+  userFirstName?: string;
+  userLastName?: string;
+  userUsername?: string;
+  originalMessageId: number;
+  originalMessageText: string;
+  detectedCategory: 'vpn_filter' | 'net_speed' | 'ai_chatgpt' | 'social_media' | 'gaming_ping' | 'general_lead';
+  detectedKeywords: string[];
+  groupReplySent: boolean;
+  groupReplyText?: string;
+  groupReplyError?: string;
+  pvSent: boolean;
+  pvText?: string;
+  pvHasBanner?: boolean;
+  pvError?: string;
+  status: 'detected' | 'replied_group' | 'sent_pv' | 'completed' | 'failed';
+}
+
+export interface GroupPromotionStrategyConfig {
+  activeStrategy: GroupPromotionStrategyType; // 'periodic_broadcast' | 'smart_listener_reply' | 'hybrid_both'
+  
+  // استراتژی اول: ارسال دوره‌ای بنر و متن در گروه‌های ۱۰۰٪ آماده
+  strategy1: {
+    enabled: boolean;
+    intervalHours: number; // e.g. 1, 2, 4, 6, 12, 24 hours
+    intervalMinutes?: number; // custom interval in minutes
+    onlyFullyReadyGroups: boolean; // فقط گروه‌های ۱۰۰٪ آماده با دسترسی ارسال پیام
+    includeBanner: boolean; // ارسال همراه با بنر تصویری
+    useGeminiRewriting?: boolean; // بازنویسی هوشمند و متفاوت متن با Gemini برای هر گروه
+    geminiCaptionTone?: 'friendly' | 'professional' | 'minimal' | 'story'; // لحن بازنویسی
+    randomJitterMinutes: number; // انحراف تصادفی فواصل جهت عدم شناسایی (مثلاً ۲ تا ۱۰ دقیقه)
+    lastBroadcastAt?: string;
+    nextBroadcastAt?: string;
+    totalBroadcastsSent: number;
+    totalGroupsReached: number;
+  };
+
+  // استراتژی دوم: شنود هوشمند پیام‌ها در گروه‌ها + ریپلای در گروه + ارسال به پی‌وی به عنوان فرد معمولی
+  strategy2: {
+    enabled: boolean;
+    isListeningActive: boolean; // آیا شنود گروه‌ها در حال اجراست
+    keywords: string[]; // واژه‌های کلیدی مرتبط با VPN، فیلترشکن، سرعت نت، هوش مصنوعی و...
+    replyInGroup: boolean; // ریپلای هوشمند در گروه به کاربر
+    sendDirectMessage: boolean; // ارسال پیام خصوصی به پی‌وی کاربر
+    sendBannerInDirectMessage: boolean; // ارسال بنر تبلیغاتی کمپین در پی‌وی
+    friendStylePvTone: boolean; // لحن صمیمی و دوستانه مانند فرد معمولی
+    groupReplyDelaySeconds: number; // تاخیر طبیعی قبل از ریپلای در گروه (مثلا ۳ تا ۶ ثانیه)
+    pvMessageDelaySeconds: number; // تاخیر طبیعی قبل از ارسال پی‌وی (مثلا ۵ تا ۱۲ ثانیه)
+    userCooldownHours: number; // عدم ارسال تکراری به یک کاربر تا ۲۴ ساعت
+    maxRepliesPerGroupPerHour: number; // سقف پاسخ در یک گروه در ساعت جهت جلوگیری از اسپم (مثلا ۵ پیام)
+    useAiReasoning: boolean; // استفاده از هوش مصنوعی برای تولید پاسخ متناسب با پیام کاربر
+    customGroupReplyTemplate?: string;
+    customPvMessageTemplate?: string;
+    totalMessagesScanned: number;
+    totalLeadsDetected: number;
+    totalGroupRepliesSent: number;
+    totalPvMessagesSent: number;
+    lastLeadDetectedAt?: string;
+  };
+
+  // رویدادها و لیدهای اخیر ثبت‌شده
+  recentLeads: GroupLeadEvent[];
+}
+
 export interface AppState {
   credentials: TelegramCredentials;
   accounts?: TelegramAccount[];
@@ -745,6 +818,7 @@ export interface AppState {
   groups: TargetGroup[];
   campaigns: ProductCampaign[];
   scheduler: SchedulerConfig;
+  groupPromotionStrategy?: GroupPromotionStrategyConfig;
   logs: LogEntry[];
   monitoringReports?: GroupMonitoringReport[];
   lastBroadcastReport?: BroadcastReport;
