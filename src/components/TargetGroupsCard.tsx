@@ -98,7 +98,7 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
 
   // Filter & Search
   const [searchQuery, setSearchQuery] = useState('');
-  const [membershipFilter, setMembershipFilter] = useState<'all' | 'joined' | 'unjoined' | 'active'>('all');
+  const [membershipFilter, setMembershipFilter] = useState<'all' | 'ready' | 'captcha_required' | 'unjoined' | 'no_permission_left' | 'active'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('همه');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
@@ -110,6 +110,10 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
   const [joiningSingleId, setJoiningSingleId] = useState<string | null>(null);
   const [isVerifyingPersistence, setIsVerifyingPersistence] = useState(false);
   const [testingTarget, setTestingTarget] = useState<string | null>(null);
+  const [isPurgingInvalid, setIsPurgingInvalid] = useState(false);
+  const [solvingCaptchaGroup, setSolvingCaptchaGroup] = useState<TargetGroup | null>(null);
+  const [manualCustomReply, setManualCustomReply] = useState<string>('');
+  const [isRetryingCaptcha, setIsRetryingCaptcha] = useState<boolean>(false);
 
   // Custom Join Strategy form state
   const [strategyMode, setStrategyMode] = useState<'balanced_distribution' | 'redundant_all_accounts'>(
@@ -117,11 +121,23 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
   );
   const [delaySeconds, setDelaySeconds] = useState<number>(groupJoinStrategy?.delayBetweenJoinsSeconds || 10);
   const [autoAntibot, setAutoAntibot] = useState<boolean>(groupJoinStrategy?.autoResolveAntibotOnJoin ?? true);
+  const [leaveIfNoSendPermission, setLeaveIfNoSendPermission] = useState<boolean>(groupJoinStrategy?.leaveIfNoSendPermission ?? true);
+  const [sendGreetingTest, setSendGreetingTest] = useState<boolean>(groupJoinStrategy?.sendGreetingTest ?? true);
+  const [greetingMessage, setGreetingMessage] = useState<string>(groupJoinStrategy?.greetingMessage || 'سلام بچه ها');
+  const [verifyGreetingSurvival, setVerifyGreetingSurvival] = useState<boolean>(groupJoinStrategy?.verifyGreetingSurvival ?? true);
+  const [autoSolveAllCaptchas, setAutoSolveAllCaptchas] = useState<boolean>(groupJoinStrategy?.autoSolveAllCaptchas ?? true);
 
-  // Computed Metrics
+  // Computed 4-State Lifecycle Metrics
   const totalGroupsCount = groups.length;
+  const readyGroups = groups.filter((g) => g.readinessStatus === 'ready');
+  const captchaRequiredGroups = groups.filter((g) => g.readinessStatus === 'captcha_required');
+  const unjoinedGroups = groups.filter(
+    (g) =>
+      g.readinessStatus === 'unjoined' ||
+      (!g.readinessStatus && g.membershipStatus !== 'joined' && (!g.joinedAccountIds || g.joinedAccountIds.length === 0))
+  );
+  const invalidGroups = groups.filter((g) => g.readinessStatus === 'no_permission_left');
   const joinedGroups = groups.filter((g) => g.membershipStatus === 'joined' || (g.joinedAccountIds && g.joinedAccountIds.length > 0));
-  const unjoinedGroups = groups.filter((g) => g.membershipStatus !== 'joined' && (!g.joinedAccountIds || g.joinedAccountIds.length === 0));
   const activeCount = groups.filter((g) => g.isActive).length;
   const isJoinEngineRunning = Boolean(activeGroupJoinProgress?.isRunning);
 
@@ -140,10 +156,16 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
     const matchesCategory = selectedCategory === 'همه' || g.category === selectedCategory;
 
     let matchesMembership = true;
-    if (membershipFilter === 'joined') {
-      matchesMembership = g.membershipStatus === 'joined' || (g.joinedAccountIds && g.joinedAccountIds.length > 0);
+    if (membershipFilter === 'ready') {
+      matchesMembership = g.readinessStatus === 'ready';
+    } else if (membershipFilter === 'captcha_required') {
+      matchesMembership = g.readinessStatus === 'captcha_required';
     } else if (membershipFilter === 'unjoined') {
-      matchesMembership = g.membershipStatus !== 'joined' && (!g.joinedAccountIds || g.joinedAccountIds.length === 0);
+      matchesMembership =
+        g.readinessStatus === 'unjoined' ||
+        (!g.readinessStatus && g.membershipStatus !== 'joined' && (!g.joinedAccountIds || g.joinedAccountIds.length === 0));
+    } else if (membershipFilter === 'no_permission_left') {
+      matchesMembership = g.readinessStatus === 'no_permission_left';
     } else if (membershipFilter === 'active') {
       matchesMembership = g.isActive;
     }
@@ -218,9 +240,58 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
         delayBetweenJoinsSeconds: delaySeconds,
         maxJoinsPerAccountPerHour: 15,
         autoResolveAntibotOnJoin: autoAntibot,
+        leaveIfNoSendPermission,
+        sendGreetingTest,
+        greetingMessage,
+        verifyGreetingSurvival,
+        autoSolveAllCaptchas,
       });
     }
     setShowStrategyModal(false);
+  };
+
+  const handlePurgeInvalidGroups = async () => {
+    if (invalidGroups.length === 0) return;
+    if (!window.confirm(`آیا از پاکسازی و حذف کامل ${invalidGroups.length} گروه فاقد اجازه ارسال اطمینان دارید؟`)) return;
+    setIsPurgingInvalid(true);
+    try {
+      const resp = await fetch('/api/groups/purge-invalid', { method: 'POST' });
+      const data = await resp.json();
+      if (data.success) {
+        if (onSyncGroups) await onSyncGroups();
+      }
+    } catch (e: any) {
+      alert('خطا در پاکسازی گروه‌ها: ' + (e?.message || e));
+    } finally {
+      setIsPurgingInvalid(false);
+    }
+  };
+
+  const handleRetryCaptchaVerification = async (groupId: string, customReply?: string) => {
+    setIsRetryingCaptcha(true);
+    try {
+      const resp = await fetch('/api/groups/retry-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ groupId, customReply }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        if (onSyncGroups) await onSyncGroups();
+        if (data.verification?.isClear) {
+          alert('تبریک! چالش برطرف شد و گروه ۱۰۰٪ آماده ارسال تبلیغات گردید.');
+          setSolvingCaptchaGroup(null);
+        } else {
+          alert(data.verification?.statusMessage || 'چالش ربات محافظ نیازمند بررسی تکمیلی است.');
+        }
+      } else {
+        alert(data.error || 'خطا در ارزیابی مجدد');
+      }
+    } catch (e: any) {
+      alert('خطا: ' + (e?.message || e));
+    } finally {
+      setIsRetryingCaptcha(false);
+    }
   };
 
   const handleVerifyAllPersistence = async () => {
@@ -756,12 +827,12 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
 
           {/* Membership & Category Filters */}
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-            {/* Membership Filter Chips */}
-            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto">
+            {/* 4-State Lifecycle Membership Filter Chips */}
+            <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setMembershipFilter('all')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all text-xs ${
                   membershipFilter === 'all' ? 'bg-sky-500/20 text-sky-300 font-bold' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -769,31 +840,69 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setMembershipFilter('joined')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
-                  membershipFilter === 'joined' ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'text-slate-400 hover:text-white'
+                onClick={() => setMembershipFilter('ready')}
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all text-xs flex items-center gap-1.5 ${
+                  membershipFilter === 'ready' ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40' : 'text-slate-400 hover:text-emerald-300'
                 }`}
               >
-                عضو شده ({joinedGroups.length})
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>۱۰۰٪ آماده ارسال</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">
+                  {readyGroups.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMembershipFilter('captcha_required')}
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all text-xs flex items-center gap-1.5 ${
+                  membershipFilter === 'captcha_required' ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40' : 'text-slate-400 hover:text-amber-300'
+                }`}
+              >
+                <ShieldAlert className={`w-3.5 h-3.5 text-amber-400 ${captchaRequiredGroups.length > 0 ? 'animate-pulse' : ''}`} />
+                <span>نیازمند اقدام دستی</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono">
+                  {captchaRequiredGroups.length}
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => setMembershipFilter('unjoined')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
-                  membershipFilter === 'unjoined' ? 'bg-amber-500/20 text-amber-300 font-bold' : 'text-slate-400 hover:text-white'
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all text-xs flex items-center gap-1.5 ${
+                  membershipFilter === 'unjoined' ? 'bg-slate-800 text-slate-200 font-bold' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                نیازمند عضویت ({unjoinedGroups.length})
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <span>هنوز عضو نشده</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 text-[10px] font-mono">
+                  {unjoinedGroups.length}
+                </span>
               </button>
               <button
                 type="button"
-                onClick={() => setMembershipFilter('active')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
-                  membershipFilter === 'active' ? 'bg-indigo-500/20 text-indigo-300 font-bold' : 'text-slate-400 hover:text-white'
+                onClick={() => setMembershipFilter('no_permission_left')}
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all text-xs flex items-center gap-1.5 ${
+                  membershipFilter === 'no_permission_left' ? 'bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40' : 'text-slate-400 hover:text-rose-300'
                 }`}
               >
-                فعال برای ارسال ({activeCount})
+                <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                <span>فاقد اجازه ارسال (لفت داده شد)</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-mono">
+                  {invalidGroups.length}
+                </span>
               </button>
+
+              {invalidGroups.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handlePurgeInvalidGroups}
+                  disabled={isPurgingInvalid}
+                  className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold text-xs flex items-center gap-1 transition-all mr-auto shrink-0 shadow-sm"
+                  title="پاکسازی دائمی تمامی گروه‌هایی که دسترسی ارسال پیام نداشتند و لفت داده شدند"
+                >
+                  <Trash2 className="w-3 h-3 text-rose-400" />
+                  <span>{isPurgingInvalid ? 'در حال پاکسازی...' : `حذف ${invalidGroups.length} گروه نامعتبر`}</span>
+                </button>
+              )}
             </div>
 
             {/* View Mode Toggle */}
@@ -903,13 +1012,34 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
                           <h4 className="font-bold text-xs text-white truncate max-w-[200px] sm:max-w-[280px]" title={cleanTitle}>
                             {cleanTitle}
                           </h4>
-                          {isJoined ? (
+                          {group.readinessStatus === 'ready' ? (
+                            <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shrink-0">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                              ۱۰۰٪ آماده ارسال
+                            </span>
+                          ) : group.readinessStatus === 'captcha_required' ? (
+                            <button
+                              type="button"
+                              onClick={() => setSolvingCaptchaGroup(group)}
+                              className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shrink-0 transition-all active:scale-95 shadow-sm"
+                              title="مشاهده و حل چالش ربات ناظر"
+                            >
+                              <ShieldAlert className="w-3 h-3 text-amber-400" />
+                              نیازمند اقدام دستی (حل چالش)
+                            </button>
+                          ) : group.readinessStatus === 'no_permission_left' ? (
+                            <span className="text-[10px] bg-rose-500/15 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 shrink-0">
+                              <XCircle className="w-3 h-3 text-rose-400" />
+                              فاقد اجازه ارسال (لفت داده شد)
+                            </span>
+                          ) : isJoined ? (
                             <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium shrink-0">
                               عضو شده ✓
                             </span>
                           ) : (
-                            <span className="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium shrink-0">
-                              نیازمند عضویت
+                            <span className="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1 shrink-0">
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              هنوز عضو نشده
                             </span>
                           )}
                           {group.category && (
@@ -1005,12 +1135,32 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
                           {cleanTitle}
                         </h4>
                       </div>
-                      {isJoined ? (
+                      {group.readinessStatus === 'ready' ? (
+                        <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-bold shrink-0 flex items-center gap-1">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                          آماده
+                        </span>
+                      ) : group.readinessStatus === 'captcha_required' ? (
+                        <button
+                          type="button"
+                          onClick={() => setSolvingCaptchaGroup(group)}
+                          className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded font-bold shrink-0 flex items-center gap-1"
+                          title="حل چالش ربات ناظر"
+                        >
+                          <ShieldAlert className="w-2.5 h-2.5 text-amber-400" />
+                          اقدام دستی
+                        </button>
+                      ) : group.readinessStatus === 'no_permission_left' ? (
+                        <span className="text-[10px] bg-rose-500/15 text-rose-300 border border-rose-500/30 px-1.5 py-0.5 rounded font-bold shrink-0 flex items-center gap-1">
+                          <XCircle className="w-2.5 h-2.5 text-rose-400" />
+                          لفت داده شد
+                        </span>
+                      ) : isJoined ? (
                         <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-medium shrink-0">
                           عضو
                         </span>
                       ) : (
-                        <span className="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-medium shrink-0">
+                        <span className="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-1.5 py-0.5 rounded font-medium shrink-0">
                           عضو نشده
                         </span>
                       )}
@@ -1152,6 +1302,76 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
                 />
               </div>
 
+              {/* Leave if No Send Permission */}
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-rose-300 text-xs">خروج و حذف خودکار در صورت عدم دسترسی ارسال</div>
+                  <div className="text-[11px] text-slate-400">در صورت نداشتن مجوز ارسال پیام، ربات از گروه خارج شده و تاریخچه را حذف می‌کند</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={leaveIfNoSendPermission}
+                  onChange={(e) => setLeaveIfNoSendPermission(e.target.checked)}
+                  className="w-4 h-4 accent-rose-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Send Greeting Test */}
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-emerald-300 text-xs">ارسال پیام سلام اولیه ارگانیک</div>
+                    <div className="text-[11px] text-slate-400">ارسال پیام کوتاه اولیه جهت راستی‌آزمایی و تحریک ربات ناظر برای نمایش چالش</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={sendGreetingTest}
+                    onChange={(e) => setSendGreetingTest(e.target.checked)}
+                    className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                  />
+                </div>
+                {sendGreetingTest && (
+                  <div className="pt-1">
+                    <label className="block text-[11px] text-slate-400 mb-1">متن پیام سلام ارگانیک:</label>
+                    <input
+                      type="text"
+                      value={greetingMessage}
+                      onChange={(e) => setGreetingMessage(e.target.value)}
+                      placeholder="سلام بچه ها"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-sky-500"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Verify Greeting Survival */}
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-sky-300 text-xs">پایش ماندگاری پیام (بررسی حذف نشدن پس از ۴ ثانیه)</div>
+                  <div className="text-[11px] text-slate-400">اگر ربات ناظر پیام را پاک نکرد، گروه بدون چالش و ۱۰۰٪ آماده تایید می‌شود</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={verifyGreetingSurvival}
+                  onChange={(e) => setVerifyGreetingSurvival(e.target.checked)}
+                  className="w-4 h-4 accent-sky-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Auto Solve All Captchas */}
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-purple-300 text-xs">حل حداکثری و جامع کاپچا (هوش مصنوعی + سوالات ریاضی)</div>
+                  <div className="text-[11px] text-slate-400">تلاش خودکار برای حل سوالات ریاضی، کپچاهای متنی و دکمه‌های تایید</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={autoSolveAllCaptchas}
+                  onChange={(e) => setAutoSolveAllCaptchas(e.target.checked)}
+                  className="w-4 h-4 accent-purple-500 cursor-pointer"
+                />
+              </div>
+
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
                 <button
                   type="button"
@@ -1168,6 +1388,106 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 2: MANUAL CAPTCHA / CHALLENGE RESOLUTION MODAL */}
+      {/* ========================================================================= */}
+      {solvingCaptchaGroup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-amber-400" />
+                حل چالش ربات ناظر برای گروه: {solvingCaptchaGroup.title}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setSolvingCaptchaGroup(null)}
+                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5">
+                <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>این گروه نیازمند اقدام دستی است</span>
+                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  ربات محافظ این گروه پیام سلام آزمایشی را حذف کرده یا قفلی اعمال کرده که حل خودکار کامل آن نیازمند تایید شماست.
+                </p>
+                {solvingCaptchaGroup.lastJoinError && (
+                  <div className="mt-1 p-2 bg-slate-950/60 rounded border border-amber-500/20 text-amber-200 font-mono text-[11px] dir-ltr">
+                    {solvingCaptchaGroup.lastJoinError}
+                  </div>
+                )}
+              </div>
+
+              {/* Direct Telegram Link */}
+              <div className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <div>
+                  <div className="font-bold text-white text-xs">لینک گروه در تلگرام</div>
+                  <div className="text-[11px] text-sky-400 font-mono dir-ltr">{solvingCaptchaGroup.usernameOrLink}</div>
+                </div>
+                <a
+                  href={getTelegramUrl(solvingCaptchaGroup.usernameOrLink)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold flex items-center gap-1 text-xs"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>باز کردن در تلگرام</span>
+                </a>
+              </div>
+
+              {/* Custom Answer Input */}
+              <div className="space-y-1.5">
+                <label className="block text-slate-300 font-medium">ارسال پاسخ متنی به چالش ربات (مثلاً پاسخ ریاضی یا دستور بات):</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={manualCustomReply}
+                    onChange={(e) => setManualCustomReply(e.target.value)}
+                    placeholder="مثال: 12 یا عدد یا کلمه تایید..."
+                    className="flex-1 bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    disabled={!manualCustomReply.trim() || isRetryingCaptcha}
+                    onClick={() => handleRetryCaptchaVerification(solvingCaptchaGroup.id, manualCustomReply.trim())}
+                    className="px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs disabled:opacity-50 flex items-center gap-1"
+                  >
+                    <Send className="w-3 h-3" />
+                    <span>ارسال پاسخ</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Test and Verify Action */}
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setSolvingCaptchaGroup(null)}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white"
+                >
+                  بستن
+                </button>
+                <button
+                  type="button"
+                  disabled={isRetryingCaptcha}
+                  onClick={() => handleRetryCaptchaVerification(solvingCaptchaGroup.id)}
+                  className="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRetryingCaptcha ? 'animate-spin' : ''}`} />
+                  <span>{isRetryingCaptcha ? 'در حال راستی‌آزمایی...' : 'راستی‌آزمایی مجدد و آماده‌سازی ۱۰۰٪'}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

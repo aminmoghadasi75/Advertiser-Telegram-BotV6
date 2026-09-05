@@ -37,6 +37,16 @@ import {
   RefreshCw,
   PlusCircle,
   TrendingUp,
+  Clock,
+  LayoutGrid,
+  ChevronLeft,
+  Shield,
+  Zap,
+  Cpu,
+  ArrowRight,
+  ExternalLink,
+  Sliders,
+  Check,
 } from 'lucide-react';
 
 export default function App() {
@@ -69,6 +79,7 @@ export default function App() {
   const [isSendingNow, setIsSendingNow] = useState(false);
   const [isStoppingBroadcast, setIsStoppingBroadcast] = useState(false);
   const [activeMainTab, setActiveMainTab] = useState<'anonymous_bot' | 'group_broadcast' | 'accounts' | 'logs'>('anonymous_bot');
+  const [groupSubTab, setGroupSubTab] = useState<'overview' | 'campaign' | 'groups' | 'antibot' | 'scheduler' | 'all'>('overview');
 
   // Fetch complete state from Express backend and sync with localStorage
   const fetchState = async () => {
@@ -846,32 +857,313 @@ export default function App() {
               />
             )}
 
-            {/* Main 2-Column Dashboard Grid Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
-              {/* Left/Primary Column (7 cols): Campaign Post & Anti-Bot Engine */}
-              <div className="lg:col-span-7 space-y-6">
-                
-                {/* Product Campaign Editor & Live Telegram Preview */}
+            {/* Sub-Navigation Tabs Bar */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-1.5 flex items-center justify-between gap-2 overflow-x-auto shadow-md">
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setGroupSubTab('overview')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    groupSubTab === 'overview'
+                      ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  <span>داشبورد و وضعیت کلی</span>
+                </button>
+
+                <button
+                  onClick={() => setGroupSubTab('campaign')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    groupSubTab === 'campaign'
+                      ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <Megaphone className="w-4 h-4" />
+                  <span>کمپین و متن آگهی</span>
+                  {appState.campaigns.length > 0 && (
+                    <span className="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.2 rounded-full font-mono font-bold">
+                      {appState.campaigns.length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setGroupSubTab('groups')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    groupSubTab === 'groups'
+                      ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>گروه‌های هدف و عضویت</span>
+                  <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded-full font-mono">
+                    {activeGroupsCount} / {appState.groups.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setGroupSubTab('antibot')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    groupSubTab === 'antibot'
+                      ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-md shadow-purple-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4 text-purple-400" />
+                  <span>سپر ضد اسپم و هوش مصنوعی</span>
+                  <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded-full font-semibold">
+                    فعال
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setGroupSubTab('scheduler')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                    groupSubTab === 'scheduler'
+                      ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  <span>زمان‌بندی و نحوه ارسال</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-1.5 border-r border-slate-800 pr-2">
+                <button
+                  onClick={() => setGroupSubTab('all')}
+                  title="نمایش تمامی پنجره‌ها در کنار هم (کلاسیک)"
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                    groupSubTab === 'all'
+                      ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-bold'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">نمای همزمان</span>
+                </button>
+              </div>
+            </div>
+
+            {/* TAB 1: OVERVIEW DASHBOARD */}
+            {groupSubTab === 'overview' && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  
+                  {/* 1. Active Campaign Summary Card */}
+                  <div className="bg-slate-900 border border-slate-800 hover:border-slate-750 transition-all rounded-2xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center">
+                            <Megaphone className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-white">کمپین تبلیغاتی فعال</h3>
+                            <span className="text-[11px] text-slate-400">
+                              {appState.campaigns.length} کمپین تعریف شده
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-xs bg-sky-500/10 text-sky-300 border border-sky-500/20 px-2 py-0.5 rounded-full font-mono">
+                          چرخش: {appState.scheduler.campaignRotationMode === 'category_match' ? 'تطبیق موضوعی' : 'نوبتی'}
+                        </span>
+                      </div>
+
+                      {appState.campaigns.length > 0 ? (
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5 space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-white">
+                              {appState.campaigns.find(c => c.isActive)?.title || appState.campaigns[0]?.title}
+                            </span>
+                            {appState.campaigns.find(c => c.isActive)?.price && (
+                              <span className="text-emerald-400 font-mono text-[11px]">
+                                {appState.campaigns.find(c => c.isActive)?.price} تومان
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                            {appState.campaigns.find(c => c.isActive)?.description || appState.campaigns[0]?.description || 'بدون متن'}
+                          </p>
+                          {appState.campaigns.find(c => c.isActive)?.imageUrl && (
+                            <div className="flex items-center gap-2 text-[11px] text-sky-400 font-medium">
+                              <span>✓ دارای بنر تصویری پیوست</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-center text-xs text-slate-400">
+                          هنوز کمپینی ایجاد نکرده‌اید. با فشردن دکمه زیر اولین کمپین خود را بسازید.
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => setGroupSubTab('campaign')}
+                      className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 hover:text-sky-300 border border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>مدیریت کامل کمپین و پیش‌نمایش تلگرام</span>
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 2. Target Groups Summary Card */}
+                  <div className="bg-slate-900 border border-slate-800 hover:border-slate-750 transition-all rounded-2xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+                            <Users className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-white">گروه‌های هدف ارسال</h3>
+                            <span className="text-[11px] text-slate-400">
+                              {appState.groups.length} گروه ثبت شده در پایگاه
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono">
+                          {activeGroupsCount} گروه فعال
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2.5 text-xs">
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3">
+                          <span className="text-slate-400 text-[11px]">وضعیت عضویت اکانت‌ها:</span>
+                          <div className="text-sm font-bold text-white mt-1">
+                            {appState.groups.filter(g => g.membershipStatus === 'joined').length} گروه عضو شده
+                          </div>
+                        </div>
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3">
+                          <span className="text-slate-400 text-[11px]">موتور عضویت هوشمند:</span>
+                          <div className="text-sm font-bold text-emerald-400 mt-1">
+                            {appState.activeGroupJoinProgress?.isRunning ? 'در حال عضویت...' : 'آماده به کار'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setGroupSubTab('groups')}
+                      className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 border border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>مدیریت فهرست گروه‌ها و عضویت خودکار</span>
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 3. Anti-Spam & AI Bypasser Card */}
+                  <div className="bg-slate-900 border border-slate-800 hover:border-slate-750 transition-all rounded-2xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center">
+                            <ShieldCheck className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-white">سپر دفاعی ضد اسپم و هوش مصنوعی</h3>
+                            <span className="text-[11px] text-slate-400">حفاظت چندلایه در برابر ریپورت و ربات‌ها</span>
+                          </div>
+                        </div>
+                        <span className="text-xs bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded-full font-mono">
+                          محافظت فعال
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                          <span className="text-slate-300">سپر محافظت از مخاطبین</span>
+                        </div>
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                          <span className="text-slate-300">حل چالش‌های ریاضی AI</span>
+                        </div>
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                          <span className="text-slate-300">شبیه‌سازی تایپینگ انسان</span>
+                        </div>
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-2.5 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                          <span className="text-slate-300">کش شناسه فایل تلگرام</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setGroupSubTab('antibot')}
+                      className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-400 hover:text-purple-300 border border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>پیکربندی هوش مصنوعی و تنظیمات ضداسپم</span>
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 4. Scheduler & Accounts Card */}
+                  <div className="bg-slate-900 border border-slate-800 hover:border-slate-750 transition-all rounded-2xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-white">استراتژی زمان‌بندی و اکانت‌ها</h3>
+                            <span className="text-[11px] text-slate-400">تنظیم فاصله زمانی و تقسیم بار کاری</span>
+                          </div>
+                        </div>
+                        <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono">
+                          هر {appState.scheduler.intervalMinutes} دقیقه
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2.5 text-xs">
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3">
+                          <span className="text-slate-400 text-[11px]">نحوه ارسال چند اکانته:</span>
+                          <div className="text-sm font-bold text-white mt-1">
+                            {appState.scheduler.multiAccountDispatchMode === 'parallel_multichannel' ? 'ارسال همزمان (موازی)' : 'چرخشی نوبتی'}
+                          </div>
+                        </div>
+                        <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3">
+                          <span className="text-slate-400 text-[11px]">تاخیر تصادفی شناور:</span>
+                          <div className="text-sm font-bold text-sky-400 mt-1">
+                            +{(appState.scheduler.jitterSeconds || 20)} ثانیه Jitter
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setGroupSubTab('scheduler')}
+                      className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 border border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>تنظیم دقیق زمان‌بندی، فواصل و سقف روزانه</span>
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: CAMPAIGN ONLY (Full width) */}
+            {groupSubTab === 'campaign' && (
+              <div className="animate-in fade-in duration-200">
                 <CampaignCard
                   campaigns={appState.campaigns}
                   onSaveCampaign={handleSaveCampaign}
                   onDeleteCampaign={handleDeleteCampaign}
                   onToggleCampaign={handleToggleCampaign}
                 />
-
-                {/* Smart Anti-Bot & Lock Bypass Engine */}
-                <AntiBotSettingsCard
-                  settings={appState.scheduler.antiBot}
-                  onSaveAntiBotSettings={handleSaveAntiBotSettings}
-                />
-
               </div>
+            )}
 
-              {/* Right Column (5 cols): Target Groups & Scheduler */}
-              <div className="lg:col-span-5 space-y-6">
-                
-                {/* Target Groups Manager & Decoupled Smart Join Engine */}
+            {/* TAB 3: TARGET GROUPS ONLY (Full width) */}
+            {groupSubTab === 'groups' && (
+              <div className="animate-in fade-in duration-200">
                 <TargetGroupsCard
                   groups={appState.groups}
                   accounts={appState.accounts || []}
@@ -892,8 +1184,22 @@ export default function App() {
                   onJoinSingleGroup={handleJoinSingleGroup}
                   onUpdateJoinStrategy={handleUpdateJoinStrategy}
                 />
+              </div>
+            )}
 
-                {/* Scheduler & Anti-Spam Safeguards */}
+            {/* TAB 4: ANTI-BOT PROTECTION ONLY (Full width) */}
+            {groupSubTab === 'antibot' && (
+              <div className="animate-in fade-in duration-200">
+                <AntiBotSettingsCard
+                  settings={appState.scheduler.antiBot}
+                  onSaveAntiBotSettings={handleSaveAntiBotSettings}
+                />
+              </div>
+            )}
+
+            {/* TAB 5: SCHEDULER ONLY (Full width) */}
+            {groupSubTab === 'scheduler' && (
+              <div className="animate-in fade-in duration-200">
                 <SchedulerCard
                   scheduler={appState.scheduler}
                   onUpdateScheduler={handleUpdateScheduler}
@@ -901,10 +1207,60 @@ export default function App() {
                   onStopBroadcast={handleStopBroadcast}
                   isSendingNow={isBroadcastingActive}
                 />
-
               </div>
+            )}
 
-            </div>
+            {/* TAB 6: ALL (CLASSIC 2-COLUMN VIEW) */}
+            {groupSubTab === 'all' && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in duration-200">
+                {/* Left Column (7 cols) */}
+                <div className="lg:col-span-7 space-y-6">
+                  <CampaignCard
+                    campaigns={appState.campaigns}
+                    onSaveCampaign={handleSaveCampaign}
+                    onDeleteCampaign={handleDeleteCampaign}
+                    onToggleCampaign={handleToggleCampaign}
+                  />
+
+                  <AntiBotSettingsCard
+                    settings={appState.scheduler.antiBot}
+                    onSaveAntiBotSettings={handleSaveAntiBotSettings}
+                  />
+                </div>
+
+                {/* Right Column (5 cols) */}
+                <div className="lg:col-span-5 space-y-6">
+                  <TargetGroupsCard
+                    groups={appState.groups}
+                    accounts={appState.accounts || []}
+                    activeGroupJoinProgress={appState.activeGroupJoinProgress}
+                    groupJoinStrategy={appState.groupJoinStrategy}
+                    onAddGroup={handleAddGroup}
+                    onAddBulkGroups={handleAddBulkGroups}
+                    onToggleGroup={handleToggleGroup}
+                    onToggleAllGroups={handleToggleAllGroups}
+                    onDeleteGroup={handleDeleteGroup}
+                    onDeletePostedGroups={handleDeletePostedGroups}
+                    onDeleteBulkGroupsByIds={handleDeleteBulkGroupsByIds}
+                    onTestSendTarget={handleTestSendTarget}
+                    onSyncGroups={handleSyncGroups}
+                    onSyncRealtimeMemberships={handleSyncRealtimeMemberships}
+                    onStartSmartJoin={handleStartSmartJoin}
+                    onStopSmartJoin={handleStopSmartJoin}
+                    onJoinSingleGroup={handleJoinSingleGroup}
+                    onUpdateJoinStrategy={handleUpdateJoinStrategy}
+                  />
+
+                  <SchedulerCard
+                    scheduler={appState.scheduler}
+                    onUpdateScheduler={handleUpdateScheduler}
+                    onSendNow={handleSendNow}
+                    onStopBroadcast={handleStopBroadcast}
+                    isSendingNow={isBroadcastingActive}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
 

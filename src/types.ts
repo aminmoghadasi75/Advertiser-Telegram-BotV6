@@ -79,6 +79,21 @@ export interface TargetGroup {
   persistenceStatus?: 'verified' | 'auto_deleted' | 'pending_check' | 'not_checked';
   lastVerifiedAt?: string;
   strictFilterDetected?: boolean;
+  readinessStatus?: 'unjoined' | 'captcha_required' | 'ready' | 'no_permission_left';
+  canSendMessages?: boolean;
+  greetingTested?: boolean;
+  greetingSurvived?: boolean;
+  autoLeftAt?: string;
+  captchaDetails?: {
+    botName?: string;
+    challengeText?: string;
+    challengeType?: 'math' | 'button' | 'channel_join' | 'invite_contacts' | 'complex';
+    solvedAutomatically?: boolean;
+    detectedAt?: string;
+    msgId?: number;
+    inlineButtons?: Array<{ text: string; data?: string; url?: string; row: number; col: number }>;
+    lastAttemptResult?: string;
+  };
 }
 
 export interface GroupJoinStrategy {
@@ -86,6 +101,11 @@ export interface GroupJoinStrategy {
   delayBetweenJoinsSeconds: number; // e.g. 8 to 20 seconds safe delay
   maxJoinsPerAccountPerHour: number; // e.g. 15-20 per account to avoid flood wait
   autoResolveAntibotOnJoin: boolean;
+  leaveIfNoSendPermission?: boolean; // خروج خودکار و حذف از تلگرام در صورت عدم امکان ارسال پیام
+  sendGreetingTest?: boolean; // ارسال پیام تستی سلام جهت تست ربات نگهبان
+  greetingMessage?: string; // متن پیام سلام (پیش‌فرض: سلام بچه ها)
+  verifyGreetingSurvival?: boolean; // تایید ماندگاری پیام و ارسال مجدد پس از حل کپچا
+  autoSolveAllCaptchas?: boolean; // تلاش حداکثری برای حل تمام انواع کپچا و جوین کانال حامی
 }
 
 export interface ActiveGroupJoinWorkerProgress {
@@ -140,8 +160,13 @@ export interface AntiBotSettings {
   autoForceJoinChannels: boolean; // جوین خودکار در کانال‌های اجباری گروه
   autoInviteContacts: boolean; // اد کردن رندوم مخاطبین تلگرام جهت باز کردن قفل
   contactsToInviteCount: number; // تعداد مخاطبین جهت اد کردن (مثلاً ۳ تا ۵)
-  sendGreetingFirst?: boolean; // ارسال پیام تست اولیه ("سلام بچه ها") جهت تست ربات نگهبان
+  safeContactShield?: boolean; // محافظت در برابر ریپورت و بلاک ناشی از اد کردن مخاطبین واقعی
+  sendGreetingFirst?: boolean; // ارسال پیام تست اولیه جهت تست ربات نگهبان
+  greetingMode?: 'stealth_silent' | 'natural_greeting' | 'custom_message'; // حالت نامحسوس، احوالپرسی طبیعی یا پیام دلخواه
   greetingMessage?: string; // متن پیام تست اولیه (پیش‌فرض: "سلام بچه ها")
+  autoSolveMathCaptcha?: boolean; // حل خودکار چالش‌های متنی و ریاضی با هوش مصنوعی
+  safeMembershipRetention?: boolean; // عدم خروج آنی از گروه در صورت خطا جهت پیشگیری از بن تلگرام
+  supportForumTopics?: boolean; // شناسایی و ارسال به تاپیک‌های مناسب در سوپرگروه‌های فروم
   simulateTyping?: boolean; // شبیه‌سازی اکشن تایپینگ واقعی تلگرام قبل از ارسال (SetTyping)
   typingDurationSeconds?: number; // مدت زمان تایپینگ قبل از ارسال پیام (مثلاً ۱ تا ۴ ثانیه)
   enableSpintax?: boolean; // بهینه‌سازی و تنوع‌بخشی خودکار پیام با Spintax و متغیرها
@@ -161,6 +186,7 @@ export interface SchedulerConfig {
   nightModeEndHour?: number; // Default 7 (7 AM)
   onlyPromotionalGroups?: boolean; // Send ads only to groups marked as promotional/exchange
   multiAccountDispatchMode?: 'parallel_multichannel' | 'sequential_rotation'; // ارسال همزمان بین اکانت‌ها یا چرخش نوبتی
+  campaignRotationMode?: 'round_robin' | 'category_match' | 'first_active'; // استراتژی چرخش کمپین‌ها بین گروه‌ها
   maxConcurrentAccounts?: number; // سقف تعداد اکانت‌های همزمان فعال
   isAutoRunActive: boolean; // Master switch
   antiBot?: AntiBotSettings;

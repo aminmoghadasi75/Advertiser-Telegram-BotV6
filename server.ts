@@ -2711,6 +2711,137 @@ function processMessageWithSpintaxAndVars(
   };
 }
 
+// Helper Function: Solve common bot math equations, captcha codes, and text challenges
+function solveBotMathOrTextChallenge(text: string, groupTitle?: string): string | null {
+  if (!text) return null;
+  const clean = text.toLowerCase();
+
+  // 1. Convert Persian and Arabic digits to standard English digits
+  const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  let normalized = clean;
+  for (let i = 0; i < 10; i++) {
+    normalized = normalized.split(persianDigits[i]).join(String(i));
+    normalized = normalized.split(arabicDigits[i]).join(String(i));
+  }
+
+  // 1b. Convert common Persian number words to digits
+  const wordToNumber: Record<string, string> = {
+    'صفر': '0', 'یک': '1', 'یه': '1', 'دو': '2', 'سه': '3', 'چهار': '4',
+    'پنج': '5', 'شش': '6', 'شیش': '6', 'هفت': '7', 'هشت': '8', 'نه': '9',
+    'ده': '10', 'یازده': '11', 'دوازده': '12', 'سیزده': '13', 'چهارده': '14',
+    'پانزده': '15', 'پونزده': '15', 'شانزده': '16', 'هفده': '17', 'هجده': '18',
+    'نوزده': '19', 'بیست': '20'
+  };
+  for (const [word, digit] of Object.entries(wordToNumber)) {
+    const regex = new RegExp(`\\b${word}\\b`, 'g');
+    normalized = normalized.replace(regex, digit);
+  }
+
+  // 2. Math questions: e.g. "حاصل 2 + 5 چیست", "2 + 5 = ?", "5 ضربدر 3", "12 - 4", "حاصل ضرب 4 در 5"
+  const mathRegex = /(\d+)\s*([\+\-\*xX×÷\/]|ضربدر|ضرب در|به علاوه|بعلاوه|منهای|منها|تقسیم بر)\s*(\d+)/;
+  const mathMatch = normalized.match(mathRegex);
+  if (mathMatch) {
+    const num1 = parseInt(mathMatch[1], 10);
+    const op = mathMatch[2];
+    const num2 = parseInt(mathMatch[3], 10);
+    let result: number | null = null;
+    if (op === '+' || op === 'به علاوه' || op === 'بعلاوه') result = num1 + num2;
+    else if (op === '-' || op === 'منهای' || op === 'منها') result = num1 - num2;
+    else if (op === '*' || op === 'x' || op === 'X' || op === '×' || op === 'ضربدر' || op === 'ضرب در') result = num1 * num2;
+    else if ((op === '/' || op === '÷' || op === 'تقسیم بر') && num2 !== 0) result = Math.floor(num1 / num2);
+
+    if (result !== null && !isNaN(result)) {
+      return String(result);
+    }
+  }
+
+  // Pattern: "حاصل ضرب 4 در 5" or "مجموع اعداد 3 و 8"
+  const wordMathRegex = /(?:حاصل ضرب|حاصلضرب|ضرب)\s*(\d+)\s*(?:در|و)\s*(\d+)/;
+  const wordMathMatch = normalized.match(wordMathRegex);
+  if (wordMathMatch) {
+    const n1 = parseInt(wordMathMatch[1], 10);
+    const n2 = parseInt(wordMathMatch[2], 10);
+    return String(n1 * n2);
+  }
+  const wordAddRegex = /(?:مجموع|جمع|حاصل جمع|حاصلجمع)\s*(?:اعداد)?\s*(\d+)\s*(?:و|با|به علاوه)\s*(\d+)/;
+  const wordAddMatch = normalized.match(wordAddRegex);
+  if (wordAddMatch) {
+    const n1 = parseInt(wordAddMatch[1], 10);
+    const n2 = parseInt(wordAddMatch[2], 10);
+    return String(n1 + n2);
+  }
+
+  // 3. Number repetition challenge: e.g. "عدد 5482 را وارد کنید" or "کد تایید: 9821"
+  const codeRegex = /(?:عدد|کد|رمز|شماره|number|code)\s*(?:تایید|زیر|عبور|امنیتی)?\s*[:\s]\s*(\d{2,8})/i;
+  const codeMatch = normalized.match(codeRegex);
+  if (codeMatch && codeMatch[1]) {
+    return codeMatch[1];
+  }
+
+  // 4. Common trivia & Persian bot riddles
+  if (normalized.includes('چند تا چشم') || normalized.includes('چند چشم')) return '2';
+  if (normalized.includes('چند تا دست') || normalized.includes('چند دست')) return '2';
+  if (normalized.includes('چند تا پا') || normalized.includes('چند پا')) return '2';
+  if (normalized.includes('چند روز در هفته') || normalized.includes('روزهای هفته')) return '7';
+  if (normalized.includes('پایتخت ایران')) return 'تهران';
+  if (normalized.includes('فصل بعد از بهار')) return 'تابستان';
+  if (normalized.includes('فصل بعد از تابستان')) return 'پاییز';
+  if (normalized.includes('فصل بعد از پاییز')) return 'زمستان';
+
+  // 5. Group name challenge: "نام گروه را بفرستید"
+  if (groupTitle && (clean.includes('نام گروه') || clean.includes('اسم گروه') || clean.includes('group name'))) {
+    return groupTitle.trim();
+  }
+
+  return null;
+}
+
+// AI Captcha Solver (Deep Reasoning via Gemini for complex Persian telegram bot challenges)
+async function solveCaptchaWithGemini(
+  promptText: string,
+  buttonTexts: string[],
+  groupTitle?: string
+): Promise<{ action: 'click_button' | 'send_text' | 'join_channel' | 'unknown'; target?: string; answer?: string } | null> {
+  try {
+    const ai = getAiClient();
+    if (!ai) return null;
+    const prompt = `شما دستیار ارشد هوش مصنوعی حل کپچای گروه‌های تلگرام هستید.
+وظیفه شما ارزیابی پیام ربات ناظر (مثل MissRose، ShieldBot، GroupHelp، CaptchaBot) و دکمه‌های آن و تعیین اقدام دقیق است:
+
+متن پیام ربات ناظر:
+"""${promptText}"""
+
+دکمه‌های شیشه‌ای موجود:
+${buttonTexts.map((b, i) => `${i + 1}. "${b}"`).join('\n')}
+
+نام گروه: "${groupTitle || ''}"
+
+لطفاً خروجی را منحصراً در قالب JSON زیر بدهید:
+{
+  "action": "click_button" | "send_text" | "join_channel" | "unknown",
+  "target": "متن دقیق دکمه ای که باید کلیک شود یا آیدی کانال حامی با @",
+  "answer": "پاسخ متنی مورد نیاز (مثلا حاصل ریاضی، کد تایید، یا پاسخ سوال)"
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    const raw = response.text || '';
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (match) {
+      const parsed = JSON.parse(match[0]);
+      if (parsed.action && parsed.action !== 'unknown') {
+        return parsed;
+      }
+    }
+  } catch (err: any) {
+    console.warn('solveCaptchaWithGemini failed gracefully:', err?.message || err);
+  }
+  return null;
+}
+
 // -----------------------------------------------------------------------------
 // MEDIA UPLOAD CACHE (Telegram InputMedia / File Handle Caching)
 // -----------------------------------------------------------------------------
@@ -2721,7 +2852,7 @@ interface CachedMediaEntry {
 }
 const accountMediaCache = new Map<string, CachedMediaEntry>();
 
-// Helper Function: Robust Campaign Message Sender with Typing Simulation & Media Caching
+// Helper Function: Robust Campaign Message Sender with Typing Simulation, Media Caching & Forum Topic Support
 async function sendCampaignWithRetry(
   client: any,
   peer: any,
@@ -2733,11 +2864,54 @@ async function sendCampaignWithRetry(
     typingDurationSeconds?: number;
     maxRetries?: number;
     groupTitle?: string;
+    supportForumTopics?: boolean;
+    replyToMsgId?: number;
   } = {}
-): Promise<{ success: boolean; sentResult?: any; error?: string; mediaFromCache?: boolean; typingSimulated?: boolean }> {
+): Promise<{ success: boolean; sentResult?: any; error?: string; mediaFromCache?: boolean; typingSimulated?: boolean; topicId?: number }> {
   const maxRetries = options.maxRetries || 3;
   let mediaFromCache = false;
   let typingSimulated = false;
+
+  // 0. Telegram Supergroup Forum & Topics Detection
+  let targetReplyTo: number | undefined = options.replyToMsgId;
+  if (!targetReplyTo && options.supportForumTopics !== false && appState.scheduler.antiBot?.supportForumTopics !== false) {
+    try {
+      await loadGramJS();
+      if (peer && (peer.forum || peer.megagroup) && Api && Api.channels && Api.channels.GetForumTopics) {
+        const topicsRes = await client.invoke(new Api.channels.GetForumTopics({
+          channel: peer,
+          offsetDate: 0,
+          offsetId: 0,
+          offsetTopic: 0,
+          limit: 15,
+        }));
+        const topics = topicsRes?.topics || [];
+        if (topics.length > 0) {
+          // Look for promotional, general, or active open topic
+          const matchedTopic = topics.find((t: any) => {
+            const title = (t.title || '').toLowerCase();
+            return !t.closed && (
+              title.includes('تبلیغ') ||
+              title.includes('آگهی') ||
+              title.includes('چت') ||
+              title.includes('آزاد') ||
+              title.includes('عمومی') ||
+              title.includes('ads') ||
+              title.includes('chat') ||
+              title.includes('market') ||
+              title.includes('general')
+            );
+          }) || topics.find((t: any) => !t.closed) || topics[0];
+
+          if (matchedTopic && matchedTopic.id) {
+            targetReplyTo = matchedTopic.id;
+          }
+        }
+      }
+    } catch (topicErr) {
+      // Non-blocking forum topic resolution
+    }
+  }
 
   // 1. Simulate Realistic Human Typing Action if enabled
   if (options.simulateTyping !== false && appState.scheduler.antiBot?.simulateTyping !== false) {
@@ -2773,6 +2947,14 @@ async function sendCampaignWithRetry(
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       let sentResult: any = null;
+      const sendOptions: any = {
+        caption: textMessage,
+        parseMode: 'md',
+      };
+      if (targetReplyTo) {
+        sendOptions.replyTo = targetReplyTo;
+      }
+
       if (tempImgPath && fs.existsSync(tempImgPath)) {
         let fileSource: any = cachedHandle || tempImgPath;
         if (cachedHandle) {
@@ -2782,8 +2964,7 @@ async function sendCampaignWithRetry(
         try {
           sentResult = await client.sendFile(peer, {
             file: fileSource,
-            caption: textMessage,
-            parseMode: 'md',
+            ...sendOptions,
           });
         } catch (mediaSendErr: any) {
           const mErr = String(mediaSendErr.errorMessage || mediaSendErr.message || mediaSendErr);
@@ -2794,8 +2975,7 @@ async function sendCampaignWithRetry(
             mediaFromCache = false;
             sentResult = await client.sendFile(peer, {
               file: tempImgPath,
-              caption: textMessage,
-              parseMode: 'md',
+              ...sendOptions,
             });
           } else {
             throw mediaSendErr;
@@ -2814,16 +2994,26 @@ async function sendCampaignWithRetry(
           }
         }
       } else {
-        sentResult = await client.sendMessage(peer, {
+        const msgOptions: any = {
           message: textMessage,
           parseMode: 'md',
-        });
+        };
+        if (targetReplyTo) {
+          msgOptions.replyTo = targetReplyTo;
+        }
+        sentResult = await client.sendMessage(peer, msgOptions);
       }
-      return { success: true, sentResult, mediaFromCache, typingSimulated };
+      return { success: true, sentResult, mediaFromCache, typingSimulated, topicId: targetReplyTo };
     } catch (err: any) {
       const errStr = String(err.errorMessage || err.message || err);
-      const secs = parseFloodWaitSeconds(err);
 
+      // If failed due to forum topic closed or invalid, clear topic and retry without it
+      if (targetReplyTo && (errStr.includes('TOPIC_CLOSED') || errStr.includes('TOPIC_DELETED') || errStr.includes('FORUM_CLOSED'))) {
+        targetReplyTo = undefined;
+        continue;
+      }
+
+      const secs = parseFloodWaitSeconds(err);
       if (secs && secs > 0 && secs <= 20 && attempt < maxRetries) {
         addLog('info', `[تایمر FloodWait/Slowmode] نیاز به ${secs} ثانیه شکیبایی قبل از تلاش مجدد ارسال...`);
         await new Promise(r => setTimeout(r, (secs + 1) * 1000));
@@ -2844,10 +3034,10 @@ async function sendCampaignWithRetry(
         await new Promise(r => setTimeout(r, 2500));
         continue;
       }
-      return { success: false, error: translateTgError(err), mediaFromCache, typingSimulated };
+      return { success: false, error: translateTgError(err), mediaFromCache, typingSimulated, topicId: targetReplyTo };
     }
   }
-  return { success: false, error: 'تلاش‌های متوالی جهت ارسال با شکست مواجه شد.', mediaFromCache, typingSimulated };
+  return { success: false, error: 'تلاش‌های متوالی جهت ارسال با شکست مواجه شد.', mediaFromCache, typingSimulated, topicId: targetReplyTo };
 }
 
 // Helper Function: Check if message persists in group after delay (Anti-Delete / Strict Filter Detection)
@@ -3439,13 +3629,45 @@ async function startSmartGroupJoinEngine(options?: {
           try {
             const peer = await resolveAndJoinGroup(client, group.usernameOrLink);
 
+            let verificationResult: any = null;
             // Handle Anti-Bot verification if enabled
             if (autoAntibot && peer) {
               if (workerProg) {
                 workerProg.status = 'antibot';
                 workerProg.lastAction = `در حال ارزیابی آنتی‌بات و قفل‌های گروه "${group.title}"...`;
               }
-              await handleAntiBotAndGroupVerification(client, peer, group.title);
+              verificationResult = await handleAntiBotAndGroupVerification(client, peer, group.title, group, acc);
+            }
+
+            if (verificationResult?.noPermissionLeft || group.readinessStatus === 'no_permission_left') {
+              // Group had no send permission -> Left and deleted from Telegram
+              group.canSendMessages = false;
+              group.readinessStatus = 'no_permission_left';
+              group.status = 'failed';
+              group.membershipStatus = 'restricted';
+              group.isActive = false;
+              if (workerProg) {
+                workerProg.failedCount++;
+                workerProg.lastAction = `فاقد اجازه ارسال در "${group.title}" (خروج و حذف خودکار از تلگرام انجام شد)`;
+              }
+              if (summary) {
+                summary.failedCount++;
+                summary.pendingCount = Math.max(0, summary.pendingCount - 1);
+              }
+              if (appState.activeGroupJoinProgress) {
+                appState.activeGroupJoinProgress.failedCount++;
+                appState.activeGroupJoinProgress.completedCount++;
+              }
+              saveData();
+              continue;
+            }
+
+            if (verificationResult?.isClear) {
+              group.readinessStatus = 'ready';
+              group.canSendMessages = true;
+              group.greetingSurvived = true;
+            } else if (!group.readinessStatus) {
+              group.readinessStatus = 'captcha_required';
             }
 
             // Membership Succeeded!
@@ -3566,14 +3788,21 @@ function stopSmartGroupJoinEngine(): { success: boolean; message: string } {
   return { success: true, message: 'دستور توقف فرآیند عضویت صادر شد.' };
 }
 
-// Engine: Smart Anti-Bot & Lock Bypass Engine with Live Monitoring
-async function handleAntiBotAndGroupVerification(client: any, peer: any, groupTitle: string): Promise<{
+// Engine: Smart Anti-Bot & Lock Bypass Engine with 4-State Lifecycle & Deep AI Verification
+async function handleAntiBotAndGroupVerification(
+  client: any,
+  peer: any,
+  groupTitle: string,
+  targetGroup?: TargetGroup,
+  account?: any
+): Promise<{
   isClear: boolean;
   botDetected: boolean;
   statusMessage: string;
   captchaClicked: boolean;
   channelJoined: boolean;
   contactsInvited: number;
+  noPermissionLeft?: boolean;
 }> {
   if (!client || !peer) {
     return { isClear: false, botDetected: false, statusMessage: 'کلاینت یا گروه نامعتبر است.', captchaClicked: false, channelJoined: false, contactsInvited: 0 };
@@ -3583,297 +3812,538 @@ async function handleAntiBotAndGroupVerification(client: any, peer: any, groupTi
   const antiBotConfig = appState.scheduler.antiBot || {
     autoClickCaptcha: true,
     autoForceJoinChannels: true,
-    autoInviteContacts: true,
+    autoInviteContacts: false,
     contactsToInviteCount: 3,
+    safeContactShield: true,
     sendGreetingFirst: true,
+    greetingMode: 'natural_greeting',
     greetingMessage: 'سلام بچه ها',
+    autoSolveMathCaptcha: true,
+    safeMembershipRetention: true,
+    supportForumTopics: true,
   };
 
-  const greetingMsg = antiBotConfig.greetingMessage || 'سلام بچه ها';
-  const shouldSendGreeting = antiBotConfig.sendGreetingFirst !== false;
+  const greetingMsg = appState.groupJoinStrategy?.greetingMessage || antiBotConfig.greetingMessage || 'سلام بچه ها';
 
-  updateGroupMonitoringReport({
-    groupId: groupTitle,
-    groupTitle: groupTitle,
-    step: 'JOINING',
-    statusMessage: 'ورود به گروه و آماده‌سازی سیستم آنتی‌بات...',
-  });
-
+  // --------------------------------------------------------------------------
+  // STAGE 1: Check Group Rights & Permission to Send Messages
+  // If sending is forbidden (Channel, Read-Only, Muted), auto-leave and delete from Telegram
+  // --------------------------------------------------------------------------
   try {
-    // 0. Step 1: Send initial human test message (e.g. "سلام بچه ها") to trigger guardian bot reaction
-    if (shouldSendGreeting) {
+    const isChannel = peer && (peer.className === 'Channel' || peer._ === 'channel');
+    const isBroadcastChannel = isChannel && peer.broadcast && !peer.megagroup;
+    const defaultBanned = peer?.defaultBannedRights;
+    const cannotSendByDefault = defaultBanned && (defaultBanned.sendMessages || defaultBanned.sendPlain);
+    const userBanned = peer?.bannedRights;
+    const cannotSendByUser = userBanned && (userBanned.sendMessages || userBanned.sendPlain);
+
+    if (isBroadcastChannel || cannotSendByDefault || cannotSendByUser) {
+      addLog('warning', `[فاقد قابلیت ارسال] گروه/کانال "${groupTitle}" اجازه ارسال پیام ندارد. در حال خروج و حذف از تلگرام...`);
       try {
-        await client.sendMessage(peer, { message: greetingMsg, parseMode: 'md' });
-        addLog('info', `[تست ربات نگهبان] پیام سلام اولیه «${greetingMsg}» به گروه "${groupTitle}" ارسال شد. در حال بررسی واکنش ربات ناظر...`);
-        
-        updateGroupMonitoringReport({
-          groupId: groupTitle,
-          groupTitle: groupTitle,
-          step: 'GREETING_SENT',
-          statusMessage: `پیام سلام اولیه ارسال شد: «${greetingMsg}». در حال پایش واکنش ربات ناظر...`,
-        });
-
-        // Wait 2.5 seconds for guardian bot reaction/reply
-        await new Promise(res => setTimeout(res, 2500));
-      } catch (greetErr: any) {
-        console.warn('Initial greeting send warning:', greetErr.message || greetErr);
+        if (Api && Api.channels && Api.channels.LeaveChannel) {
+          await client.invoke(new Api.channels.LeaveChannel({ channel: peer })).catch(() => {});
+        }
+        if (Api && Api.messages && Api.messages.DeleteHistory) {
+          await client.invoke(new Api.messages.DeleteHistory({ peer, maxId: 0, justClear: false, revoke: true })).catch(() => {});
+        }
+      } catch (e: any) {
+        console.warn('Auto leave/delete warning:', e?.message || e);
       }
-    }
 
-    // 1. Fetch recent messages in the group (e.g. last 10 messages)
-    const messages = await client.getMessages(peer, { limit: 10 });
-
-    let botReactionDetected = false;
-    let botName = 'ربات ناظر گروه';
-    let requiresManual = false;
-    let captchaClicked = false;
-    let channelJoined = false;
-    let contactsInvitedCount = 0;
-
-    if (messages && messages.length > 0) {
-      for (const msg of messages) {
-        if (!msg) continue;
-        const text = (msg.message || msg.text || '').toLowerCase();
-
-        // Check for bot name or unknown complex prompt
-        if (text.includes('rose') || text.includes('رز')) botName = 'ربات MissRose';
-        else if (text.includes('shield') || text.includes('شیلد')) botName = 'ربات ShieldBot';
-        else if (text.includes('grouphelp') || text.includes('گروه‌بان')) botName = 'ربات GroupHelp';
-        else if (text.includes('captcha')) botName = 'ربات CaptchaBot';
-
-        // Complex / Unknown manual review prompt check
-        const isComplexPrompt =
-          text.includes('کد') ||
-          text.includes('ریاضی') ||
-          text.includes('عکس کاپچا') ||
-          text.includes('رمز ورود') ||
-          text.includes('ویس') ||
-          text.includes('پیوی') ||
-          text.includes('پاسخ دهید');
-
-        if (isComplexPrompt) {
-          requiresManual = true;
-        }
-
-        // --- Feature A: Auto Click Inline Buttons ("I am not a bot" / "Captcha" / "Verify" / "تایید") ---
-        if (antiBotConfig.autoClickCaptcha && msg.replyMarkup) {
-          const rows = msg.replyMarkup.rows || [];
-          for (let r = 0; r < rows.length; r++) {
-            const buttons = rows[r].buttons || [];
-            for (let b = 0; b < buttons.length; b++) {
-              const btn = buttons[b];
-              const btnText = (btn.text || '').toLowerCase();
-
-              // Match verification terms
-              const isCaptchaBtn =
-                btnText.includes('ربات') ||
-                btnText.includes('bot') ||
-                btnText.includes('تایید') ||
-                btnText.includes('کلیک') ||
-                btnText.includes('عضو شدم') ||
-                btnText.includes('بررسی') ||
-                btnText.includes('verify') ||
-                btnText.includes('check') ||
-                btnText.includes('ورود') ||
-                btnText.includes('پذیرش') ||
-                btnText.includes('start') ||
-                btnText.includes('ادامه');
-
-              if (isCaptchaBtn) {
-                botReactionDetected = true;
-                captchaClicked = true;
-                try {
-                  if (typeof msg.click === 'function') {
-                    await msg.click({ i: r, j: b });
-                  } else if (btn.data && Api && Api.messages && Api.messages.GetBotCallbackAnswer) {
-                    await client.invoke(new Api.messages.GetBotCallbackAnswer({
-                      peer: peer,
-                      msgId: msg.id,
-                      data: btn.data,
-                    }));
-                  }
-                  addLog('info', `[هوش مصنوعی آنتی‌بات] دکمه احراز هویت/کاپچای گروه "${groupTitle}" با عنوان «${btn.text}» خودکار کلیک شد.`);
-                  
-                  updateGroupMonitoringReport({
-                    groupId: groupTitle,
-                    groupTitle: groupTitle,
-                    step: 'ANTI_BOT_VERIFYING',
-                    botDetected: true,
-                    botTypeOrName: botName,
-                    captchaClicked: true,
-                    statusMessage: `دکمه احراز هویت «${btn.text}» خودکار کلیک شد.`,
-                  });
-
-                  await new Promise(res => setTimeout(res, 1000));
-                } catch (clickErr: any) {
-                  console.warn('Click button warning:', clickErr.message || clickErr);
-                  requiresManual = true;
-                }
-              }
-            }
-          }
-        }
-
-        // --- Feature B: Auto Force Join Required Channels ---
-        if (antiBotConfig.autoForceJoinChannels) {
-          const channelMatches = text.match(/@([a-zA-Z0-9_]{4,32})|t\.me\/([a-zA-Z0-9_]{4,32})/g);
-          if (channelMatches && channelMatches.length > 0) {
-            for (const rawTarget of channelMatches) {
-              let targetClean = rawTarget.replace('t.me/', '').replace('@', '').trim();
-              if (!targetClean || targetClean.length < 3) continue;
-
-              botReactionDetected = true;
-              channelJoined = true;
-              try {
-                if (Api && Api.channels) {
-                  await client.invoke(new Api.channels.JoinChannel({ channel: targetClean }));
-                  addLog('info', `[عضویت اجباری] ربات خودکار در کانال حامی @${targetClean} جهت باز شدن قفل گروه "${groupTitle}" عضو شد.`);
-                  
-                  updateGroupMonitoringReport({
-                    groupId: groupTitle,
-                    groupTitle: groupTitle,
-                    step: 'ANTI_BOT_VERIFYING',
-                    botDetected: true,
-                    botTypeOrName: botName,
-                    channelJoined: true,
-                    statusMessage: `عضویت اجباری در کانال @${targetClean} با موفقیت انجام شد.`,
-                  });
-
-                  await new Promise(res => setTimeout(res, 1000));
-                }
-              } catch (joinChannelErr: any) {
-                console.warn('Force join channel warning:', joinChannelErr.message || joinChannelErr);
-              }
-            }
-          }
-        }
-
-        // --- Feature C: Auto Invite Random Contacts (Force Add Contacts) ---
-        if (antiBotConfig.autoInviteContacts) {
-          const needsAddMembers =
-            text.includes('اضافه کنید') ||
-            text.includes('عضو کنید') ||
-            text.includes('اد کنید') ||
-            text.includes('ادفرام') ||
-            text.includes('افزودن عضو') ||
-            text.includes('مخاطب') ||
-            text.includes('دعوت');
-
-          if (needsAddMembers) {
-            botReactionDetected = true;
-            try {
-              if (Api && Api.contacts && Api.contacts.GetContacts) {
-                const resContacts = await client.invoke(new Api.contacts.GetContacts({ hash: BigInt(0) }));
-                const users = resContacts.users || [];
-                if (users.length > 0) {
-                  const limitCount = Math.min(users.length, antiBotConfig.contactsToInviteCount || 3);
-                  const shuffled = [...users].sort(() => 0.5 - Math.random()).slice(0, limitCount);
-                  contactsInvitedCount = shuffled.length;
-
-                  if (Api.channels && Api.channels.InviteToChannel) {
-                    await client.invoke(new Api.channels.InviteToChannel({
-                      channel: peer,
-                      users: shuffled.map((u: any) => u.id || u),
-                    }));
-                    addLog('info', `[افزودن مخاطبین] تعداد ${shuffled.length} مخاطب واقعی به صورت هوشمند برای باز کردن قفل گروه "${groupTitle}" اضافه شد.`);
-                    
-                    updateGroupMonitoringReport({
-                      groupId: groupTitle,
-                      groupTitle: groupTitle,
-                      step: 'ANTI_BOT_VERIFYING',
-                      botDetected: true,
-                      botTypeOrName: botName,
-                      contactsInvited: shuffled.length,
-                      statusMessage: `تعداد ${shuffled.length} مخاطب برای رفع قفل دعوت شدند.`,
-                    });
-
-                    await new Promise(res => setTimeout(res, 1500));
-                  }
-                }
-              }
-            } catch (inviteErr: any) {
-              console.warn('Auto invite contacts warning:', inviteErr.message || inviteErr);
-            }
-          }
-        }
+      if (targetGroup) {
+        targetGroup.canSendMessages = false;
+        targetGroup.readinessStatus = 'no_permission_left';
+        targetGroup.status = 'failed';
+        targetGroup.membershipStatus = 'restricted';
+        targetGroup.isActive = false;
+        targetGroup.autoLeftAt = new Date().toISOString();
+        targetGroup.errorMessage = 'فاقد اجازه ارسال پیام (خروج و پاکسازی خودکار انجام شد)';
       }
-    }
-
-    if (requiresManual) {
-      updateGroupMonitoringReport({
-        groupId: groupTitle,
-        groupTitle: groupTitle,
-        step: 'MANUAL_REVIEW_NEEDED',
-        botDetected: true,
-        botTypeOrName: botName,
-        requiresManualCheck: true,
-        statusMessage: '⚠️ ربات ناظر خاص در گروه شناسایی شد. چالش دستی برطرف شد یا نیاز به بررسی دارد.',
-      });
-    }
-
-    if (botReactionDetected) {
-      addLog('info', `[آنتی‌بات هوشمند] مانع در گروه "${groupTitle}" شناسایی و با موفقیت برطرف شد. ۳ ثانیه مهلت تنفس جهت اعمال دسترسی ارسال در سرور تلگرام...`);
-      await new Promise(res => setTimeout(res, 3000));
-
-      updateGroupMonitoringReport({
-        groupId: groupTitle,
-        groupTitle: groupTitle,
-        step: 'RE_TESTING',
-        botDetected: true,
-        botTypeOrName: botName,
-        captchaClicked,
-        channelJoined,
-        contactsInvited: contactsInvitedCount,
-        requiresManualCheck: requiresManual,
-        statusMessage: '✅ تمام موانع آنتی‌بات برطرف شد. گروه کاملاً آماده انتشار مستقیم پیام اصلی کمپین است.',
-      });
 
       return {
-        isClear: true,
-        botDetected: true,
-        statusMessage: 'موانع برطرف شد و گروه آماده انتشار کمپین است.',
-        captchaClicked,
-        channelJoined,
-        contactsInvited: contactsInvitedCount,
+        isClear: false,
+        botDetected: false,
+        statusMessage: 'امکان ارسال پیام در این گروه وجود ندارد. خروج خودکار و حذف از تلگرام انجام شد.',
+        captchaClicked: false,
+        channelJoined: false,
+        contactsInvited: 0,
+        noPermissionLeft: true,
       };
     }
+  } catch (permErr: any) {
+    console.warn('Pre-check permission warning:', permErr?.message || permErr);
+  }
 
-    // No bot reaction or obstacle detected
-    addLog('info', `[تایید ارسال تبلیغ] هیچ محدودیتی از سوی ربات ناظر گروه "${groupTitle}" وجود ندارد. آماده‌سازی انتشار پیام کمپین...`);
-    
+  // --------------------------------------------------------------------------
+  // STAGE 2: Send Initial Test Greeting ("سلام بچه ها")
+  // --------------------------------------------------------------------------
+  let sentGreetingMsg: any = null;
+  try {
+    sentGreetingMsg = await client.sendMessage(peer, { message: greetingMsg });
+    addLog('info', `[تست ربات محافظ] پیام اولیه «${greetingMsg}» به گروه "${groupTitle}" ارسال شد. بررسی ماندگاری و واکنش ربات ناظر...`);
+
     updateGroupMonitoringReport({
       groupId: groupTitle,
       groupTitle: groupTitle,
-      step: 'RE_TESTING',
-      botDetected: false,
-      requiresManualCheck: false,
-      statusMessage: 'هیچ مانعی وجود ندارد. آماده انتشار پیام اصلی کمپین.',
+      step: 'GREETING_SENT',
+      statusMessage: `پیام تست ارسال شد: «${greetingMsg}». در حال پایش واکنش ربات ناظر...`,
     });
+  } catch (sendErr: any) {
+    const errMsg = String(sendErr?.message || sendErr?.errorMessage || sendErr);
+    const isWriteForbidden =
+      errMsg.includes('CHAT_WRITE_FORBIDDEN') ||
+      errMsg.includes('CHAT_SEND_PLAIN_FORBIDDEN') ||
+      errMsg.includes('USER_BANNED_IN_CHANNEL') ||
+      errMsg.includes('CHAT_ADMIN_REQUIRED') ||
+      errMsg.includes('RIGHT_FORBIDDEN') ||
+      errMsg.includes('CHANNEL_PRIVATE') ||
+      errMsg.includes('USER_RESTRICTED');
 
+    if (isWriteForbidden) {
+      addLog('warning', `[سلب دسترسی ارسال] امکان ارسال پیام در گروه "${groupTitle}" وجود ندارد (${translateTgError(sendErr)}). در حال خروج خودکار و حذف از تلگرام...`);
+      try {
+        if (Api && Api.channels && Api.channels.LeaveChannel) {
+          await client.invoke(new Api.channels.LeaveChannel({ channel: peer })).catch(() => {});
+        }
+        if (Api && Api.messages && Api.messages.DeleteHistory) {
+          await client.invoke(new Api.messages.DeleteHistory({ peer, maxId: 0, justClear: false, revoke: true })).catch(() => {});
+        }
+      } catch (e: any) {}
+
+      if (targetGroup) {
+        targetGroup.canSendMessages = false;
+        targetGroup.readinessStatus = 'no_permission_left';
+        targetGroup.status = 'failed';
+        targetGroup.membershipStatus = 'restricted';
+        targetGroup.isActive = false;
+        targetGroup.autoLeftAt = new Date().toISOString();
+        targetGroup.errorMessage = `فاقد اجازه ارسال پیام (${translateTgError(sendErr)} - خروج و پاکسازی انجام شد)`;
+      }
+
+      return {
+        isClear: false,
+        botDetected: false,
+        statusMessage: 'فاقد دسترسی ارسال پیام (خروج و حذف خودکار از تلگرام انجام شد)',
+        captchaClicked: false,
+        channelJoined: false,
+        contactsInvited: 0,
+        noPermissionLeft: true,
+      };
+    }
+  }
+
+  // Wait 4 seconds for guardian bot reaction
+  await new Promise(res => setTimeout(res, 4000));
+
+  // --------------------------------------------------------------------------
+  // STAGE 3: Check Message Survival & Scan Recent Messages for Guardian Bot
+  // --------------------------------------------------------------------------
+  let initialSurvived = false;
+  if (sentGreetingMsg?.id) {
+    try {
+      const checkArr = await client.getMessages(peer, { ids: [sentGreetingMsg.id] });
+      if (checkArr && checkArr.length > 0 && checkArr[0] && checkArr[0].className !== 'MessageEmpty') {
+        initialSurvived = true;
+      }
+    } catch (e) {
+      initialSurvived = false;
+    }
+  }
+
+  const messages = await client.getMessages(peer, { limit: 12 });
+  let botReactionDetected = false;
+  let botName = 'ربات ناظر گروه';
+  let botMsg: any = null;
+  let botPromptText = '';
+  const inlineButtons: Array<{ text: string; data?: string; url?: string; row: number; col: number }> = [];
+
+  if (messages && messages.length > 0) {
+    for (const msg of messages) {
+      if (!msg) continue;
+      const text = (msg.message || msg.text || '');
+      const lower = text.toLowerCase();
+
+      const isBotNotice =
+        lower.includes('ربات') ||
+        lower.includes('bot') ||
+        lower.includes('کاپچا') ||
+        lower.includes('captcha') ||
+        lower.includes('خوش آمد') ||
+        lower.includes('welcome') ||
+        lower.includes('تایید') ||
+        lower.includes('verify') ||
+        lower.includes('قفل') ||
+        lower.includes('کانال') ||
+        lower.includes('channel') ||
+        lower.includes('ادد') ||
+        lower.includes('عضو') ||
+        lower.includes('مخاطب') ||
+        lower.includes('حاصل') ||
+        lower.includes('جمع') ||
+        lower.includes('ضرب') ||
+        lower.includes('کد');
+
+      if (isBotNotice || msg.replyMarkup) {
+        botReactionDetected = true;
+        botMsg = msg;
+        botPromptText = text;
+
+        if (lower.includes('rose') || lower.includes('رز')) botName = 'ربات MissRose';
+        else if (lower.includes('shield') || lower.includes('شیلد')) botName = 'ربات ShieldBot';
+        else if (lower.includes('grouphelp') || lower.includes('گروه‌بان')) botName = 'ربات GroupHelp';
+        else if (lower.includes('captcha')) botName = 'ربات CaptchaBot';
+        else botName = 'ربات محافظ گروه';
+
+        // Extract inline buttons
+        if (msg.replyMarkup?.rows) {
+          for (let r = 0; r < msg.replyMarkup.rows.length; r++) {
+            const rowBtns = msg.replyMarkup.rows[r].buttons || [];
+            for (let c = 0; c < rowBtns.length; c++) {
+              const b = rowBtns[c];
+              inlineButtons.push({
+                text: b.text || '',
+                data: b.data ? b.data.toString('utf-8') : undefined,
+                url: b.url,
+                row: r,
+                col: c,
+              });
+            }
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  // If initial greeting survived AND no bot challenged: 100% READY!
+  if (initialSurvived && !botReactionDetected) {
+    if (targetGroup) {
+      targetGroup.readinessStatus = 'ready';
+      targetGroup.canSendMessages = true;
+      targetGroup.greetingTested = true;
+      targetGroup.greetingSurvived = true;
+      targetGroup.status = 'joined';
+      targetGroup.membershipStatus = 'joined';
+      targetGroup.lastJoinError = undefined;
+      targetGroup.errorMessage = undefined;
+    }
+    addLog('success', `[۱۰۰٪ آماده ارسال] گروه "${groupTitle}" فاقد ربات محافظ است و پیام «${greetingMsg}» ماندگار ماند. آماده پخش تبلیغات!`);
     return {
       isClear: true,
       botDetected: false,
-      statusMessage: 'آماده ارسال پیام اصلی کمپین.',
+      statusMessage: 'آماده ارسال تبلیغات (پیام تستی ماندگار ماند)',
       captchaClicked: false,
       channelJoined: false,
       contactsInvited: 0,
     };
-  } catch (e: any) {
-    console.warn('handleAntiBotAndGroupVerification error:', e.message || e);
-    updateGroupMonitoringReport({
-      groupId: groupTitle,
-      groupTitle: groupTitle,
-      step: 'FAILED',
-      requiresManualCheck: true,
-      statusMessage: `خطا در سیستم آنتی‌بات: ${e.message || e}`,
-    });
+  }
+
+  // --------------------------------------------------------------------------
+  // STAGE 4: Guardian Bot Challenge Active -> Execute Maximum Solving Pipeline
+  // --------------------------------------------------------------------------
+  addLog('info', `[ربات محافظ شناسایی شد] "${botName}" در گروه "${groupTitle}" مانع ارسال ایجاد کرده است. در حال اجرای روش‌های حل خودکار...`);
+
+  let captchaClicked = false;
+  let channelJoined = false;
+  let contactsInvitedCount = 0;
+  let mathOrTextSolved = false;
+
+  // 1. Join Sponsor Channels & Click "عضو شدم" / "تایید" button
+  if (antiBotConfig.autoForceJoinChannels && botMsg) {
+    const channelMatches = botPromptText.match(/@([a-zA-Z0-9_]{4,32})|t\.me\/([a-zA-Z0-9_]{4,32})/g);
+    if (channelMatches && channelMatches.length > 0) {
+      for (const rawTarget of channelMatches) {
+        const targetClean = rawTarget.replace('t.me/', '').replace('@', '').trim();
+        if (!targetClean || targetClean.length < 3) continue;
+        try {
+          if (Api && Api.channels) {
+            await client.invoke(new Api.channels.JoinChannel({ channel: targetClean }));
+            channelJoined = true;
+            addLog('info', `[عضویت اجباری] عضویت در کانال حامی @${targetClean} جهت باز شدن قفل گروه "${groupTitle}" انجام شد.`);
+          }
+        } catch (e: any) {
+          console.warn('Channel join warning:', e?.message || e);
+        }
+      }
+    }
+
+    // Now look for confirmation button
+    if (botMsg.replyMarkup?.rows) {
+      for (let r = 0; r < botMsg.replyMarkup.rows.length; r++) {
+        const rowBtns = botMsg.replyMarkup.rows[r].buttons || [];
+        for (let c = 0; c < rowBtns.length; c++) {
+          const btn = rowBtns[c];
+          const btnText = (btn.text || '').toLowerCase();
+          const isJoinConfirm =
+            btnText.includes('عضو شدم') ||
+            btnText.includes('عضویت تایید شد') ||
+            btnText.includes('تایید عضویت') ||
+            btnText.includes('بررسی') ||
+            btnText.includes('بررسی مجدد') ||
+            btnText.includes('joined') ||
+            btnText.includes('verify') ||
+            btnText.includes('حل شد') ||
+            btnText.includes('ورود به گروه');
+
+          if (isJoinConfirm) {
+            try {
+              if (typeof botMsg.click === 'function') {
+                await botMsg.click({ i: r, j: c });
+              } else if (btn.data && Api && Api.messages && Api.messages.GetBotCallbackAnswer) {
+                await client.invoke(new Api.messages.GetBotCallbackAnswer({
+                  peer,
+                  msgId: botMsg.id,
+                  data: btn.data,
+                }));
+              }
+              captchaClicked = true;
+              addLog('info', `[تایید عضویت] دکمه تایید عضویت در کانال «${btn.text}» خودکار کلیک شد.`);
+              await new Promise(res => setTimeout(res, 1000));
+            } catch (e: any) {}
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Click "I am not a bot" Button
+  if (antiBotConfig.autoClickCaptcha && botMsg?.replyMarkup?.rows) {
+    for (let r = 0; r < botMsg.replyMarkup.rows.length; r++) {
+      const rowBtns = botMsg.replyMarkup.rows[r].buttons || [];
+      for (let c = 0; c < rowBtns.length; c++) {
+        const btn = rowBtns[c];
+        const btnText = (btn.text || '').toLowerCase();
+        const isNotBotBtn =
+          btnText.includes('ربات نیستم') ||
+          btnText.includes('من ربات نیستم') ||
+          btnText.includes('not a bot') ||
+          btnText.includes('human') ||
+          btnText.includes('انسانیت') ||
+          btnText.includes('کلیک کنید') ||
+          btnText.includes('ورود') ||
+          btnText.includes('تایید قوانین') ||
+          btnText.includes('پذیرش قوانین');
+
+        if (isNotBotBtn) {
+          try {
+            if (typeof botMsg.click === 'function') {
+              await botMsg.click({ i: r, j: c });
+            } else if (btn.data && Api && Api.messages && Api.messages.GetBotCallbackAnswer) {
+              await client.invoke(new Api.messages.GetBotCallbackAnswer({
+                peer,
+                msgId: botMsg.id,
+                data: btn.data,
+              }));
+            }
+            captchaClicked = true;
+            addLog('info', `[حل کاپچا] دکمه «${btn.text}» جهت اثبات کاربر واقعی خودکار کلیک شد.`);
+            await new Promise(res => setTimeout(res, 1000));
+          } catch (e: any) {}
+        }
+      }
+    }
+  }
+
+  // 3. Solve Math & Text Challenge via Algorithmic Solver
+  if (antiBotConfig.autoSolveMathCaptcha !== false && botMsg) {
+    const solved = solveBotMathOrTextChallenge(botPromptText, groupTitle);
+    if (solved) {
+      mathOrTextSolved = true;
+      let clickedBtn = false;
+      if (botMsg.replyMarkup?.rows) {
+        for (let r = 0; r < botMsg.replyMarkup.rows.length; r++) {
+          const rowBtns = botMsg.replyMarkup.rows[r].buttons || [];
+          for (let c = 0; c < rowBtns.length; c++) {
+            const btn = rowBtns[c];
+            const btnText = (btn.text || '').trim();
+            const normBtn = btnText.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString());
+            if (normBtn === solved || normBtn.includes(solved)) {
+              try {
+                if (typeof botMsg.click === 'function') {
+                  await botMsg.click({ i: r, j: c });
+                } else if (btn.data && Api && Api.messages && Api.messages.GetBotCallbackAnswer) {
+                  await client.invoke(new Api.messages.GetBotCallbackAnswer({
+                    peer,
+                    msgId: botMsg.id,
+                    data: btn.data,
+                  }));
+                }
+                captchaClicked = true;
+                clickedBtn = true;
+                addLog('info', `[پاسخ ریاضی] پاسخ «${solved}» با کلیک روی دکمه «${btn.text}» اعمال شد.`);
+                await new Promise(res => setTimeout(res, 1000));
+                break;
+              } catch (e: any) {}
+            }
+          }
+          if (clickedBtn) break;
+        }
+      }
+
+      if (!clickedBtn) {
+        try {
+          await client.sendMessage(peer, { message: solved, replyTo: botMsg.id });
+          addLog('info', `[پاسخ ریاضی/متنی] پاسخ چالش ربات ناظر («${solved}») در قالب ریپلای ارسال شد.`);
+          await new Promise(res => setTimeout(res, 1500));
+        } catch (e: any) {}
+      }
+    }
+  }
+
+  // 4. Invite Contacts (if required and enabled)
+  if (antiBotConfig.autoInviteContacts && botMsg) {
+    const needsAddMembers =
+      botPromptText.includes('اضافه کنید') ||
+      botPromptText.includes('عضو کنید') ||
+      botPromptText.includes('اد کنید') ||
+      botPromptText.includes('مخاطب') ||
+      botPromptText.includes('دعوت');
+
+    if (needsAddMembers) {
+      if (antiBotConfig.safeContactShield !== false) {
+        addLog('warning', `[سپر ایمنی مخاطبین] گروه "${groupTitle}" شرط ادد اجباری دارد. جهت محافظت اکانت از مسدودیت تلگرام، ادد خودکار انجام نشد.`);
+      } else {
+        try {
+          if (Api && Api.contacts && Api.contacts.GetContacts) {
+            const resContacts = await client.invoke(new Api.contacts.GetContacts({ hash: BigInt(0) }));
+            const users = resContacts.users || [];
+            if (users.length > 0) {
+              const count = Math.min(users.length, antiBotConfig.contactsToInviteCount || 3);
+              const selected = users.slice(0, count);
+              contactsInvitedCount = selected.length;
+              if (Api.channels && Api.channels.InviteToChannel) {
+                await client.invoke(new Api.channels.InviteToChannel({
+                  channel: peer,
+                  users: selected.map((u: any) => u.id || u),
+                }));
+                addLog('info', `[افزودن مخاطبان] تعداد ${selected.length} مخاطب جهت باز شدن قفل گروه "${groupTitle}" افزوده شد.`);
+                await new Promise(res => setTimeout(res, 1500));
+              }
+            }
+          }
+        } catch (e: any) {}
+      }
+    }
+  }
+
+  // 5. Deep AI Solver (Gemini) for Complex / Unsolved Challenges
+  if (!mathOrTextSolved && !captchaClicked && botMsg) {
+    const buttonTexts = inlineButtons.map(b => b.text);
+    const aiSolution = await solveCaptchaWithGemini(botPromptText, buttonTexts, groupTitle);
+    if (aiSolution) {
+      addLog('info', `[هوش مصنوعی Gemini] تحلیل هوشمند چالش ربات انجام شد: اقدام پیشنهادی: ${aiSolution.action}`);
+      if (aiSolution.action === 'click_button' && aiSolution.target) {
+        for (let r = 0; r < (botMsg.replyMarkup?.rows || []).length; r++) {
+          const rowBtns = botMsg.replyMarkup.rows[r].buttons || [];
+          for (let c = 0; c < rowBtns.length; c++) {
+            const b = rowBtns[c];
+            if (b.text?.includes(aiSolution.target) || aiSolution.target.includes(b.text)) {
+              try {
+                if (typeof botMsg.click === 'function') await botMsg.click({ i: r, j: c });
+                captchaClicked = true;
+                addLog('info', `[هوش مصنوعی Gemini] دکمه مورد تایید «${b.text}» کلیک شد.`);
+                await new Promise(res => setTimeout(res, 1000));
+              } catch (e: any) {}
+            }
+          }
+        }
+      } else if (aiSolution.action === 'send_text' && aiSolution.answer) {
+        try {
+          await client.sendMessage(peer, { message: aiSolution.answer, replyTo: botMsg.id });
+          addLog('info', `[هوش مصنوعی Gemini] پاسخ متنی «${aiSolution.answer}» ارسال شد.`);
+          await new Promise(res => setTimeout(res, 1500));
+        } catch (e: any) {}
+      } else if (aiSolution.action === 'join_channel' && aiSolution.target) {
+        const cleanCh = aiSolution.target.replace('@', '').trim();
+        try {
+          if (Api && Api.channels) {
+            await client.invoke(new Api.channels.JoinChannel({ channel: cleanCh }));
+            channelJoined = true;
+            addLog('info', `[هوش مصنوعی Gemini] عضویت در کانال حامی @${cleanCh} انجام شد.`);
+          }
+        } catch (e: any) {}
+      }
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // STAGE 5: Send Second Test Greeting & Verify Survival
+  // --------------------------------------------------------------------------
+  await new Promise(res => setTimeout(res, 2500));
+  let secondSurvived = false;
+
+  try {
+    const secondMsg = await client.sendMessage(peer, { message: greetingMsg });
+    addLog('info', `[تست مجدد پس از حل چالش] پیام تاییدیه دوم «${greetingMsg}» به گروه "${groupTitle}" ارسال شد. در حال پایش ۴ ثانیه‌ای ماندگاری پیام...`);
+    await new Promise(res => setTimeout(res, 4000));
+    const checkSecond = await client.getMessages(peer, { ids: [secondMsg.id] });
+    if (checkSecond && checkSecond.length > 0 && checkSecond[0] && checkSecond[0].className !== 'MessageEmpty') {
+      secondSurvived = true;
+    }
+  } catch (secondErr: any) {
+    console.warn('Second greeting send failed:', secondErr?.message || secondErr);
+  }
+
+  // --------------------------------------------------------------------------
+  // STAGE 6: Final Categorization (Ready vs Captcha Required)
+  // --------------------------------------------------------------------------
+  if (secondSurvived) {
+    // 100% READY!
+    if (targetGroup) {
+      targetGroup.readinessStatus = 'ready';
+      targetGroup.canSendMessages = true;
+      targetGroup.greetingTested = true;
+      targetGroup.greetingSurvived = true;
+      targetGroup.status = 'joined';
+      targetGroup.membershipStatus = 'joined';
+      targetGroup.lastJoinError = undefined;
+      targetGroup.errorMessage = undefined;
+      targetGroup.captchaDetails = {
+        botName,
+        challengeText: botPromptText.slice(0, 300),
+        solvedAutomatically: true,
+        detectedAt: new Date().toISOString(),
+        lastAttemptResult: 'کپچا با موفقیت خودکار حل شد و پیام دوم ماندگار ماند ✓',
+      };
+    }
+
+    addLog('success', `[۱۰۰٪ آماده ارسال تبلیغات] گروه "${groupTitle}" با موفقیت تایید شد! موانع رفع شد و پیام تستی ماندگار ماند.`);
+    return {
+      isClear: true,
+      botDetected: true,
+      statusMessage: 'موانع برطرف شد و گروه ۱۰۰٪ آماده انتشار تبلیغات است.',
+      captchaClicked,
+      channelJoined,
+      contactsInvited: contactsInvitedCount,
+    };
+  } else {
+    // CATEGORY 2: NEEDS MANUAL RESOLUTION
+    if (targetGroup) {
+      targetGroup.readinessStatus = 'captcha_required';
+      targetGroup.canSendMessages = true;
+      targetGroup.greetingTested = true;
+      targetGroup.greetingSurvived = false;
+      targetGroup.status = 'joined';
+      targetGroup.membershipStatus = 'joined';
+      targetGroup.captchaDetails = {
+        botName,
+        challengeText: botPromptText.slice(0, 400),
+        solvedAutomatically: false,
+        detectedAt: new Date().toISOString(),
+        inlineButtons,
+        msgId: botMsg?.id,
+        lastAttemptResult: 'پیام تستی پس از تلاش حذف شد یا چالش پیچیده شناسایی گردید. نیازمند اقدام دستی کاربر.',
+      };
+    }
+
+    addLog('warning', `[نیازمند اقدام دستی] در گروه "${groupTitle}" ربات محافظ مانع ایجاد کرده و به صورت خودکار کامل رفع نشد. جهت حل دستی به بخش «نیازمند حل دستی» مراجعه فرمایید.`);
     return {
       isClear: false,
-      botDetected: false,
-      statusMessage: `خطا: ${e.message || e}`,
-      captchaClicked: false,
-      channelJoined: false,
-      contactsInvited: 0,
+      botDetected: true,
+      statusMessage: 'نیازمند اقدام دستی کاربر جهت حل چالش ربات ناظر',
+      captchaClicked,
+      channelJoined,
+      contactsInvited: contactsInvitedCount,
     };
   }
 }
@@ -3943,17 +4413,44 @@ async function executeBroadcast(isManualTrigger = false) {
       }
     }
 
-    // Pick primary active campaign
-    const campaign = activeCampaigns[0];
-    const botToken = appState.credentials.botToken;
-
-    // Prepare image file if present
-    if (campaign.imageUrl) {
-      tempImgPath = await getImageFilePathForTelegram(campaign.imageUrl);
+    // Prepare media image paths for all active campaigns
+    const campaignImagePaths = new Map<string, string>();
+    for (const camp of activeCampaigns) {
+      if (camp.imageUrl) {
+        try {
+          const imgP = await getImageFilePathForTelegram(camp.imageUrl);
+          if (imgP) campaignImagePaths.set(camp.id, imgP);
+        } catch (e) {}
+      }
     }
 
-    // Format text message
-    const textMessage = `📌 **${campaign.title}**\n\n💰 **قیمت:** ${campaign.price}\n\n📝 ${campaign.description}\n\n👤 **سفارش و ارتباط:** ${campaign.contactHandle}\n\n${campaign.hashtags.map(h => (h.startsWith('#') ? h : '#' + h)).join(' ')}`;
+    // Helper: Select campaign based on campaignRotationMode ('round_robin', 'category_match', or 'first_active')
+    function getCampaignForGroup(grp: any, grpIdx: number): any {
+      if (activeCampaigns.length <= 1) return activeCampaigns[0];
+      const rotMode = appState.scheduler.campaignRotationMode || 'round_robin';
+      if (rotMode === 'category_match') {
+        const groupCat = (grp.category || '').toLowerCase();
+        const groupTitle = (grp.title || '').toLowerCase();
+        const matched = activeCampaigns.find(c => {
+          const cTitle = (c.title || '').toLowerCase();
+          const tagMatch = c.hashtags?.some((h: string) => {
+            const cleanH = h.replace('#', '').toLowerCase();
+            return groupCat.includes(cleanH) || groupTitle.includes(cleanH);
+          });
+          return tagMatch || groupCat.includes(cTitle) || groupTitle.includes(cTitle);
+        });
+        if (matched) return matched;
+      }
+      if (rotMode === 'first_active') {
+        return activeCampaigns[0];
+      }
+      // Default: round_robin
+      return activeCampaigns[grpIdx % activeCampaigns.length];
+    }
+
+    const primaryCampaign = activeCampaigns[0];
+    const campaign = primaryCampaign;
+    const botToken = appState.credentials.botToken;
 
     // Filter available active accounts for Group Broadcast
     syncAccountsState();
@@ -3966,10 +4463,10 @@ async function executeBroadcast(isManualTrigger = false) {
 
     addLog(
       'info',
-      `[آغاز فرایند ارسال] تبلیغ "${campaign.title}" به ${targetGroupsToProcess.length} گروه هدف با ${availableAccounts.length} اکانت متصل (حالت: ${isParallel ? 'ارسال همزمان و تقسیم موازی کار' : 'ارسال تک‌کاناله/چرخشی'})...`,
+      `[آغاز فرایند ارسال] انتشار ${activeCampaigns.length} کمپین فعال به ${targetGroupsToProcess.length} گروه هدف با ${availableAccounts.length} اکانت متصل (حالت: ${isParallel ? 'ارسال همزمان و تقسیم موازی کار' : 'ارسال تک‌کاناله/چرخشی'}، چرخش: ${appState.scheduler.campaignRotationMode || 'نوبتی Round-Robin'})...`,
       undefined,
       undefined,
-      campaign.title
+      primaryCampaign.title
     );
 
     // Track per-account statistics
@@ -4198,6 +4695,11 @@ async function executeBroadcast(isManualTrigger = false) {
             break;
           }
 
+          // Select campaign for this group based on rotation mode
+          const grpIdx = targetGroupsToProcess.findIndex(tg => tg.id === group.id);
+          const campaign = getCampaignForGroup(group, grpIdx >= 0 ? grpIdx : completedGroupIds.size);
+          const campImgPath = campaign.imageUrl ? campaignImagePaths.get(campaign.id) : undefined;
+
           if (verification.isClear) {
             if (workerProgress) {
               workerProgress.status = 'sending';
@@ -4229,12 +4731,13 @@ async function executeBroadcast(isManualTrigger = false) {
               accClient,
               peer,
               groupTextMessage,
-              tempImgPath,
+              campImgPath,
               account.id,
               {
                 simulateTyping: appState.scheduler.antiBot?.simulateTyping !== false,
                 typingDurationSeconds: appState.scheduler.antiBot?.typingDurationSeconds || 2,
                 groupTitle: group.title,
+                supportForumTopics: appState.scheduler.antiBot?.supportForumTopics !== false,
               }
             );
 
@@ -4306,7 +4809,7 @@ async function executeBroadcast(isManualTrigger = false) {
 
             addLog(
               'success',
-              `[ارسال موفق همزمان] پیام در گروه "${group.title}" توسط اکانت (${account.userProfile?.firstName || account.phoneNumber}) ارسال و تایید شد.`,
+              `[ارسال موفق همزمان] پیام کمپین "${campaign.title}" در گروه "${group.title}" توسط اکانت (${account.userProfile?.firstName || account.phoneNumber}) ارسال و تایید شد.`,
               group.title,
               undefined,
               campaign.title
@@ -4339,8 +4842,11 @@ async function executeBroadcast(isManualTrigger = false) {
             }
           } else {
             // Anti-bot or message check failed on this group for this account
-            if (peer) {
+            const shouldLeave = appState.scheduler.antiBot?.safeMembershipRetention === false;
+            if (shouldLeave && peer) {
               try { await leaveGroupAndClearHistory(accClient, peer); } catch (e) {}
+            } else {
+              addLog('info', `[ایمنی اکانت] جهت پیشگیری از حساسیت الگوریتم ضداسپم تلگرام (عدم ورود و خروج مکرر)، عضویت اکانت در گروه "${group.title}" حفظ گردید.`);
             }
             if (accStats) accStats.failedCount++;
             if (workerProgress) workerProgress.failedCount++;
@@ -4392,8 +4898,11 @@ async function executeBroadcast(isManualTrigger = false) {
             break;
           } else {
             // Non-flood error (e.g. invalid invite link or user ban in this specific group)
-            if (peer) {
+            const shouldLeave = appState.scheduler.antiBot?.safeMembershipRetention === false;
+            if (shouldLeave && peer) {
               try { await leaveGroupAndClearHistory(accClient, peer); } catch (e) {}
+            } else {
+              addLog('info', `[ایمنی اکانت] جهت پیشگیری از حساسیت الگوریتم ضداسپم تلگرام، عضویت اکانت در گروه "${group.title}" حفظ گردید.`);
             }
             if (accStats) accStats.failedCount++;
             if (workerProgress) workerProgress.failedCount++;
@@ -4446,7 +4955,10 @@ async function executeBroadcast(isManualTrigger = false) {
       addLog('info', `[تکمیل با Bot API] تعداد ${remainingUncompletedGroups.length} گروه باقی‌مانده توسط ربات واسط تلگرام ارسال خواهند شد...`);
       for (const group of remainingUncompletedGroups) {
         try {
-          await sendViaBotApi(botToken, group.usernameOrLink, textMessage, campaign.imageUrl);
+          const botCamp = getCampaignForGroup(group, completedGroupIds.size);
+          const botTags = (botCamp.hashtags || []).map((h: string) => (h.startsWith('#') ? h : '#' + h)).join(' ');
+          const botTextMessage = `📌 **${botCamp.title}**\n\n💰 **قیمت:** ${botCamp.price}\n\n📝 ${botCamp.description}\n\n👤 **سفارش و ارتباط:** ${botCamp.contactHandle}\n\n${botTags}`;
+          await sendViaBotApi(botToken, group.usernameOrLink, botTextMessage, botCamp.imageUrl);
           const postTimeStr = new Date().toISOString();
           group.lastPostedAt = postTimeStr;
           group.lastPostedByAccountId = 'bot_api';
@@ -4736,9 +5248,57 @@ app.post('/api/groups/update-join-strategy', (req, res) => {
     delayBetweenJoinsSeconds: incoming.delayBetweenJoinsSeconds || 10,
     maxJoinsPerAccountPerHour: incoming.maxJoinsPerAccountPerHour || 15,
     autoResolveAntibotOnJoin: incoming.autoResolveAntibotOnJoin !== false,
+    leaveIfNoSendPermission: incoming.leaveIfNoSendPermission !== false,
+    sendGreetingTest: incoming.sendGreetingTest !== false,
+    greetingMessage: incoming.greetingMessage || 'سلام بچه ها',
+    verifyGreetingSurvival: incoming.verifyGreetingSurvival !== false,
+    autoSolveAllCaptchas: incoming.autoSolveAllCaptchas !== false,
   };
   saveData();
   res.json({ success: true, strategy: appState.groupJoinStrategy });
+});
+
+// Purge all groups marked 'no_permission_left' from application
+app.post('/api/groups/purge-invalid', (req, res) => {
+  const initialCount = appState.groups.length;
+  appState.groups = appState.groups.filter(g => g.readinessStatus !== 'no_permission_left');
+  const removedCount = initialCount - appState.groups.length;
+  saveData();
+  addLog('info', `[پاکسازی گروه‌های نامعتبر] تعداد ${removedCount} گروه فاقد اجازه ارسال پیام از لیست حذف شدند.`);
+  res.json({ success: true, removedCount, groups: appState.groups });
+});
+
+// Re-verify a single group's captcha & readiness status
+app.post('/api/groups/retry-verification', async (req, res) => {
+  const { groupId, clickButtonIndex, customReply } = req.body;
+  const group = appState.groups.find(g => g.id === groupId);
+  if (!group) {
+    res.status(404).json({ error: 'گروه مورد نظر یافت نشد.' });
+    return;
+  }
+
+  const client = await getOrInitTgClient();
+  if (!client || !appState.credentials.isConnected) {
+    res.status(400).json({ error: 'اتصال تلگرام برقرار نیست.' });
+    return;
+  }
+
+  try {
+    const peer = await resolveAndJoinGroup(client, group.usernameOrLink);
+
+    // If manual custom reply specified
+    if (customReply) {
+      await client.sendMessage(peer, { message: customReply });
+      addLog('info', `[پاسخ دستی به گروه] پیام دستی «${customReply}» به گروه "${group.title}" ارسال شد.`);
+      await new Promise(r => setTimeout(r, 2000));
+    }
+
+    const verification = await handleAntiBotAndGroupVerification(client, peer, group.title, group);
+    saveData();
+    res.json({ success: true, verification, group });
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message || 'خطا در ارزیابی مجدد گروه' });
+  }
 });
 
 // 16. Real-time Monitoring & Process Reports Endpoints
@@ -5171,24 +5731,35 @@ app.post('/api/scheduler/update-antibot', (req, res) => {
     autoForceJoinChannels,
     autoInviteContacts,
     contactsToInviteCount,
+    safeContactShield,
     sendGreetingFirst,
+    greetingMode,
     greetingMessage,
+    autoSolveMathCaptcha,
+    safeMembershipRetention,
+    supportForumTopics,
     simulateTyping,
     typingDurationSeconds,
     enableSpintax,
     cacheMediaInput,
     verifyMessagePersistence,
     persistenceCheckDelaySeconds,
+    campaignRotationMode,
   } = req.body;
   
   if (!appState.scheduler.antiBot) {
     appState.scheduler.antiBot = {
       autoClickCaptcha: true,
       autoForceJoinChannels: true,
-      autoInviteContacts: true,
+      autoInviteContacts: false,
       contactsToInviteCount: 3,
-      sendGreetingFirst: true,
+      safeContactShield: true,
+      sendGreetingFirst: false,
+      greetingMode: 'stealth_silent',
       greetingMessage: 'سلام بچه ها',
+      autoSolveMathCaptcha: true,
+      safeMembershipRetention: true,
+      supportForumTopics: true,
       simulateTyping: true,
       typingDurationSeconds: 2,
       enableSpintax: true,
@@ -5201,13 +5772,18 @@ app.post('/api/scheduler/update-antibot', (req, res) => {
   if (autoClickCaptcha !== undefined) appState.scheduler.antiBot.autoClickCaptcha = Boolean(autoClickCaptcha);
   if (autoForceJoinChannels !== undefined) appState.scheduler.antiBot.autoForceJoinChannels = Boolean(autoForceJoinChannels);
   if (autoInviteContacts !== undefined) appState.scheduler.antiBot.autoInviteContacts = Boolean(autoInviteContacts);
+  if (safeContactShield !== undefined) appState.scheduler.antiBot.safeContactShield = Boolean(safeContactShield);
   if (sendGreetingFirst !== undefined) appState.scheduler.antiBot.sendGreetingFirst = Boolean(sendGreetingFirst);
+  if (greetingMode !== undefined) appState.scheduler.antiBot.greetingMode = greetingMode;
   if (typeof greetingMessage === 'string' && greetingMessage.trim().length > 0) {
     appState.scheduler.antiBot.greetingMessage = greetingMessage.trim();
   }
   if (typeof contactsToInviteCount === 'number' && contactsToInviteCount > 0) {
     appState.scheduler.antiBot.contactsToInviteCount = contactsToInviteCount;
   }
+  if (autoSolveMathCaptcha !== undefined) appState.scheduler.antiBot.autoSolveMathCaptcha = Boolean(autoSolveMathCaptcha);
+  if (safeMembershipRetention !== undefined) appState.scheduler.antiBot.safeMembershipRetention = Boolean(safeMembershipRetention);
+  if (supportForumTopics !== undefined) appState.scheduler.antiBot.supportForumTopics = Boolean(supportForumTopics);
   if (simulateTyping !== undefined) appState.scheduler.antiBot.simulateTyping = Boolean(simulateTyping);
   if (typeof typingDurationSeconds === 'number' && typingDurationSeconds > 0) {
     appState.scheduler.antiBot.typingDurationSeconds = Math.min(10, Math.max(1, typingDurationSeconds));
@@ -5219,9 +5795,13 @@ app.post('/api/scheduler/update-antibot', (req, res) => {
     appState.scheduler.antiBot.persistenceCheckDelaySeconds = Math.min(120, Math.max(5, persistenceCheckDelaySeconds));
   }
 
+  if (campaignRotationMode && ['round_robin', 'category_match', 'first_active'].includes(campaignRotationMode)) {
+    appState.scheduler.campaignRotationMode = campaignRotationMode;
+  }
+
   saveData();
-  addLog('info', 'تنظیمات پیشرفته سیستم ضد اسپم (کش مدیا، Spintax، تایپینگ انسانی و پایش ماندگاری) به‌روزرسانی شد.');
-  res.json({ success: true, antiBot: appState.scheduler.antiBot });
+  addLog('info', 'تنظیمات پیشرفته سیستم ضد اسپم (سپر امنیتی، هوش مصنوعی آنتی‌بات، فروم و چرخش کمپین‌ها) به‌روزرسانی شد.');
+  res.json({ success: true, antiBot: appState.scheduler.antiBot, campaignRotationMode: appState.scheduler.campaignRotationMode });
 });
 
 // Endpoint: Manual/On-Demand Persistence Verification of Target Groups
