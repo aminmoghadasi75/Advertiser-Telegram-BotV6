@@ -116,6 +116,9 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
       totalLeadsDetected: 0,
       totalGroupRepliesSent: 0,
       totalPvMessagesSent: 0,
+      neverRepeatPvToSameUser: true,
+      checkTelegramHistoryBeforePv: true,
+      totalPvRepeatsPrevented: 0,
     },
     recentLeads: [],
   };
@@ -127,7 +130,18 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
   const [simulationResult, setSimulationResult] = useState<any>(null);
   const [customTestMessage, setCustomTestMessage] = useState('سلام بچه‌ها، کسی فیلترشکن یا vpn پرسرعت بدون قطعی برای چت جی پی تی و اینستاگرام سراغ داره؟');
   const [newKeywordInput, setNewKeywordInput] = useState('');
-  const [selectedSubTab, setSelectedSubTab] = useState<'strategy1' | 'strategy2' | 'leads'>('strategy1');
+  const [selectedSubTab, setSelectedSubTab] = useState<'strategy1' | 'strategy2' | 'leads' | 'inbound'>('strategy2');
+
+  // Multi-bubble live testing to telegram account
+  const [testTargetUsername, setTestTargetUsername] = useState(config.strategy2.testTargetUsername || '');
+  const [isSendingTestPv, setIsSendingTestPv] = useState(false);
+  const [testPvResult, setTestPvResult] = useState<any>(null);
+
+  // Inbound testing state
+  const [inboundTestInput, setInboundTestInput] = useState('سلام، قیمت اشتراکتون چنده؟ اکانت تست هم دارید برای آیفون؟');
+  const [isInboundTesting, setIsInboundTesting] = useState(false);
+  const [inboundTestResult, setInboundTestResult] = useState<any>(null);
+  const [supportContactInput, setSupportContactInput] = useState(config.strategy2.supportContactHandle || '@Nova_vpn10');
 
   // Gemini AI Caption Live Generator State
   const [testAiGroupTitle, setTestAiGroupTitle] = useState('گروه برنامه‌نویسان و گیمرهای ایران');
@@ -286,6 +300,66 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
     } finally {
       setIsSimulating(false);
     }
+  };
+
+  const handleSendTestPv = async () => {
+    setIsSendingTestPv(true);
+    setTestPvResult(null);
+    try {
+      const res = await fetch('/api/strategy/strategy2/test-send-pv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetUsername: testTargetUsername,
+          sampleCategory: simulationResult?.detectedCategory || 'vpn_filter',
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || 'خطا در ارسال پیام تستی به تلگرام');
+      }
+      setTestPvResult(data);
+    } catch (err: any) {
+      alert(err?.message || 'خطا در ارسال پیام تستی');
+    } finally {
+      setIsSendingTestPv(false);
+    }
+  };
+
+  const handleTestInboundReply = async () => {
+    if (!inboundTestInput.trim()) return;
+    setIsInboundTesting(true);
+    setInboundTestResult(null);
+    try {
+      const res = await fetch('/api/strategy/strategy2/test-inbound-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userMessage: inboundTestInput,
+          senderFirstName: 'امین',
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || 'خطا در شبیه‌سازی پاسخ به پیام خصوصی');
+      }
+      setInboundTestResult(data);
+    } catch (err: any) {
+      alert(err?.message || 'خطا در شبیه‌سازی');
+    } finally {
+      setIsInboundTesting(false);
+    }
+  };
+
+  const handleSaveSupportContact = async () => {
+    const clean = supportContactInput.trim();
+    if (!clean) return;
+    await onUpdateStrategyConfig({
+      strategy2: {
+        ...config.strategy2,
+        supportContactHandle: clean.startsWith('@') ? clean : '@' + clean,
+      },
+    });
   };
 
   return (
@@ -500,7 +574,24 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
               }`}
             >
               <Radio className="w-3.5 h-3.5 text-purple-400" />
-              <span>پیکربندی استراتژی دوم (شنود، ریپلای و پی‌وی)</span>
+              <span>پیکربندی استراتژی دوم (شنود هوشمند و چت حبابی پی‌وی)</span>
+            </button>
+
+            <button
+              onClick={() => setSelectedSubTab('inbound')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                selectedSubTab === 'inbound'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>پاسخگویی خودکار پی‌وی و پشتیبانی</span>
+              {config.inboundPvConversations && config.inboundPvConversations.length > 0 && (
+                <span className="text-[10px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded-full font-mono">
+                  {config.inboundPvConversations.length}
+                </span>
+              )}
             </button>
 
             <button
@@ -865,7 +956,7 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
           </div>
 
           {/* Strategy 2 Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
               <span className="text-[11px] text-slate-400">کل پیام‌های شنود شده</span>
               <div className="text-base font-black text-white mt-1 font-mono">
@@ -874,39 +965,49 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
             </div>
 
             <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
-              <span className="text-[11px] text-slate-400">لیدهای شناسایی‌شده (متقاضیان)</span>
+              <span className="text-[11px] text-slate-400">لیدهای شناسایی‌شده</span>
               <div className="text-base font-black text-purple-400 mt-1 font-mono">
                 {(config.strategy2.totalLeadsDetected || 0).toLocaleString('fa-IR')}
               </div>
             </div>
 
             <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
-              <span className="text-[11px] text-slate-400">ریپلای‌های هوشمند در گروه</span>
+              <span className="text-[11px] text-slate-400">ریپلای در گروه</span>
               <div className="text-base font-black text-sky-400 mt-1 font-mono">
                 {(config.strategy2.totalGroupRepliesSent || 0).toLocaleString('fa-IR')}
               </div>
             </div>
 
             <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
-              <span className="text-[11px] text-slate-400">پیام‌های شخصی ارسالی به پی‌وی</span>
+              <span className="text-[11px] text-slate-400">پیام ارسالی پی‌وی</span>
               <div className="text-base font-black text-emerald-400 mt-1 font-mono">
                 {(config.strategy2.totalPvMessagesSent || 0).toLocaleString('fa-IR')}
               </div>
             </div>
+
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-950/30 to-slate-950">
+              <span className="text-[11px] text-emerald-300 font-bold flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                سپر ضد ریپورت (تکراری مسدود)
+              </span>
+              <div className="text-base font-black text-emerald-400 mt-1 font-mono">
+                {(config.strategy2.totalPvRepeatsPrevented || 0).toLocaleString('fa-IR')}
+              </div>
+            </div>
           </div>
 
-          {/* 4 Feature Toggles: Group Reply, PV DM, PV Banner, Friendly Tone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          {/* Feature Toggles */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             
             {/* 1. Group Reply */}
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <span className="text-xs font-bold text-white flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-sky-400" />
-                  ریپلای هوشمند در گروه به پیام کاربر
+                  ریپلای هوشمند در گروه
                 </span>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  ربات در همان گروه به پیام کاربر ریپلای می‌زند و توضیح می‌دهد این VPN مشکل او را برطرف می‌کند و آیدی پشتیبانی ({activeCampaign?.contactHandle || '@Admin'}) را ذکر می‌کند.
+                  ربات در همان گروه به پیام کاربر ریپلای می‌زند و توضیح می‌دهد این مشکل برطرف می‌شود و آیدی پشتیبانی را ذکر می‌کند.
                 </p>
               </div>
               <input
@@ -917,53 +1018,106 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
               />
             </div>
 
-            {/* 2. PV DM */}
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-start justify-between gap-3">
+            {/* 1.5. Group Reply Banner */}
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-sky-500/30 ring-1 ring-sky-500/20 flex items-start justify-between gap-3">
               <div className="space-y-1">
-                <span className="text-xs font-bold text-white flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-emerald-400" />
-                  ارسال پیام خصوصی به پی‌وی (DM) کاربر
-                </span>
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-sky-400" />
+                  <span className="text-xs font-bold text-white">
+                    ارسال عکس/بنر بعد از ریپلای گروه
+                  </span>
+                  <span className="text-[9px] bg-sky-500/30 text-sky-200 px-1.5 py-0.2 rounded font-bold">
+                    تعرفه‌ها
+                  </span>
+                </div>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  همزمان در چت شخصی کاربر پیام داده و مانند یک فرد معمولی و دلسوز سرویس را توضیح می‌دهد و آیدی پشتیبانی را ارسال می‌کند.
+                  پس از ارسال توضیحات ریپلای، تصویر بنر پلن‌ها همراه با آیدی پشتیبانی با مکث کوتاه در گروه ارسال می‌شود.
                 </p>
               </div>
               <input
                 type="checkbox"
-                checked={config.strategy2.sendDirectMessage}
-                onChange={(e) => handleStrategy2Toggle('sendDirectMessage', e.target.checked)}
+                checked={config.strategy2.sendBannerInGroupReply !== false}
+                onChange={(e) => handleStrategy2Toggle('sendBannerInGroupReply', e.target.checked)}
+                className="w-4 h-4 mt-1 rounded text-sky-600 bg-slate-900 border-slate-700 focus:ring-sky-500"
+              />
+            </div>
+
+            {/* 2. Multi-Bubble PV DM */}
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-purple-500/30 ring-1 ring-purple-500/20 flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-purple-400" />
+                  <span className="text-xs font-bold text-white">
+                    پیام‌های پی‌وی بصورت حباب‌های مجزا
+                  </span>
+                  <span className="text-[9px] bg-purple-500/30 text-purple-200 px-1.5 py-0.2 rounded font-bold">
+                    مشابه چت ناشناس
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  ارسال پیام سلام جدا، اشاره به گروه جدا، معرفی تجربی کوتاه محصول جدا و آیدی پشتیبانی مجزا با شبیه‌سازی تایپینگ طبیعی انسان.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={config.strategy2.multiBubblePv !== false}
+                onChange={(e) => handleStrategy2Toggle('multiBubblePv', e.target.checked)}
+                className="w-4 h-4 mt-1 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500"
+              />
+            </div>
+
+            {/* 3. Inbound PV Auto-Responder */}
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-emerald-500/30 ring-1 ring-emerald-500/20 flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold text-white">
+                    پاسخگویی به پاسخ‌های پی‌وی
+                  </span>
+                  <span className="text-[9px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded font-bold">
+                    پشتیبانی خودکار
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  ربات تمام پیام‌های دریافتی از کاربران در پی‌وی را خوانده، سوالات آنها را پاسخ داده و نهایتاً به پشتیبانی معرفی می‌کند.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={config.strategy2.autoReplyInboundPv !== false}
+                onChange={(e) => handleStrategy2Toggle('autoReplyInboundPv', e.target.checked)}
                 className="w-4 h-4 mt-1 rounded text-emerald-600 bg-slate-900 border-slate-700 focus:ring-emerald-500"
               />
             </div>
 
-            {/* 3. Send Banner in PV */}
+            {/* 4. Send Banner in PV */}
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <span className="text-xs font-bold text-white flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-purple-400" />
-                  ارسال بنر تصویری تبلیغاتی در پی‌وی
+                  <ImageIcon className="w-4 h-4 text-pink-400" />
+                  ارسال بنر تصویری در پی‌وی
                 </span>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  همراه با پیام صمیمی در پی‌وی، عکس بنر تعرفه‌ها و سرویس کمپین نیز برای کاربر آپلود و ارسال می‌شود.
+                  عکس بنر تعرفه‌ها بصورت پیام تصویری مجزا همراه با کپشن کوتاه ارسال می‌شود تا توجه کاربر جلب گردد.
                 </p>
               </div>
               <input
                 type="checkbox"
                 checked={config.strategy2.sendBannerInDirectMessage}
                 onChange={(e) => handleStrategy2Toggle('sendBannerInDirectMessage', e.target.checked)}
-                className="w-4 h-4 mt-1 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500"
+                className="w-4 h-4 mt-1 rounded text-pink-600 bg-slate-900 border-slate-700 focus:ring-pink-500"
               />
             </div>
 
-            {/* 4. Casual Friend Style Tone */}
+            {/* 5. Casual Friend Style Tone */}
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <span className="text-xs font-bold text-white flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-400" />
-                  لحن طبیعی و شبیه‌سازی فرد معمولی
+                  لحن صمیمی و فرد معمولی
                 </span>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  پرهیز از لحن‌های رباتیک و پیام‌های کلیشه‌ای تبلیغاتی، به نحوی که کاربر تصور کند یکی از اعضای عادی گروه از روی تجربه او را راهنمایی کرده است.
+                  پرهیز از پیام‌های بلند و رباتیک؛ صحبت کوتاه و دوستانه به شکلی که کاربر حس کند از طرف یک دوست معرفی شده است.
                 </p>
               </div>
               <input
@@ -971,6 +1125,83 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
                 checked={config.strategy2.friendStylePvTone}
                 onChange={(e) => handleStrategy2Toggle('friendStylePvTone', e.target.checked)}
                 className="w-4 h-4 mt-1 rounded text-amber-600 bg-slate-900 border-slate-700 focus:ring-amber-500"
+              />
+            </div>
+
+            {/* 6. Support Contact Handle */}
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2">
+              <span className="text-xs font-bold text-white flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-sky-400" />
+                آیدی تلگرام پشتیبانی
+              </span>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                آیدی که ربات در پیام‌ها و پاسخ‌های پی‌وی به کاربران معرفی می‌کند:
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={supportContactInput}
+                  onChange={(e) => setSupportContactInput(e.target.value)}
+                  onBlur={handleSaveSupportContact}
+                  placeholder="@Nova_vpn10"
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-sky-300 font-mono focus:outline-none focus:border-sky-500 text-left"
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveSupportContact}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-white"
+                >
+                  ذخیره
+                </button>
+              </div>
+            </div>
+
+            {/* 7. Never Repeat PV to Same User (Lifetime Anti-Report Shield) */}
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-emerald-500/40 ring-1 ring-emerald-500/20 flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold text-white">
+                    سپر ضد ریپورت: عدم تکرار پی‌وی به کاربر
+                  </span>
+                  <span className="text-[9px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded font-bold">
+                    مادام‌العمر
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  تضمین قطعی اینکه به هیچ کاربری در طول عمر ربات بیش از یک بار در پی‌وی پیام داده نشود تا از نارضایتی و گزارش تخلف (Report) توسط کاربر به طور کامل جلوگیری شود.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={config.strategy2.neverRepeatPvToSameUser !== false}
+                onChange={(e) => handleStrategy2Toggle('neverRepeatPvToSameUser', e.target.checked)}
+                className="w-4 h-4 mt-1 rounded text-emerald-600 bg-slate-900 border-slate-700 focus:ring-emerald-500"
+              />
+            </div>
+
+            {/* 8. Live Telegram Server History Check */}
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-emerald-500/40 ring-1 ring-emerald-500/20 flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold text-white">
+                    استعلام زنده سابقه چت از سرور تلگرام
+                  </span>
+                  <span className="text-[9px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.2 rounded font-bold">
+                    استعلام پیش از ارسال
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  قبل از شروع ارسال در پی‌وی، تاریخچه گفتگوی اکانت با مخاطب در سرور تلگرام استعلام می‌شود؛ در صورت داشتن هرگونه چت قبلی، ارسال پی‌وی لغو می‌شود.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={config.strategy2.checkTelegramHistoryBeforePv !== false}
+                onChange={(e) => handleStrategy2Toggle('checkTelegramHistoryBeforePv', e.target.checked)}
+                className="w-4 h-4 mt-1 rounded text-emerald-600 bg-slate-900 border-slate-700 focus:ring-emerald-500"
               />
             </div>
 
@@ -1032,7 +1263,7 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
           </div>
 
           {/* Delay & Safety Settings */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2">
               <label className="text-[11px] text-slate-300 font-bold block">
@@ -1047,13 +1278,30 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
                   onChange={(e) => handleStrategy2Toggle('groupReplyDelaySeconds', Math.max(1, parseInt(e.target.value, 10) || 4))}
                   className="w-16 bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-xs font-bold text-white"
                 />
-                <span className="text-xs text-slate-400">ثانیه (شبیه‌سازی خواندن)</span>
+                <span className="text-xs text-slate-400">ثانیه (خواندن پیام)</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-950/60 p-3 rounded-xl border border-sky-500/30 space-y-2">
+              <label className="text-[11px] text-sky-300 font-bold block">
+                فاصله پاسخ در یک گروه:
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={config.strategy2.groupCooldownMinutes ?? 5}
+                  onChange={(e) => handleStrategy2Toggle('groupCooldownMinutes', Math.max(1, parseInt(e.target.value, 10) || 5))}
+                  className="w-16 bg-slate-900 border border-sky-500/40 rounded-lg p-1.5 text-center text-xs font-bold text-white"
+                />
+                <span className="text-xs text-slate-400">دقیقه (ضد اسپم گروه)</span>
               </div>
             </div>
 
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2">
               <label className="text-[11px] text-slate-300 font-bold block">
-                تاخیر قبل از ارسال پی‌وی:
+                تاخیر شروع پی‌وی:
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -1064,13 +1312,31 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
                   onChange={(e) => handleStrategy2Toggle('pvMessageDelaySeconds', Math.max(2, parseInt(e.target.value, 10) || 8))}
                   className="w-16 bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-xs font-bold text-white"
                 />
-                <span className="text-xs text-slate-400">ثانیه (طبیعی‌تر شدن رفتار)</span>
+                <span className="text-xs text-slate-400">ثانیه (رفتار طبیعی)</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-950/60 p-3 rounded-xl border border-purple-500/30 space-y-2">
+              <label className="text-[11px] text-purple-300 font-bold block">
+                فاصله بین حباب‌های پیام:
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  step={0.5}
+                  value={config.strategy2.multiBubbleDelaySeconds || 1.5}
+                  onChange={(e) => handleStrategy2Toggle('multiBubbleDelaySeconds', Math.max(1, parseFloat(e.target.value) || 1.5))}
+                  className="w-16 bg-slate-900 border border-purple-500/40 rounded-lg p-1.5 text-center text-xs font-bold text-white"
+                />
+                <span className="text-xs text-slate-400">ثانیه + تایپینگ</span>
               </div>
             </div>
 
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2">
               <label className="text-[11px] text-slate-300 font-bold block">
-                کول‌داون پیام به هر کاربر:
+                کول‌داون پیام به کاربر:
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -1081,10 +1347,90 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
                   onChange={(e) => handleStrategy2Toggle('userCooldownHours', Math.max(1, parseInt(e.target.value, 10) || 24))}
                   className="w-16 bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-xs font-bold text-white"
                 />
-                <span className="text-xs text-slate-400">ساعت (عدم ارسال تکراری)</span>
+                <span className="text-xs text-slate-400">ساعت (عدم تکرار)</span>
               </div>
             </div>
 
+          </div>
+
+          {/* Live Multi-Bubble Telegram Send Test Box */}
+          <div className="bg-gradient-to-br from-indigo-950/40 via-slate-950 to-slate-950 border border-indigo-500/30 rounded-2xl p-4 sm:p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Send className="w-4 h-4 text-indigo-400" />
+                <h4 className="text-xs font-bold text-white">
+                  تست زنده ارسال حباب‌های پیام به اکانت تلگرام شما
+                </h4>
+              </div>
+              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-bold">
+                ارسال واقعی در تلگرام
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed">
+              پیام‌های حبابی تفکیک‌شده (سلام جدا، پیام گروه جدا، معرفی تجربی کوتاه و آیدی پشتیبانی + بنر) را به آیدی تلگرام دلخواه بفرستید تا دقیقاً نحوه نمایش در تلگرام را بررسی فرمایید:
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex items-center gap-2 flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 focus-within:border-indigo-500">
+                <span className="text-xs text-slate-500 font-mono">@</span>
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={testTargetUsername}
+                  onChange={(e) => setTestTargetUsername(e.target.value.replace(/^@/, ''))}
+                  placeholder="TelegramUsername"
+                  className="w-full bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none font-mono"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSendTestPv}
+                disabled={isSendingTestPv || !testTargetUsername.trim()}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-indigo-600/20"
+              >
+                {isSendingTestPv ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>در حال شبیه‌سازی تایپینگ و ارسال حباب‌ها...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>ارسال پیام‌های حبابی تستی</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {testPvResult && (
+              <div className="bg-slate-900/90 border border-indigo-500/40 rounded-xl p-3.5 space-y-2.5 animate-in fade-in">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    {testPvResult.message || 'پیام‌های حبابی با موفقیت به تلگرام ارسال شدند.'}
+                  </span>
+                  <span className="text-slate-400 font-mono text-[11px]">
+                    {testPvResult.bubblesCount || 4} حباب مجزا
+                  </span>
+                </div>
+
+                {testPvResult.bubbles && (
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-[10px] text-slate-400">حباب‌های ارسال‌شده به تلگرام:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {testPvResult.bubbles.map((b: string, idx: number) => (
+                        <div key={idx} className="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-[11px] text-slate-200">
+                          <span className="text-[9px] text-indigo-400 block mb-0.5 font-bold">حباب {idx + 1}:</span>
+                          {b}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Interactive Simulation & Test Panel */}
@@ -1102,7 +1448,7 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              یک متن پیام کاربر را وارد کنید تا ببینید سیستم چطور تقاضا را تشخیص می‌دهد، چه پاسخی در گروه ریپلای می‌زند و چه پیام دوستانه‌ای به پی‌وی می‌فرستد:
+              یک متن پیام کاربر را وارد کنید تا ببینید سیستم چطور تقاضا را تشخیص می‌دهد، چه پاسخی در گروه ریپلای می‌زند و چه پیام دوستانه‌ای در قالب حباب‌های مجزا به پی‌وی می‌فرستد:
             </p>
 
             <div className="flex flex-col sm:flex-row gap-2">
@@ -1159,18 +1505,41 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
                   </div>
                 </div>
 
-                {/* 2. PV Direct Message Preview */}
-                <div className="space-y-1.5">
+                {/* 2. PV Multi-Bubble Messages Preview */}
+                <div className="space-y-2">
                   <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                     <UserCheck className="w-3.5 h-3.5" />
-                    پیام ارسالی به پی‌وی کاربر به عنوان فرد معمولی (Direct DM + Banner):
+                    پیام‌های ارسالی به پی‌وی بصورت حباب‌های مجزا (مشابه چت ناشناس و انسان):
                   </span>
-                  <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs text-slate-200 leading-relaxed whitespace-pre-line space-y-2">
-                    <p>{simulationResult.pvText}</p>
+
+                  <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+                    {/* Display separated speech bubbles */}
+                    <div className="space-y-2 max-w-lg">
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tr-sm p-2.5 text-xs text-slate-200 inline-block shadow-sm">
+                        <span className="text-[10px] text-purple-400 block font-bold mb-0.5">حباب ۱ (سلام و احوالپرسی کوتاه):</span>
+                        سلام وقتت بخیر باشه
+                      </div>
+
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tr-sm p-2.5 text-xs text-slate-200 inline-block shadow-sm">
+                        <span className="text-[10px] text-sky-400 block font-bold mb-0.5">حباب ۲ (اشاره طبیعی به پیام گروه):</span>
+                        پیامت رو الان توی گروه دیدم درمورد فیلترشکن و قطعی نت گفته بودی
+                      </div>
+
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tr-sm p-2.5 text-xs text-slate-200 inline-block shadow-sm">
+                        <span className="text-[10px] text-amber-400 block font-bold mb-0.5">حباب ۳ (معرفی صمیمی و تجربی سرویس):</span>
+                        من خودم چند وقته اشتراک Nova VPN رو گرفتم، روی همه اپراتورا حتی همراه اول و ایرانسل با سرعت بالا بدون قطعی وصله
+                      </div>
+
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tr-sm p-2.5 text-xs text-slate-200 inline-block shadow-sm">
+                        <span className="text-[10px] text-emerald-400 block font-bold mb-0.5">حباب ۴ (معرفی آیدی پشتیبانی):</span>
+                        خواستی به پشتیبانیشون پیام بده راهنماییت میکنن: {config.strategy2.supportContactHandle || '@Nova_vpn10'}
+                      </div>
+                    </div>
+
                     {activeCampaign?.imageUrl && (
                       <div className="pt-2 flex items-center gap-2 text-[11px] text-purple-400 border-t border-slate-800/80">
                         <ImageIcon className="w-4 h-4" />
-                        <span>همراه با پیوست بنر تبلیغاتی محصول ({activeCampaign.title})</span>
+                        <span>همراه با ارسال فایل تصویر بنر تبلیغاتی محصول ({activeCampaign.title})</span>
                       </div>
                     )}
                   </div>
@@ -1178,6 +1547,256 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
               </div>
             )}
 
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-PANEL: INBOUND PV CONVERSATIONS & SUPPORT HANDOFF */}
+      {/* ========================================================================= */}
+      {selectedSubTab === 'inbound' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-6 animate-in fade-in duration-200">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base font-bold text-white">
+                  پاسخگویی خودکار به پیام‌های خصوصی (Inbound PV Auto-Responder)
+                </h3>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                  آماده شنود و پاسخگویی
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                هنگامی که کاربران به پیام تبلیغاتی صمیمی شما در پی‌وی پاسخ می‌دهند، ربات بصورت هوشمند آنها را راهنمایی و به آیدی پشتیبانی هدایت می‌کند.
+              </p>
+            </div>
+
+            {config.inboundPvConversations && config.inboundPvConversations.length > 0 && (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (confirm('آیا از پاکسازی گفتگوهای ورودی مطمئن هستید؟')) {
+                    await fetch('/api/strategy/strategy2/clear-inbound-conversations', { method: 'POST' });
+                    if (onUpdateStrategyConfig) {
+                      await onUpdateStrategyConfig({ inboundPvConversations: [] });
+                    }
+                  }
+                }}
+                className="text-xs text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-1 shrink-0"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>پاکسازی تاریخچه گفتگوها</span>
+              </button>
+            )}
+          </div>
+
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+              <span className="text-[11px] text-slate-400">گفتگوهای ورودی پی‌وی</span>
+              <div className="text-base font-black text-emerald-400 mt-1 font-mono">
+                {(config.inboundPvConversations?.length || 0).toLocaleString('fa-IR')}
+              </div>
+            </div>
+
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+              <span className="text-[11px] text-slate-400">کل پاسخ‌های ارسالی</span>
+              <div className="text-base font-black text-sky-400 mt-1 font-mono">
+                {(config.strategy2.totalInboundPvRepliesSent || 0).toLocaleString('fa-IR')}
+              </div>
+            </div>
+
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+              <span className="text-[11px] text-slate-400">آیدی پشتیبانی متصل</span>
+              <div className="text-xs font-bold text-indigo-400 mt-1 font-mono truncate" dir="ltr">
+                {config.strategy2.supportContactHandle || '@Nova_vpn10'}
+              </div>
+            </div>
+
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+              <span className="text-[11px] text-slate-400">وضعیت پاسخ‌دهنده</span>
+              <div className="text-xs font-bold text-emerald-400 mt-1 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>هوش مصنوعی فعال</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Inbound Simulator / Test Box */}
+          <div className="bg-gradient-to-br from-emerald-950/30 via-slate-950 to-slate-950 border border-emerald-500/30 rounded-2xl p-4 sm:p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <h4 className="text-xs font-bold text-white">
+                  شبیه‌ساز و تست زنده پاسخ به پیام کاربر در پی‌وی
+                </h4>
+              </div>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                تست هوش مصنوعی
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed">
+              یک سوال یا پاسخ احتمالی که ممکن است کاربر در پی‌وی بفرستد را وارد کنید تا ببینید سیستم چطور در قالب حباب‌های مجزا او را راهنمایی و به پشتیبانی معرفی می‌کند:
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                value={inboundTestInput}
+                onChange={(e) => setInboundTestInput(e.target.value)}
+                placeholder="مثال: قیمت اشتراک چنده؟ اکانت تست هم دارید؟"
+                className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={handleTestInboundReply}
+                disabled={isInboundTesting || !inboundTestInput.trim()}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-emerald-600/20"
+              >
+                {isInboundTesting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>تولید پاسخ هوشمند...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    <span>شبیه‌سازی پاسخ پی‌وی</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Quick pre-set test prompts */}
+            <div className="flex flex-wrap gap-1.5 items-center">
+              <span className="text-[10px] text-slate-500">سوالات آماده برای تست:</span>
+              {[
+                'قیمت اشتراک چنده؟',
+                'برای آیفون هم کار میکنه؟ تست دارید؟',
+                'روی همراه اول وصل میشه؟',
+                'دمت گرم داداش ممنون',
+                'نه ممنون نیازی ندارم',
+              ].map((promptText) => (
+                <button
+                  key={promptText}
+                  type="button"
+                  onClick={() => setInboundTestInput(promptText)}
+                  className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] px-2.5 py-1 rounded-lg transition-colors"
+                >
+                  {promptText}
+                </button>
+              ))}
+            </div>
+
+            {/* Inbound Test Results Display */}
+            {inboundTestResult && (
+              <div className="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 space-y-3 animate-in fade-in">
+                <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
+                  <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    پاسخ هوشمند تولید شد ({inboundTestResult.bubbles?.length || 1} حباب پیام مجزا)
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    هدف: راهنمایی و هدایت به {config.strategy2.supportContactHandle || '@Nova_vpn10'}
+                  </span>
+                </div>
+
+                {/* User Message Bubble */}
+                <div className="flex justify-start">
+                  <div className="bg-sky-600/20 border border-sky-500/30 text-sky-200 text-xs px-3.5 py-2 rounded-2xl rounded-tr-sm max-w-md">
+                    <span className="text-[10px] text-sky-400 block font-bold mb-0.5">پیام دریافتی از کاربر (امین):</span>
+                    {inboundTestInput}
+                  </div>
+                </div>
+
+                {/* Bot Response Bubbles */}
+                <div className="space-y-2 pt-1">
+                  <span className="text-[10px] text-emerald-400 font-bold block">
+                    پاسخ ربات (ارسال بصورت حباب‌های پشت‌سرهم با تایپینگ طبیعی):
+                  </span>
+                  <div className="space-y-1.5 max-w-lg">
+                    {inboundTestResult.bubbles?.map((bubble: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className="bg-slate-950 border border-slate-800 rounded-2xl rounded-tl-sm p-2.5 text-xs text-slate-200 shadow-sm"
+                      >
+                        <span className="text-[9px] text-emerald-400 block font-bold mb-0.5">
+                          حباب {idx + 1}:
+                        </span>
+                        {bubble}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Conversations List */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-white flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-emerald-400" />
+              <span>تاریخچه گفتگوهای اخیر در پی‌وی</span>
+            </h4>
+
+            {config.inboundPvConversations && config.inboundPvConversations.length > 0 ? (
+              <div className="space-y-3 max-h-[450px] overflow-y-auto pr-1">
+                {config.inboundPvConversations.map((conv) => (
+                  <div
+                    key={conv.userId}
+                    className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 hover:border-slate-700 transition-all"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white">
+                          {conv.firstName || 'کاربر'} {conv.username ? `(@${conv.username})` : ''}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-mono">ID: {conv.userId}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px]">
+                        <span className="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                          {conv.status === 'handed_off' ? 'معرفی به پشتیبانی شد' : 'گفتگوی فعال'}
+                        </span>
+                        <span className="text-slate-400">
+                          {new Date(conv.lastMessageAt).toLocaleTimeString('fa-IR')}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Messages in Conversation */}
+                    <div className="space-y-1.5 pt-1">
+                      {conv.messages.slice(-4).map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`text-xs p-2.5 rounded-xl ${
+                            msg.sender === 'user'
+                              ? 'bg-sky-950/40 border border-sky-900/40 text-sky-200 mr-4'
+                              : 'bg-slate-900 border border-slate-800 text-slate-300 ml-4'
+                          }`}
+                        >
+                          <span className="text-[10px] font-bold block mb-0.5 opacity-70">
+                            {msg.sender === 'user' ? (conv.firstName || 'کاربر') : 'ربات'}:
+                          </span>
+                          {msg.text}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-8 text-center space-y-2">
+                <UserCheck className="w-8 h-8 text-slate-600 mx-auto" />
+                <div className="text-xs font-bold text-slate-300">هنوز گفتگوی خصوصی از طرف کاربران دریافت نشده است</div>
+                <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+                  هنگامی که ربات در پی‌وی به کاربران پیام می‌دهد، به محض پاسخ کاربر، ربات پیام را پردازش کرده و تاریخچه گفتگو اینجا نمایش داده می‌شود.
+                </p>
+              </div>
+            )}
           </div>
 
         </div>
@@ -1256,12 +1875,17 @@ export const GroupPromotionStrategiesCard: React.FC<GroupPromotionStrategiesCard
 
                     <div className="flex items-center gap-1.5">
                       {lead.pvSent ? (
-                        <span className="text-emerald-400 flex items-center gap-1">
+                        <span className="text-emerald-400 flex items-center gap-1 font-medium">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           ارسال به پی‌وی: با موفقیت انجام شد {lead.pvHasBanner ? '(همراه بنر)' : ''}
                         </span>
+                      ) : lead.pvError && (lead.pvError.includes('سابقه') || lead.pvError.includes('ریپورت') || lead.pvError.includes('لغو شد')) ? (
+                        <span className="text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1 font-medium text-[10px]">
+                          <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                          سپر ضد ریپورت: {lead.pvError}
+                        </span>
                       ) : (
-                        <span className="text-slate-500">ارسال به پی‌وی: -</span>
+                        <span className="text-slate-500">ارسال به پی‌وی: - {lead.pvError ? `(${lead.pvError})` : ''}</span>
                       )}
                     </div>
                   </div>

@@ -29,6 +29,7 @@ import {
   Cpu,
   Check,
   Settings2,
+  Bot,
 } from 'lucide-react';
 import {
   TargetGroup,
@@ -267,13 +268,29 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
     }
   };
 
-  const handleRetryCaptchaVerification = async (groupId: string, customReply?: string) => {
+  const [isReverifyingAll, setIsReverifyingAll] = useState(false);
+
+  const handleRetryCaptchaVerification = async (
+    groupId: string,
+    options?: {
+      customReply?: string;
+      buttonRow?: number;
+      buttonCol?: number;
+      joinSponsorUrl?: string;
+    }
+  ) => {
     setIsRetryingCaptcha(true);
     try {
       const resp = await fetch('/api/groups/retry-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ groupId, customReply }),
+        body: JSON.stringify({
+          groupId,
+          customReply: options?.customReply,
+          buttonRow: options?.buttonRow,
+          buttonCol: options?.buttonCol,
+          joinSponsorUrl: options?.joinSponsorUrl,
+        }),
       });
       const data = await resp.json();
       if (data.success) {
@@ -282,7 +299,10 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
           alert('تبریک! چالش برطرف شد و گروه ۱۰۰٪ آماده ارسال تبلیغات گردید.');
           setSolvingCaptchaGroup(null);
         } else {
-          alert(data.verification?.statusMessage || 'چالش ربات محافظ نیازمند بررسی تکمیلی است.');
+          if (data.group) {
+            setSolvingCaptchaGroup(data.group);
+          }
+          alert(data.verification?.statusMessage || 'چالش ربات محافظ ارزیابی شد. در صورت وجود دکمه یا قفل اسپانسر، آن را اعمال نمایید.');
         }
       } else {
         alert(data.error || 'خطا در ارزیابی مجدد');
@@ -291,6 +311,54 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
       alert('خطا: ' + (e?.message || e));
     } finally {
       setIsRetryingCaptcha(false);
+    }
+  };
+
+  const handleReverifyAllGroups = async (filterType: 'all' | 'ready_only' | 'captcha_only' = 'ready_only') => {
+    if (!confirm(filterType === 'ready_only' 
+      ? 'آیا مایلید تمام گروه‌های «۱۰۰٪ آماده» را راستی‌آزمایی مجدد کنید تا از سلامت کامل و امکان ارسال پیام مطمئن شوید؟' 
+      : 'آیا مایلید تمام گروه‌ها را راستی‌آزمایی مجدد نمایید؟')) {
+      return;
+    }
+    setIsReverifyingAll(true);
+    try {
+      const resp = await fetch('/api/groups/reverify-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filterType }),
+      });
+      const data = await resp.json();
+      alert(data.message || 'عملیات راستی‌آزمایی آغاز شد.');
+      if (onSyncGroups) await onSyncGroups();
+    } catch (e: any) {
+      alert('خطا: ' + (e?.message || e));
+    } finally {
+      setIsReverifyingAll(false);
+    }
+  };
+
+  const [isBypassingForceAdd, setIsBypassingForceAdd] = useState(false);
+
+  const handleBypassForceAdd = async (groupId: string, usernameOrLink?: string) => {
+    setIsBypassingForceAdd(true);
+    try {
+      const resp = await fetch('/api/groups/bypass-force-add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ groupId, usernameOrLink }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        if (onSyncGroups) await onSyncGroups();
+        alert(data.message || 'قفل اد اجباری گروه با موفقیت شکسته شد و چت برای ارسال پیام آزاد گردید.');
+        setSolvingCaptchaGroup(null);
+      } else {
+        alert(data.error || 'خطا در شکستن قفل اد اجباری');
+      }
+    } catch (e: any) {
+      alert('خطا: ' + (e?.message || e));
+    } finally {
+      setIsBypassingForceAdd(false);
     }
   };
 
@@ -798,6 +866,17 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+              <button
+                type="button"
+                disabled={isReverifyingAll}
+                onClick={() => handleReverifyAllGroups('ready_only')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-400 font-medium text-xs border border-indigo-500/30 transition-all active:scale-95 shadow-sm disabled:opacity-50"
+                title="راستی‌آزمایی ارسال و سلامت واقعی گروه‌های دسته ۱۰۰٪ آماده"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-indigo-400 ${isReverifyingAll ? 'animate-spin' : ''}`} />
+                <span>{isReverifyingAll ? 'در حال راستی‌آزمایی...' : 'راستی‌آزمایی سلامت آماده‌ها'}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => {
@@ -1428,6 +1507,79 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
                 )}
               </div>
 
+              {/* Bot Challenge Message from Guardian Bot */}
+              {solvingCaptchaGroup.captchaDetails?.challengeText && (
+                <div className="p-3 bg-slate-950 rounded-xl border border-sky-500/30 space-y-1.5 shadow-inner">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="font-bold text-sky-400 flex items-center gap-1.5">
+                      <Bot className="w-3.5 h-3.5" />
+                      <span>{solvingCaptchaGroup.captchaDetails.botName || 'ربات محافظ گروه'}</span>
+                    </span>
+                    <span className="text-[10px] text-slate-500">متن پیام قفل در گروه</span>
+                  </div>
+                  <div className="p-2.5 bg-slate-900/90 rounded-lg text-slate-200 text-xs whitespace-pre-wrap leading-relaxed border border-slate-800 font-sans select-text">
+                    {solvingCaptchaGroup.captchaDetails.challengeText}
+                  </div>
+                </div>
+              )}
+
+              {/* Inline Buttons from Guardian Bot */}
+              {solvingCaptchaGroup.captchaDetails?.inlineButtons && solvingCaptchaGroup.captchaDetails.inlineButtons.length > 0 && (
+                <div className="p-3 bg-sky-500/10 border border-sky-500/30 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sky-300 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                      <span>دکمه‌های شیشه‌ای ارسال‌شده توسط ربات:</span>
+                    </span>
+                    <span className="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-mono font-bold">
+                      {solvingCaptchaGroup.captchaDetails.inlineButtons.length} دکمه
+                    </span>
+                  </div>
+                  <p className="text-slate-300 text-[11px]">
+                    می‌توانید مستقیماً روی هر دکمه کلیک کنید تا اکانت تلگرام شما آن را تایید کند:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
+                    {solvingCaptchaGroup.captchaDetails.inlineButtons.map((btn, bIdx) => (
+                      <div key={bIdx} className="flex items-center gap-1">
+                        {btn.url ? (
+                          <div className="flex-1 flex gap-1">
+                            <button
+                              type="button"
+                              disabled={isRetryingCaptcha}
+                              onClick={() => handleRetryCaptchaVerification(solvingCaptchaGroup.id, { joinSponsorUrl: btn.url })}
+                              className="flex-1 py-1.5 px-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-[11px] flex items-center justify-center gap-1 transition-colors disabled:opacity-50"
+                              title="عضویت خودکار اکانت در این کانال اسپانسر"
+                            >
+                              <UserPlus className="w-3 h-3 text-sky-200" />
+                              <span className="truncate">{btn.text} (عضویت خودکار)</span>
+                            </button>
+                            <a
+                              href={btn.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"
+                              title="باز کردن لینک اسپانسر در تلگرام"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={isRetryingCaptcha}
+                            onClick={() => handleRetryCaptchaVerification(solvingCaptchaGroup.id, { buttonRow: btn.row, buttonCol: btn.col })}
+                            className="w-full py-1.5 px-2.5 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white font-medium text-[11px] flex items-center justify-center gap-1.5 border border-indigo-500/40 transition-colors disabled:opacity-50"
+                          >
+                            <CheckCircle2 className="w-3 h-3 text-indigo-300" />
+                            <span className="truncate">{btn.text}</span>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Direct Telegram Link */}
               <div className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
                 <div>
@@ -1445,6 +1597,40 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
                 </a>
               </div>
 
+              {/* Force-Add Bypass Section */}
+              <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-purple-300 flex items-center gap-1.5">
+                    <UserPlus className="w-4 h-4 text-purple-400" />
+                    <span>رفع خودکار قفل ادد اجباری (Force-Add Bypass)</span>
+                  </div>
+                  <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-mono font-bold">
+                    خودکار
+                  </span>
+                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  اگر ربات گروه اعلام کرده «برای ارسال پیام باید ۳ نفر اضافه کنید»، با فشردن این دکمه اعضا به طور خودکار به گروه دعوت شده و قفل ارسال پیام بازگشایی می‌گردد.
+                </p>
+                <button
+                  type="button"
+                  disabled={isBypassingForceAdd}
+                  onClick={() => handleBypassForceAdd(solvingCaptchaGroup.id, solvingCaptchaGroup.usernameOrLink)}
+                  className="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                >
+                  {isBypassingForceAdd ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>در حال شکستن قفل و افزودن اعضا به گروه...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>شکستن قفل ادد اجباری و آزادسازی گروه</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               {/* Custom Answer Input */}
               <div className="space-y-1.5">
                 <label className="block text-slate-300 font-medium">ارسال پاسخ متنی به چالش ربات (مثلاً پاسخ ریاضی یا دستور بات):</label>
@@ -1459,7 +1645,7 @@ export const TargetGroupsCard: React.FC<TargetGroupsCardProps> = ({
                   <button
                     type="button"
                     disabled={!manualCustomReply.trim() || isRetryingCaptcha}
-                    onClick={() => handleRetryCaptchaVerification(solvingCaptchaGroup.id, manualCustomReply.trim())}
+                    onClick={() => handleRetryCaptchaVerification(solvingCaptchaGroup.id, { customReply: manualCustomReply.trim() })}
                     className="px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs disabled:opacity-50 flex items-center gap-1"
                   >
                     <Send className="w-3 h-3" />

@@ -37,11 +37,12 @@ export const AntiBotSettingsCard: React.FC<AntiBotSettingsCardProps> = ({
 
   const [autoClickCaptcha, setAutoClickCaptcha] = useState(settings?.autoClickCaptcha ?? true);
   const [autoForceJoinChannels, setAutoForceJoinChannels] = useState(settings?.autoForceJoinChannels ?? true);
-  const [autoInviteContacts, setAutoInviteContacts] = useState(settings?.autoInviteContacts ?? false);
+  const [autoInviteContacts, setAutoInviteContacts] = useState(settings?.autoInviteContacts ?? true);
+  const [autoForceAddBypass, setAutoForceAddBypass] = useState(settings?.autoForceAddBypass ?? true);
   const [contactsToInviteCount, setContactsToInviteCount] = useState(settings?.contactsToInviteCount ?? 3);
-  const [safeContactShield, setSafeContactShield] = useState(settings?.safeContactShield ?? true);
-  const [sendGreetingFirst, setSendGreetingFirst] = useState(settings?.sendGreetingFirst ?? false);
-  const [greetingMode, setGreetingMode] = useState<string>(settings?.greetingMode ?? 'stealth_silent');
+  const [safeContactShield, setSafeContactShield] = useState(settings?.safeContactShield ?? false);
+  const [sendGreetingFirst, setSendGreetingFirst] = useState(settings?.sendGreetingFirst ?? true);
+  const [greetingMode, setGreetingMode] = useState<string>(settings?.greetingMode ?? 'natural_greeting');
   const [greetingMessage, setGreetingMessage] = useState(settings?.greetingMessage ?? 'سلام بچه ها');
   const [autoSolveMathCaptcha, setAutoSolveMathCaptcha] = useState(settings?.autoSolveMathCaptcha ?? true);
   const [safeMembershipRetention, setSafeMembershipRetention] = useState(settings?.safeMembershipRetention ?? true);
@@ -58,6 +59,44 @@ export const AntiBotSettingsCard: React.FC<AntiBotSettingsCardProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
+  // Interactive Live Force-Add Bypass Testing
+  const [manualBypassTarget, setManualBypassTarget] = useState('@CocSeinor');
+  const [isTestingBypass, setIsTestingBypass] = useState(false);
+  const [bypassTestResult, setBypassTestResult] = useState<{ success: boolean; message: string; invitedCount?: number } | null>(null);
+
+  const handleExecuteManualBypass = async () => {
+    if (!manualBypassTarget.trim()) return;
+    setIsTestingBypass(true);
+    setBypassTestResult(null);
+    try {
+      const res = await fetch('/api/groups/bypass-force-add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usernameOrLink: manualBypassTarget.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBypassTestResult({
+          success: true,
+          message: data.message || `قفل گروه با موفقیت شکسته شد.`,
+          invitedCount: data.invitedCount,
+        });
+      } else {
+        setBypassTestResult({
+          success: false,
+          message: data.error || 'خطا در عملیات رفع قفل گروه',
+        });
+      }
+    } catch (err: any) {
+      setBypassTestResult({
+        success: false,
+        message: err?.message || 'خطای شبکه در برقراری ارتباط با سرور',
+      });
+    } finally {
+      setIsTestingBypass(false);
+    }
+  };
+
   // Auto-save whenever settings change
   const triggerAutoSave = async (overrides?: Partial<AntiBotSettings>) => {
     setIsSaving(true);
@@ -66,10 +105,11 @@ export const AntiBotSettingsCard: React.FC<AntiBotSettingsCardProps> = ({
         autoClickCaptcha,
         autoForceJoinChannels,
         autoInviteContacts,
+        autoForceAddBypass,
         contactsToInviteCount,
         safeContactShield,
         sendGreetingFirst,
-        greetingMode: (greetingMode as any) || 'stealth_silent',
+        greetingMode: (greetingMode as any) || 'natural_greeting',
         greetingMessage,
         autoSolveMathCaptcha,
         safeMembershipRetention,
@@ -615,6 +655,124 @@ export const AntiBotSettingsCard: React.FC<AntiBotSettingsCardProps> = ({
                   triggerAutoSave({ autoForceJoinChannels: checked });
                 }}
               />
+            </div>
+
+            {/* 9. Force-Add Bypass & Auto Member Inviter */}
+            <div className="p-3.5 bg-slate-950/90 border border-purple-500/30 rounded-xl space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 mt-0.5">
+                    <UserPlus className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs text-white flex items-center gap-2">
+                      <span>شکستن هوشمند قفل اد اجباری گروه (Force-Add Solver)</span>
+                      <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded font-mono">
+                        تضمین ارسال
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      تشخیص پیام ربات ناظر (مانند «باید ۳ نفر را اضافه کنید»)، افزودن خودکار اعضا از استخر ایمن و بازگشایی چت.
+                    </p>
+                  </div>
+                </div>
+                <ToggleSwitch
+                  checked={autoForceAddBypass}
+                  onChange={(checked) => {
+                    setAutoForceAddBypass(checked);
+                    setAutoInviteContacts(checked);
+                    triggerAutoSave({ autoForceAddBypass: checked, autoInviteContacts: checked });
+                  }}
+                />
+              </div>
+
+              {autoForceAddBypass && (
+                <div className="space-y-2.5 pt-2.5 border-t border-slate-800/80">
+                  <div className="flex items-center justify-between gap-3 pr-2">
+                    <label className="text-xs text-slate-300 flex items-center gap-1.5">
+                      <span>سقف پیش‌فرض ادد مخاطب در صورت عدم اعلام عدد توسط ربات:</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={contactsToInviteCount}
+                        onChange={(e) => setContactsToInviteCount(parseInt(e.target.value, 10) || 3)}
+                        onBlur={() => triggerAutoSave()}
+                        className="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-mono text-xs text-white focus:outline-none focus:border-purple-500"
+                      />
+                      <span className="text-xs text-slate-400">کاربر</span>
+                    </div>
+                  </div>
+
+                  {/* Interactive Live Group Bypass Box */}
+                  <div className="mt-2 p-2.5 bg-slate-900/90 rounded-lg border border-slate-800 flex flex-col gap-2">
+                    <div className="text-[11px] font-medium text-slate-300 flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span>تست آنی و رفع قفل گروه مشخص (مانند @CocSeinor):</span>
+                      </span>
+                      {bypassTestResult && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                          bypassTestResult.success ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'
+                        }`}>
+                          {bypassTestResult.success ? 'موفق' : 'خطا'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={manualBypassTarget}
+                        onChange={(e) => setManualBypassTarget(e.target.value)}
+                        placeholder="مثلاً @CocSeinor یا لینک گروه"
+                        className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono text-left focus:outline-none focus:border-purple-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleExecuteManualBypass}
+                        disabled={isTestingBypass || !manualBypassTarget.trim()}
+                        className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-1 whitespace-nowrap shadow-sm"
+                      >
+                        {isTestingBypass ? (
+                          <>
+                            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>در حال شکستن قفل...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-3.5 h-3.5 text-amber-300" />
+                            <span>شکستن قفل و تست</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {bypassTestResult && (
+                      <div className={`p-2 rounded text-[11px] leading-relaxed flex items-start gap-1.5 ${
+                        bypassTestResult.success
+                          ? 'bg-emerald-950/50 border border-emerald-800/60 text-emerald-200'
+                          : 'bg-rose-950/50 border border-rose-800/60 text-rose-200'
+                      }`}>
+                        {bypassTestResult.success ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        ) : (
+                          <ShieldAlert className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        )}
+                        <div>
+                          <span>{bypassTestResult.message}</span>
+                          {typeof bypassTestResult.invitedCount === 'number' && bypassTestResult.invitedCount > 0 && (
+                            <span className="block mt-0.5 font-bold text-emerald-300">
+                              تعداد کاربران اضافه شده: {bypassTestResult.invitedCount} نفر
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -195,7 +195,8 @@ export function generateLocalDynamicCaption(
   lines.push('');
   lines.push(resolvedDesc);
   lines.push('');
-  lines.push(`👤 **سفارش و ارتباط:** ${campaign.contactHandle || 'در عکس بالا'}`);
+  const effectiveContact = (campaign.contactHandle && campaign.contactHandle !== 'در عکس بالا') ? campaign.contactHandle : '@Nova_vpn10';
+  lines.push(`👤 **سفارش و ارتباط:** ${effectiveContact}`);
 
   if (campaign.hashtags && campaign.hashtags.length > 0) {
     const formattedTags = campaign.hashtags
@@ -242,6 +243,8 @@ export async function generateGeminiDynamicAdCaption(params: {
     recommender: 'تجربی و پیشنهادی، با تمرکز بر حل مشکلات قطعی اینترنت، اینستا، یوتیوب و ابزارهای هوش مصنوعی.',
   }[tone] || 'صمیمی، جذاب و باکلاس';
 
+  const effectiveContactHandle = (campaign.contactHandle && campaign.contactHandle !== 'در عکس بالا') ? campaign.contactHandle : '@Nova_vpn10';
+
   const prompt = `شما یک کپی‌رایتر فوق‌حرفه‌ای تبلیغات تلگرام به زبان فارسی هستید.
 وظیفه شما: نگارش یک «کپشن تبلیغاتی» برای قرار گرفتن در زیر عکس/بنر ارسالی به یک گروه تلگرامی است.
 
@@ -252,7 +255,7 @@ export async function generateGeminiDynamicAdCaption(params: {
 مشخصات کمپین تبلیغاتی:
 - نام محصول یا برند: ${campaign.title}
 - قیمت یا تعرفه: ${campaign.price}
-- راه تماس و سفارش: ${campaign.contactHandle || 'در عکس بالا'}
+- راه تماس و سفارش: ${effectiveContactHandle}
 - متن توضیحات مرجع کاربر (الهام بگیرید ولی واو به واو کپی نکنید):
 """
 ${campaign.description || ''}
@@ -265,7 +268,7 @@ ${campaign.description || ''}
 ۱. متن باید دقیقاً مناسب کپشن زیر عکس در تلگرام باشد (بین ۴ تا ۶ خط شکیل و خوانا).
 ۲. در ابتدای متن با یک احوالپرسی یا جمله ترغیب‌کننده متناسب با بچه‌های گروه (${cleanGroupTitle}) شروع کنید.
 ۳. اشاره به ویژگی‌ها: پایداری، سرعت بالا، بدون قطعی، مناسب یوتیوب، اینستاگرام، گیم و استفاده از هوش مصنوعی (مثل ChatGPT و جمنای).
-۴. حتماً قیمت (${campaign.price}) و نحوه ارتباط/سفارش (${campaign.contactHandle || 'در عکس بالا'}) در انتهای متن قید شود.
+۴. حتماً قیمت (${campaign.price}) و نحوه ارتباط/سفارش (${effectiveContactHandle}) در انتهای متن قید شود.
 ۵. از ایموجی‌های مناسب (📌، ⚡، 🚀، 💎، 🛡️، ✨، 💰، 🔥) به جا و با سلیقه استفاده کنید.
 ۶. ⚠️ هیچ‌گونه متغیر با آکولاد مانند {random_emoji}، {time}، {group_title} نباید در خروجی ظاهر شود! اگر در متن مرجع بود، کلمات و ایموجی‌های زنده بنویسید.
 ۷. خروجی فقط و فقط متن نهایی تلگرام باشد؛ بدون هیچ مقدمه، توضیح، پاورقی یا علامت گیومه اضافه.`;

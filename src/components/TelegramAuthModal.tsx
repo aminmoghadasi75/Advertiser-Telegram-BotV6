@@ -806,7 +806,7 @@ export const TelegramAuthModal: React.FC<TelegramAuthModalProps> = ({
                   <input
                     type="text"
                     dir="ltr"
-                    placeholder="آیدی گروه/کانال یا آیدی شخصی (مثال: @amin_moghadasi)"
+                    placeholder="آیدی گروه/کانال یا آیدی عددی (مثال: @my_group)"
                     value={botTestTarget}
                     onChange={(e) => setBotTestTarget(e.target.value)}
                     style={{ direction: 'ltr', textAlign: 'left', unicodeBidi: 'plaintext' }}

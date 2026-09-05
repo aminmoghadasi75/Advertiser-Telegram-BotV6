@@ -160,6 +160,7 @@ export interface AntiBotSettings {
   autoForceJoinChannels: boolean; // جوین خودکار در کانال‌های اجباری گروه
   autoInviteContacts: boolean; // اد کردن رندوم مخاطبین تلگرام جهت باز کردن قفل
   contactsToInviteCount: number; // تعداد مخاطبین جهت اد کردن (مثلاً ۳ تا ۵)
+  autoForceAddBypass?: boolean; // شکستن خودکار قفل ادد اجباری گروه‌ها (شناسایی تعداد و اد هوشمند)
   safeContactShield?: boolean; // محافظت در برابر ریپورت و بلاک ناشی از اد کردن مخاطبین واقعی
   sendGreetingFirst?: boolean; // ارسال پیام تست اولیه جهت تست ربات نگهبان
   greetingMode?: 'stealth_silent' | 'natural_greeting' | 'custom_message'; // حالت نامحسوس، احوالپرسی طبیعی یا پیام دلخواه
@@ -760,9 +761,40 @@ export interface GroupLeadEvent {
   groupReplyError?: string;
   pvSent: boolean;
   pvText?: string;
+  pvBubbles?: string[]; // حباب‌های پیام ارسالی مجزا به پی‌وی (سلام، دیدن پیام گروه، معرفی محصول، معرفی پشتیبانی)
   pvHasBanner?: boolean;
   pvError?: string;
   status: 'detected' | 'replied_group' | 'sent_pv' | 'completed' | 'failed';
+  inboundRepliesCount?: number; // تعداد پاسخ‌های دریافتی از این کاربر در پی‌وی
+  lastInboundMessage?: string; // آخرین پیام دریافت شده از کاربر در پی‌وی
+}
+
+export interface InboundPvMessage {
+  id: string;
+  sender: 'user' | 'bot';
+  text: string;
+  timestamp: string;
+}
+
+export interface InboundPvConversation {
+  userId: string;
+  username?: string;
+  firstName?: string;
+  leadCategory?: string;
+  firstContactAt: string;
+  lastMessageAt: string;
+  turnCount: number;
+  status: 'active' | 'handed_off' | 'closed';
+  messages: InboundPvMessage[];
+  lastBotReplyAt?: number;
+}
+
+export interface MultiBubblePvMessage {
+  greetingBubble: string;
+  groupContextBubble: string;
+  productExperienceBubble: string;
+  supportHandoffBubble: string;
+  allBubbles: string[];
 }
 
 export interface GroupPromotionStrategyConfig {
@@ -790,12 +822,21 @@ export interface GroupPromotionStrategyConfig {
     isListeningActive: boolean; // آیا شنود گروه‌ها در حال اجراست
     keywords: string[]; // واژه‌های کلیدی مرتبط با VPN، فیلترشکن، سرعت نت، هوش مصنوعی و...
     replyInGroup: boolean; // ریپلای هوشمند در گروه به کاربر
+    sendBannerInGroupReply?: boolean; // ارسال تصویر و بنر تعرفه‌ها بعد از توضیحات ریپلای در گروه
     sendDirectMessage: boolean; // ارسال پیام خصوصی به پی‌وی کاربر
     sendBannerInDirectMessage: boolean; // ارسال بنر تبلیغاتی کمپین در پی‌وی
     friendStylePvTone: boolean; // لحن صمیمی و دوستانه مانند فرد معمولی
+    multiBubblePv?: boolean; // ارسال حبابی و مجزا در پی‌وی (۴ حباب تفکیک‌شده: سلام، گروه، محصول، پشتیبانی)
+    multiBubbleDelaySeconds?: number; // تاخیر بین حباب‌ها در پی‌وی (پیش‌فرض: ۱.۵ ثانیه)
+    autoReplyInboundPv?: boolean; // پاسخ‌دهی هوشمند به پیام‌های دریافتی از کاربران در پی‌وی و هدایت به پشتیبانی
+    supportContactHandle?: string; // آیدی پشتیبانی جهت راهنمایی (پیش‌فرض: @Nova_vpn10 یا آیدی کمپین)
+    testTargetUsername?: string; // آیدی هدف برای تست مستقیم (اختیاری)
     groupReplyDelaySeconds: number; // تاخیر طبیعی قبل از ریپلای در گروه (مثلا ۳ تا ۶ ثانیه)
+    groupCooldownMinutes?: number; // حداقل فاصله زمانی بین دو ریپلای در یک گروه واحد جهت پیشگیری از اسپم متوالی (پیش‌فرض: ۵ دقیقه)
     pvMessageDelaySeconds: number; // تاخیر طبیعی قبل از ارسال پی‌وی (مثلا ۵ تا ۱۲ ثانیه)
     userCooldownHours: number; // عدم ارسال تکراری به یک کاربر تا ۲۴ ساعت
+    neverRepeatPvToSameUser?: boolean; // تضمین ۱۰۰٪ عدم ارسال مجدد به کاربری که قبلاً به او پیامی در پی‌وی ارسال شده (مادام‌العمر - فوق‌العاده حیاتی برای ضد ریپورت)
+    checkTelegramHistoryBeforePv?: boolean; // استعلام زنده سابقه پیام از سرور تلگرام قبل از ارسال پی‌وی
     maxRepliesPerGroupPerHour: number; // سقف پاسخ در یک گروه در ساعت جهت جلوگیری از اسپم (مثلا ۵ پیام)
     useAiReasoning: boolean; // استفاده از هوش مصنوعی برای تولید پاسخ متناسب با پیام کاربر
     customGroupReplyTemplate?: string;
@@ -804,8 +845,16 @@ export interface GroupPromotionStrategyConfig {
     totalLeadsDetected: number;
     totalGroupRepliesSent: number;
     totalPvMessagesSent: number;
+    totalPvRepeatsPrevented?: number; // تعداد کل مواردی که به دلیل داشتن سابقه قبلی پی‌وی لغو شد تا اکانت ریپورت نشود
+    totalInboundPvRepliesSent?: number; // تعداد کل پاسخ‌های داده شده به چت‌های خصوصی ورودی
     lastLeadDetectedAt?: string;
   };
+
+  // دیتابیس ثبت دائمی کاربران پیام‌داده‌شده در پی‌وی جهت ممانعت قطعی از ارسال تکراری
+  contactedPvUsers?: Record<string, { timestamp: string; userId?: string; username?: string; firstName?: string; reason?: string }>;
+
+  // چت‌ها و گفتگوهای خصوصی ورودی کاربران
+  inboundPvConversations?: InboundPvConversation[];
 
   // رویدادها و لیدهای اخیر ثبت‌شده
   recentLeads: GroupLeadEvent[];
